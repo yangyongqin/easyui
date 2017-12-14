@@ -799,7 +799,7 @@ public class PrintDesignPanel extends JPanel implements MouseMotionListener {
 		printType.setText(printSource.getText());
 		list.addAll(this.addItem(printType, point));
 		if (!TABLE_VIEW.equals(viewType)) {
-			// 如果是表格，只需要添加一个,自由显示则再添加一次
+			//自由显示则再添加一次
 			printType.setType(PrintElementType.TEXT);
 			point.setLocation(point.x + 100, point.y);
 			list.addAll(this.addItem(printType, point));

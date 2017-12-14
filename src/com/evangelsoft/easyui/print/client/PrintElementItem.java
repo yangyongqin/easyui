@@ -243,7 +243,15 @@ public class PrintElementItem extends JLabel implements Serializable, MouseMotio
 	}
 
 	public void setText(String text) {
-		this.text = text;
+		if (text!=null&& text != this.text && !text.equals(this.text)) {
+			this.text = text;
+			super.setText(text);
+			if (this.dataSet != null) {
+				if (toRow() > -1) {
+					 this.getDataSet().setString("TEXT", text);
+				}
+			}
+		}
 	}
 
 	public JTextField getEditText() {

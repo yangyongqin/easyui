@@ -97,7 +97,9 @@ public class PrintTableCellHeaderRenderer extends DefaultTableCellRenderer imple
 
 	private PrintPage printPage;
 
-	int width;
+	private int width;
+
+	private int height;
 
 	/**
 	 * @Fields ratio : 缩放比率，默认为1
@@ -223,6 +225,9 @@ public class PrintTableCellHeaderRenderer extends DefaultTableCellRenderer imple
 
 	public void setType(String type) {
 		this.type = type;
+		if (toRow() > -1) {
+			this.getDataSet().setString("TYPE", type);
+		}
 	}
 
 	public String getText() {
@@ -232,10 +237,20 @@ public class PrintTableCellHeaderRenderer extends DefaultTableCellRenderer imple
 	public void setText(String text) {
 		if (text != this.text && !text.equals(this.text)) {
 			this.text = text;
-			super.setText(text);
-			toRow();
-			if (this.dataSet != null)
-				this.getDataSet().setString("TEXT", text);
+			// 如果当前是表头
+			if (PrintElementType.TABLE_HEAD.equals(type)) {
+				this.printTableColumn.setHeaderValue(text);
+			} else {
+				if (this.getTable() != null) {
+					this.getTable().setValueAt(text, 0, this.printTableColumn.getModelIndex());
+				}
+			}
+			// column.setHeaderValue
+			if (this.dataSet != null) {
+				if (toRow() > -1) {
+					this.getDataSet().setString("TEXT", text);
+				}
+			}
 		}
 	}
 
@@ -389,19 +404,29 @@ public class PrintTableCellHeaderRenderer extends DefaultTableCellRenderer imple
 	public void setWidth(int width) {
 		this.width = width;
 		if (toRow() > -1) {
-			if (width != this.getDataSet().getBigDecimal("WIDTH").intValue()) {
-				this.getDataSet().setBigDecimal("WIDTH", BigDecimal.valueOf(width));
-			}
-			toRow(this.relationId);
-			this.getDataSet().setBigDecimal("WIDTH", BigDecimal.valueOf(width));
+			this.setPreferredSize(new Dimension(width, this.getHeight()));
 		}
 	}
 
 	@Override
 	public void setHeight(int height) {
-		if (toRow() > -1) {
-			if (height != this.getDataSet().getBigDecimal("HEIGHT").intValue()) {
-				this.getDataSet().setBigDecimal("HEIGHT", BigDecimal.valueOf(height));
+		if (height != this.height) {
+			this.height = height;
+			if (toRow() > -1) {
+				if (this.getTable() != null) {
+					// 如果当前是表头
+					if (PrintElementType.TABLE_HEAD.equals(type)) {
+						Dimension size = this.getTable().getTableHeader().getPreferredSize();
+						size.height = height;
+						this.getTable().getTableHeader().setPreferredSize(size);
+						// hendrender.setHeight(point.y);
+						// 被拖动的单元格也设置为同样宽度
+						this.getTable().getTableHeader().revalidate();
+						this.getTable().getTableHeader().repaint();
+					} else {
+						table.setRowHeight(height);
+					}
+				}
 			}
 		}
 	}

@@ -243,4 +243,6 @@ public interface PrintItem {
 	void setVisibleEdit(boolean aFlag);
 	
 	public  void setValue(String columnName, Object value);
+	@DataColumn(dataColumn = "TEXT")
+	public void setText(String text);
 }

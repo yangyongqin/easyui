@@ -38,6 +38,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.TooManyListenersException;
 
 import javax.swing.AbstractAction;
 import javax.swing.ActionMap;
@@ -1016,10 +1017,10 @@ public class PrintDesignFrame extends UMasterDetailFrame {
 		fontNameDataSet = new StorageDataSet();
 		printViewDataSet = new StorageDataSet();
 
-		String[] column = new String[] { "FUNC_ID", "PAGE_WIDTH", "HEIGHT_AUTO", "HEIGHT_AUTO_DESC", "PAGE_HEIGHT",
+		String[] columnStrs = new String[] { "FUNC_ID", "PAGE_WIDTH", "HEIGHT_AUTO", "HEIGHT_AUTO_DESC", "PAGE_HEIGHT",
 				"ORIENTATION", "ORIENTATION_DESC", "LEFT_MARGIN", "RIGHT_MARGIN", "TOP_MARGIN", "BOTTOM_MARGIN",
 				"COL_NUM", "COL_WIDTH" };
-		masterDataSet.setColumns(ColumnsHelp.getColumns("SYS_PRINT_TEMPLATE_PAGE", column));
+		masterDataSet.setColumns(ColumnsHelp.getColumns("SYS_PRINT_TEMPLATE_PAGE", columnStrs));
 		masterDataSet.open();
 		String[] plate = new String[] { "PRINT_ID", "UNIQUE_ID", "INDEX", "HEIGHT", "WIDTH", "AUTO_STRETCH",
 				"AUTO_STRETCH_DESC", "VIEW_TYPE", "VIEW_TYPE_DESC", "BACK_TEXT" };
@@ -1033,9 +1034,9 @@ public class PrintDesignFrame extends UMasterDetailFrame {
 						new String[] { "AUTO_STRETCH" }, "DESCRIPTION", true));
 
 		//
-		String[] detailColumn = new String[] { "PRINT_ID", "PANEL_ID", "UNIQUE_ID","RELATION_ID", "INDEX", "TYPE", "X", "Y", "WIDTH",
-				"HEIGHT", "FORECOLOR", "BACKCOLOR", "TEXT", "EXPRESSION", "FONT_NAME", "FONT_SIZE", "BOLD",
-				"BOLD_DESC", "ITALIC", "ITALIC_DESC", "UNDERLINE", "UNDERLINE_DESC", "STRIKETHROUGH",
+		String[] detailColumn = new String[] { "PRINT_ID", "PANEL_ID", "UNIQUE_ID", "RELATION_ID", "INDEX", "TYPE",
+				"X", "Y", "WIDTH", "HEIGHT", "FORECOLOR", "BACKCOLOR", "TEXT", "EXPRESSION", "FONT_NAME", "FONT_SIZE",
+				"BOLD", "BOLD_DESC", "ITALIC", "ITALIC_DESC", "UNDERLINE", "UNDERLINE_DESC", "STRIKETHROUGH",
 				"STRIKETHROUGH_DESC", "HORIZONTAL_ALIGNMENT", "HORIZONTAL_ALIGNMENT_DESC", "VERTICAL_ALIGNMENT",
 				"VERTICAL_ALIGNMENT_DESC", "ROTATION", "ROTATION_DESC", "IMAGE_SCALE", "IMAGE_SCALE_DESC",
 				"LINE_DIRECTION", "LINE_DIRECTION_DESC", "LINE_HEIGHT", "BAR_TYPE", "BAR_TYPE_DESC", "TEXT_POSITION",
@@ -1070,15 +1071,15 @@ public class PrintDesignFrame extends UMasterDetailFrame {
 		elementDataSet.getColumn("TEXT_POSITION_DESC").setPickList(
 				new PickListDescriptor(textPositionDataSet, new String[] { "CODE" }, new String[] { "DESCRIPTION" },
 						new String[] { "TEXT_POSITION" }, "DESCRIPTION", true));
-		elementDataSet.getColumn("TEXT_POSITION_DESC").addColumnChangeListener(new ColumnChangeAdapter() {
-			
-			
-			@Override
-			public void changed(DataSet arg0, Column arg1, Variant arg2) {
-				// TODO Auto-generated method stub
-				
+		try {
+			for (Column column : elementDataSet.getColumns()) {
+				column.addColumnChangeListener(elementColumnChangeAdapter);
 			}
-		});
+		} catch (DataSetException e1) {
+			e1.printStackTrace();
+		} catch (TooManyListenersException e1) {
+			e1.printStackTrace();
+		}
 		elementDataSet.addEditListener(new EditAdapter() {
 
 			@Override
@@ -1095,8 +1096,8 @@ public class PrintDesignFrame extends UMasterDetailFrame {
 			public void updating(DataSet arg0, ReadWriteRow arg1, ReadRow arg2) throws Exception {
 				super.updating(arg0, arg1, arg2);
 			}
-			
-		});		
+
+		});
 		GraphicsEnvironment e = GraphicsEnvironment.getLocalGraphicsEnvironment();
 		String[] fontName = e.getAvailableFontFamilyNames();
 		int index = 0;
@@ -1116,17 +1117,20 @@ public class PrintDesignFrame extends UMasterDetailFrame {
 	 * @author yangyq02
 	 * @date 2017年12月14日
 	 */
-	private class ElementColumnChangeAdapter extends ColumnChangeAdapter{
+	ElementColumnChangeAdapter elementColumnChangeAdapter = new ElementColumnChangeAdapter();
+
+	private class ElementColumnChangeAdapter extends ColumnChangeAdapter {
 
 		@Override
 		public void changed(DataSet arg0, Column column, Variant value) {
-			//获取被选中的组合
-			if(CollectionUtils.isNotEmpty(selectList)){
+			// 获取被选中的组合
+			if (CollectionUtils.isNotEmpty(selectList)) {
 				PrintItemTool.setValue(selectList, column.getColumnName(), value.getAsObject());
 			}
 		}
-		
+
 	}
+
 	/**
 	 * @Description: 初始化快捷键
 	 * @return void
@@ -1927,7 +1931,7 @@ public class PrintDesignFrame extends UMasterDetailFrame {
 				selectComp = renderer;
 			} else if (e.getSource() instanceof JTable) {
 				JTable table = (JTable) e.getSource();
-				int row = table.rowAtPoint( e.getPoint());
+				int row = table.rowAtPoint(e.getPoint());
 				int col = table.columnAtPoint(e.getPoint());
 				if (table.getCellRenderer(row, col) instanceof PrintTableCellHeaderRenderer) {
 					PrintTableCellHeaderRenderer renderer = (PrintTableCellHeaderRenderer) table.getCellRenderer(row,
