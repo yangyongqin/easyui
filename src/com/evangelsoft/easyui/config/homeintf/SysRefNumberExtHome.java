@@ -1,0 +1,11 @@
+package com.evangelsoft.easyui.config.homeintf;
+
+import com.evangelsoft.easyui.config.intf.SysRefNumberExt;
+
+/** * @author  —Ó”¿«’
+ E-mail:
+@date £∫2016-6-10 œ¬ŒÁ09:20:21
+@version 1.0   * @since    */
+public interface SysRefNumberExtHome extends SysRefNumberExt{
+
+}
