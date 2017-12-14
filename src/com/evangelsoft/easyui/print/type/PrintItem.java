@@ -241,4 +241,6 @@ public interface PrintItem {
 	void hideEdit();
 
 	void setVisibleEdit(boolean aFlag);
+	
+	public  void setValue(String columnName, Object value);
 }

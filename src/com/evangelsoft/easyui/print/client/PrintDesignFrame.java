@@ -75,6 +75,8 @@ import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 
+import org.apache.commons.collections.CollectionUtils;
+
 import com.alee.utils.SwingUtils;
 import com.borland.dbswing.JdbComboBox;
 import com.borland.dbswing.JdbTable;
@@ -82,10 +84,21 @@ import com.borland.dbswing.JdbTextField;
 import com.borland.dbswing.TableScrollPane;
 import com.borland.dx.dataset.Column;
 import com.borland.dx.dataset.ColumnAware;
+import com.borland.dx.dataset.ColumnChangeAdapter;
+import com.borland.dx.dataset.ColumnChangeListener;
+import com.borland.dx.dataset.DataSet;
+import com.borland.dx.dataset.DataSetException;
+import com.borland.dx.dataset.EditAdapter;
+import com.borland.dx.dataset.EditListener;
 import com.borland.dx.dataset.ItemListDescriptor;
 import com.borland.dx.dataset.PickListDescriptor;
+import com.borland.dx.dataset.ReadRow;
+import com.borland.dx.dataset.ReadWriteRow;
 import com.borland.dx.dataset.StorageDataSet;
+import com.borland.dx.dataset.Variant;
+import com.borland.jb.util.ErrorResponse;
 import com.evangelsoft.easyui.print.type.PrintItem;
+import com.evangelsoft.easyui.print.type.PrintItemTool;
 import com.evangelsoft.easyui.template.client.DesignFrame;
 import com.evangelsoft.easyui.template.client.UMasterDetailFrame;
 import com.evangelsoft.easyui.template.type.FrameType;
@@ -1057,7 +1070,33 @@ public class PrintDesignFrame extends UMasterDetailFrame {
 		elementDataSet.getColumn("TEXT_POSITION_DESC").setPickList(
 				new PickListDescriptor(textPositionDataSet, new String[] { "CODE" }, new String[] { "DESCRIPTION" },
 						new String[] { "TEXT_POSITION" }, "DESCRIPTION", true));
+		elementDataSet.getColumn("TEXT_POSITION_DESC").addColumnChangeListener(new ColumnChangeAdapter() {
+			
+			
+			@Override
+			public void changed(DataSet arg0, Column arg1, Variant arg2) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
+		elementDataSet.addEditListener(new EditAdapter() {
 
+			@Override
+			public void updateError(DataSet arg0, ReadWriteRow arg1, DataSetException arg2, ErrorResponse arg3) {
+				super.updateError(arg0, arg1, arg2, arg3);
+			}
+
+			@Override
+			public void updated(DataSet arg0) {
+				super.updated(arg0);
+			}
+
+			@Override
+			public void updating(DataSet arg0, ReadWriteRow arg1, ReadRow arg2) throws Exception {
+				super.updating(arg0, arg1, arg2);
+			}
+			
+		});		
 		GraphicsEnvironment e = GraphicsEnvironment.getLocalGraphicsEnvironment();
 		String[] fontName = e.getAvailableFontFamilyNames();
 		int index = 0;
@@ -1071,6 +1110,23 @@ public class PrintDesignFrame extends UMasterDetailFrame {
 		elementDataSet.getColumn("FONT_NAME").setItemList(new ItemListDescriptor(fontNameDataSet, "FONT_NAME", true));
 	}
 
+	/**
+	 * ClassName: ElementColumnChangeAdapter 
+	 * @Description: 元素改变时候触发监听，通知UI显示等等
+	 * @author yangyq02
+	 * @date 2017年12月14日
+	 */
+	private class ElementColumnChangeAdapter extends ColumnChangeAdapter{
+
+		@Override
+		public void changed(DataSet arg0, Column column, Variant value) {
+			//获取被选中的组合
+			if(CollectionUtils.isNotEmpty(selectList)){
+				PrintItemTool.setValue(selectList, column.getColumnName(), value.getAsObject());
+			}
+		}
+		
+	}
 	/**
 	 * @Description: 初始化快捷键
 	 * @return void

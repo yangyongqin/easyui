@@ -24,6 +24,7 @@ import com.alee.utils.SwingUtils;
 import com.borland.dbswing.JdbTextField;
 import com.borland.dx.dataset.DataSet;
 import com.evangelsoft.easyui.print.type.PrintItem;
+import com.evangelsoft.easyui.print.type.PrintItemTool;
 import com.evangelsoft.workbench.types.BoolStr;
 
 public class PrintTableCellHeaderRenderer extends DefaultTableCellRenderer implements PrintItem {
@@ -643,5 +644,10 @@ public class PrintTableCellHeaderRenderer extends DefaultTableCellRenderer imple
 		}
 		dbText.setVisible(aFlag);
 
+	}
+
+	@Override
+	public void setValue(String columnName, Object value) {
+		PrintItemTool.setValue(this, columnName, value);
 	}
 }
