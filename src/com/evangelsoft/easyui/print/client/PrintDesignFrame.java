@@ -1996,7 +1996,6 @@ public class PrintDesignFrame extends UMasterDetailFrame {
 			}// 粘贴
 			else if (e.getSource() == pasteItem) {
 				// 新建一个对象
-
 			}// 删除
 			else if (e.getSource() == deleteItem) {
 				for (int i = 0; i < selectList.size(); i++) {

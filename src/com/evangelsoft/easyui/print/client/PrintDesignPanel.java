@@ -799,7 +799,7 @@ public class PrintDesignPanel extends JPanel implements MouseMotionListener {
 		printType.setText(printSource.getText());
 		list.addAll(this.addItem(printType, point));
 		if (!TABLE_VIEW.equals(viewType)) {
-			//自由显示则再添加一次
+			// 自由显示则再添加一次
 			printType.setType(PrintElementType.TEXT);
 			point.setLocation(point.x + 100, point.y);
 			list.addAll(this.addItem(printType, point));
@@ -823,6 +823,13 @@ public class PrintDesignPanel extends JPanel implements MouseMotionListener {
 			table.addMouseListener(l);
 			table.getTableHeader().addMouseListener(l);
 			table.getParent().addMouseListener(l);
+		}
+	}
+
+	// 添加复制的元素项
+	public void copyItem(List<PrintItem> itemList) {
+		for (PrintItem item : itemList) {
+
 		}
 	}
 }

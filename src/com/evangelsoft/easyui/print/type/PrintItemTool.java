@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.evangelsoft.econnect.plant.TxMode;
 import com.evangelsoft.workbench.types.BoolStr;
 
 public class PrintItemTool {
@@ -33,15 +32,17 @@ public class PrintItemTool {
 			try {
 				// 如果是boolean类型 ，则将值转换为boolean类型
 				Object newValue = value;
-				if (value instanceof String && method.getParameterTypes().length == 1
-						&& (method.getParameterTypes()[0] == Boolean.class||method.getParameterTypes()[0] == boolean.class)) {
+				if (value instanceof String
+						&& method.getParameterTypes().length == 1
+						&& (method.getParameterTypes()[0] == Boolean.class || method.getParameterTypes()[0] == boolean.class)) {
 					// method.invoke(item,
 					// BoolStr.getBoolean(value.toString()));
 					newValue = value.toString();
 				}
 				// 如果值类型是BigDecimal 而方法是int，需要将值转换为int
-				else if (value instanceof BigDecimal && method.getParameterTypes().length == 1
-						&&( method.getParameterTypes()[0] == int.class||method.getParameterTypes()[0] == Integer.class)) {
+				else if (value instanceof BigDecimal
+						&& method.getParameterTypes().length == 1
+						&& (method.getParameterTypes()[0] == int.class || method.getParameterTypes()[0] == Integer.class)) {
 
 					newValue = ((BigDecimal) value).intValue();
 				}
@@ -65,18 +66,20 @@ public class PrintItemTool {
 			Method method = methodMap.get(columnName);
 			try {
 				// 如果是boolean类型 ，则将值转换为boolean类型
-				if (value instanceof String && method.getParameterTypes().length == 1
-						&& method.getParameterTypes()[0] == Boolean.class) {
+				if (value instanceof String
+						&& method.getParameterTypes().length == 1
+						&& (method.getParameterTypes()[0] == Boolean.class || method.getParameterTypes()[0] == int.class)) {
 					method.invoke(item, BoolStr.getBoolean(value.toString()));
 				}
 				// 如果值类型是BigDecimal 而方法是int，需要将值转换为int
-				else if (value instanceof BigDecimal && method.getParameterTypes().length == 1
-						&& method.getParameterTypes()[0] == Integer.class) {
+				else if (value instanceof BigDecimal
+						&& method.getParameterTypes().length == 1
+						&& (method.getParameterTypes()[0] == Integer.class || method.getParameterTypes()[0] == int.class)) {
 					method.invoke(item, ((BigDecimal) value).intValue());
 				}
 				// 如果值类型是BigDecimal 而方法是String，需要将值转换为String
 				else if (value instanceof BigDecimal && method.getParameterTypes().length == 1
-						&& method.getParameterTypes()[0] == Integer.class) {
+						&& (method.getParameterTypes()[0] == String.class)) {
 					method.invoke(item, value.toString());
 				} else {
 					method.invoke(item, value);
