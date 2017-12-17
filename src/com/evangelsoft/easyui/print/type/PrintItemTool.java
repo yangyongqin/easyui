@@ -61,6 +61,19 @@ public class PrintItemTool {
 		}
 	}
 
+	/**
+	 * @Description: 克隆打印对象
+	 * @param entity
+	 * @return   
+	 * @return T  
+	 * @throws
+	 * @author yyq
+	 * @date 2017年12月17日
+	 */
+	public <T extends PrintItem> T clone(T entity) {
+		return null;
+	}
+
 	public static void setValue(PrintItem item, String columnName, Object value) {
 		if (item != null && value != null && methodMap.containsKey(columnName)) {
 			Method method = methodMap.get(columnName);

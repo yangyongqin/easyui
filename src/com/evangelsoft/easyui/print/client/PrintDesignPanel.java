@@ -7,7 +7,6 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Dimension;
-import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
@@ -17,13 +16,13 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
-import java.awt.font.TextAttribute;
 import java.awt.image.BufferedImage;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
+import java.util.Set;
 
 import javax.swing.JPanel;
 import javax.swing.JScrollBar;
@@ -122,6 +121,11 @@ public class PrintDesignPanel extends JPanel implements MouseMotionListener {
 	TableScrollPane tableScrollPane;
 
 	private static Cursor resizeCursor = Cursor.getPredefinedCursor(Cursor.E_RESIZE_CURSOR);
+
+	/**
+	 * @Fields itemsMap : 记录当前面板所有的元素
+	 */
+	HashMap<Integer, PrintItem> itemsMap = new HashMap<Integer, PrintItem>();
 
 	public PrintDesignPanel(PrintPage printPage, StorageDataSet dataSet, boolean isAdd) {
 		this(printPage, null, null, dataSet, isAdd);
@@ -827,9 +831,78 @@ public class PrintDesignPanel extends JPanel implements MouseMotionListener {
 	}
 
 	// 添加复制的元素项
-	public void copyItem(List<PrintItem> itemList) {
-		for (PrintItem item : itemList) {
+	public List<PrintItem> copyItems(List<PrintItem> itemList) {
+		Set<Integer> set = new HashSet<Integer>();
+		// 如果当是显示表格,需要过滤重复
+		if (!TABLE_VIEW.equals(viewType)) {
+			for (PrintItem item : itemList) {
+				// 如果复制了表格，只需要同步表头，不需要俩个都实现
+				if (!set.contains(item.getUniqueId())) {
+					// 如果不包含
+					// 如果当前也是表格，只需要添加一个
+				}
+			}
+		} else {
 
 		}
+	}
+
+	@SuppressWarnings("rawtypes")
+	public List<PrintItem> copyItem(PrintItem<?> ietm) {
+		// 如果粘贴到的地方是表格
+		if (PrintElementType.TABLE_HEAD == ietm.getType() || PrintElementType.TABLE_CELL == ietm.getType()) {
+			List<PrintItem> list = new ArrayList<PrintItem>();
+			// 如果是表格
+			printPage.getItemDataSet().first();
+			int max = 0;
+			int index = 0;
+			for (int i = 0; i < printPage.getItemDataSet().rowCount(); i++) {
+				int temp = printPage.getItemDataSet().getBigDecimal("UNIQUE_ID").intValue();
+				if (max < temp) {
+					max = temp;
+				}
+				// 同一个面板才唯一下标
+				if (printPage.getItemDataSet().getBigDecimal("PANEL_ID").intValue() == this.getUniqueId()) {
+
+					int tempIndex = printPage.getItemDataSet().getBigDecimal("INDEX").intValue();
+					if (index < tempIndex) {
+						index = tempIndex;
+					}
+				}
+				printPage.getItemDataSet().next();
+			}
+			StorageDataSet dataSet = printPage.getItemDataSet();
+			dataSet.insertRow(false);
+			dataSet.setBigDecimal("UNIQUE_ID", BigDecimal.valueOf(max + 1));
+			dataSet.insertRow(false);
+			//找到相关联的组件
+			
+			
+			dataSet.setBigDecimal("UNIQUE_ID", BigDecimal.valueOf(max + 2));
+			PrintItem itemNew = ietm.clone(ietm);
+			itemNew.setUniqueId(index);
+			// 找到缓存中的关联的数据对象
+			TableColumn column = new TableColumn();
+			column.setModelIndex(table.getColumnModel().getColumnCount());
+			if(ietm.getType())
+			column.setHeaderValue(printType.getText() == null ? "列" + (table.getColumnModel().getColumnCount() + 1)
+					: printType.getText());
+			column.setPreferredWidth(100);
+			
+		}
+
+		if (!TABLE_VIEW.equals(viewType)) {
+
+		} else {
+
+		}
+		return null;
+	}
+
+	public PrintItem<?> getPrintItem(int uniqueId) {
+		if (itemsMap.containsKey(uniqueId)) {
+			itemsMap.get(uniqueId);
+		}
+		return null;
 	}
 }

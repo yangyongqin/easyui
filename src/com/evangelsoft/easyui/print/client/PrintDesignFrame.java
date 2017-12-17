@@ -86,11 +86,9 @@ import com.borland.dbswing.TableScrollPane;
 import com.borland.dx.dataset.Column;
 import com.borland.dx.dataset.ColumnAware;
 import com.borland.dx.dataset.ColumnChangeAdapter;
-import com.borland.dx.dataset.ColumnChangeListener;
 import com.borland.dx.dataset.DataSet;
 import com.borland.dx.dataset.DataSetException;
 import com.borland.dx.dataset.EditAdapter;
-import com.borland.dx.dataset.EditListener;
 import com.borland.dx.dataset.ItemListDescriptor;
 import com.borland.dx.dataset.PickListDescriptor;
 import com.borland.dx.dataset.ReadRow;
@@ -904,7 +902,7 @@ public class PrintDesignFrame extends UMasterDetailFrame {
 		pasteForamtItem.setEnabled(false);
 
 		rightMenu.add(copyItem);
-		rightMenu.add(pasteItem);
+
 		rightMenu.add(deleteItem);
 		rightMenu.add(copyForamtItem);
 		rightMenu.add(pasteForamtItem);
@@ -923,6 +921,7 @@ public class PrintDesignFrame extends UMasterDetailFrame {
 		addPane = new JMenuItem("添加一个新的面板");
 		showAttribute = new JMenuItem("显示属性");
 
+		panelRightMenu.add(pasteItem);
 		panelRightMenu.add(deletePaneItem);
 		panelRightMenu.add(toTableFormat);
 		panelRightMenu.add(toFreeFormat);
@@ -1995,7 +1994,9 @@ public class PrintDesignFrame extends UMasterDetailFrame {
 				copyCacheItem = selectComp;
 			}// 粘贴
 			else if (e.getSource() == pasteItem) {
-				// 新建一个对象
+				// 复制只有在面板上才会触发
+				PrintDesignPanel panel = (PrintDesignPanel) e.getSource();
+				panel.copyItems(selectList);
 			}// 删除
 			else if (e.getSource() == deleteItem) {
 				for (int i = 0; i < selectList.size(); i++) {

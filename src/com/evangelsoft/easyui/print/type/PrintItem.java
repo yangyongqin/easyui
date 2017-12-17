@@ -11,7 +11,8 @@ import javax.swing.border.Border;
 import com.evangelsoft.easyui.print.client.PrintDesignPanel;
 import com.evangelsoft.easyui.print.client.PrintPage;
 
-public interface PrintItem {
+@SuppressWarnings("rawtypes")
+public interface PrintItem<T extends PrintItem> {
 
 	
 	/**
@@ -245,4 +246,6 @@ public interface PrintItem {
 	public  void setValue(String columnName, Object value);
 	@DataColumn(dataColumn = "TEXT")
 	public void setText(String text);
+	
+	public  T clone(PrintItem<?> ietm);
 }
