@@ -12,7 +12,6 @@ import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.swing.JEditorPane;
 import javax.swing.JLayeredPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
@@ -27,7 +26,7 @@ import com.evangelsoft.easyui.print.type.PrintItem;
 import com.evangelsoft.easyui.print.type.PrintItemTool;
 import com.evangelsoft.workbench.types.BoolStr;
 
-public class PrintTableCellHeaderRenderer extends DefaultTableCellRenderer implements PrintItem {
+public class PrintTableCellHeaderRenderer extends DefaultTableCellRenderer implements PrintItem<PrintTableCellHeaderRenderer> {
 
 	/**
 	 * @Fields serialVersionUID : °æ±¾ºÅ
@@ -675,4 +674,11 @@ public class PrintTableCellHeaderRenderer extends DefaultTableCellRenderer imple
 	public void setValue(String columnName, Object value) {
 		PrintItemTool.setValue(this, columnName, value);
 	}
+
+
+	@Override
+	public PrintTableCellHeaderRenderer clone(PrintTableCellHeaderRenderer entity) {
+		return null;
+	}
+
 }
