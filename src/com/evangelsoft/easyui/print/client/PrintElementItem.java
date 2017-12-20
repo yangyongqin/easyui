@@ -948,4 +948,10 @@ public class PrintElementItem extends JLabel implements Serializable, MouseMotio
 	public void setValue(String columnName, Object value) {
 		PrintItemTool.setValue(this, columnName, value);
 	}
+
+	@Override
+	public PrintItem clone(PrintItem ietm) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }
