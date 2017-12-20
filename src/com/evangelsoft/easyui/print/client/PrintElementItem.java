@@ -28,7 +28,7 @@ import com.evangelsoft.easyui.print.type.PrintItem;
 import com.evangelsoft.easyui.print.type.PrintItemTool;
 import com.evangelsoft.workbench.types.BoolStr;
 
-public class PrintElementItem extends JLabel implements Serializable, MouseMotionListener, PrintItem {
+public class PrintElementItem extends JLabel implements Serializable, MouseMotionListener, PrintItem<PrintElementItem> {
 
 	/**
 	 *
@@ -948,4 +948,10 @@ public class PrintElementItem extends JLabel implements Serializable, MouseMotio
 	public void setValue(String columnName, Object value) {
 		PrintItemTool.setValue(this, columnName, value);
 	}
+
+	@Override
+	public PrintElementItem clone(PrintItem<?> ietm) {
+		return null;
+	}
+
 }
