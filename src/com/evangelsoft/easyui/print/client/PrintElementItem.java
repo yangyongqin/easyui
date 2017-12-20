@@ -951,7 +951,7 @@ public class PrintElementItem extends JLabel implements Serializable, MouseMotio
 
 	@Override
 	public PrintElementItem clone(PrintItem<?> ietm) {
-		return null;
+		return null ; 
 	}
 
 }
