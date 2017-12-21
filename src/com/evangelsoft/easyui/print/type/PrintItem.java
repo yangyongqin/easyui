@@ -247,7 +247,7 @@ public interface PrintItem<T extends PrintItem> {
 	@DataColumn(dataColumn = "TEXT")
 	public void setText(String text);
 	
-	public  T clone(PrintItem<?> ietm);
+	public  T clone(T ietm);
 	public int getRelationId();
 	public void setRelationId(int relationId);
 }
