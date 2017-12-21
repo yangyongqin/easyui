@@ -878,11 +878,10 @@ public class PrintDesignPanel extends JPanel implements MouseMotionListener {
 			// 找到相关联的组件
 
 			dataSet.setBigDecimal("UNIQUE_ID", BigDecimal.valueOf(max + 2));
-			PrintItem itemNew = ietm.clone(ietm);
+			PrintItem itemNew = ietm.clone();
 			itemNew.setUniqueId(index);
 			// 找到缓存中的关联的数据对象
-			TableColumn column = new TableColumn();
-			column.setModelIndex(table.getColumnModel().getColumnCount());
+			
 			PrintItem headPrintItem = null;
 			PrintItem cellPrintItem = null;
 			// 如果当前是表头
@@ -893,10 +892,18 @@ public class PrintDesignPanel extends JPanel implements MouseMotionListener {
 				cellPrintItem = ietm;
 				headPrintItem = itemsMap.get(ietm.getRelationId());
 			}
-//			column.setHeaderValue(printType.getText() == null ? "列" + (table.getColumnModel().getColumnCount() + 1)
-//					: printType.getText());
-//			column.setPreferredWidth(100);
-
+			TableColumn column = new TableColumn();
+			column.setModelIndex(table.getColumnModel().getColumnCount());
+			// TableColumn column =
+			// table.getColumnModel().getColumn(defaultModel.getColumnCount()-1);
+			column.setHeaderValue(headPrintItem.getText()== null ? "列" + (table.getColumnModel().getColumnCount() + 1)
+					: headPrintItem.getText());
+			column.setPreferredWidth(headPrintItem.getWidth());
+			table.getModel().setValueAt(cellPrintItem.getText(),
+					0, table.getColumnCount() - 1);
+			//将表格的滚动条显示在最后的位置
+			JScrollBar jscrollBar = tableScrollPane.getHorizontalScrollBar();
+			jscrollBar.setValue(jscrollBar.getMaximum());
 		}
 
 		if (!TABLE_VIEW.equals(viewType)) {

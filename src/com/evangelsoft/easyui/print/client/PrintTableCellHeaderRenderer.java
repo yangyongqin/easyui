@@ -677,7 +677,7 @@ public class PrintTableCellHeaderRenderer extends DefaultTableCellRenderer imple
 
 
 	@Override
-	public PrintTableCellHeaderRenderer clone(PrintTableCellHeaderRenderer entity) {
+	public PrintTableCellHeaderRenderer clone() {
 		return null;
 	}
 
