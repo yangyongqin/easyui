@@ -39,6 +39,7 @@ import javax.swing.table.TableColumnModel;
 import com.borland.dbswing.TableScrollPane;
 import com.borland.dx.dataset.StorageDataSet;
 import com.evangelsoft.easyui.print.type.PrintItem;
+import com.evangelsoft.easyui.print.type.PrintItemTool;
 import com.evangelsoft.easyui.template.client.nc.StringUtil;
 import com.evangelsoft.econnect.dataformat.Record;
 import com.evangelsoft.econnect.dataformat.RecordSet;
@@ -58,6 +59,11 @@ public class PrintDesignPanel extends JPanel implements MouseMotionListener {
 
 	// public LinkedHashMap<PrintDesignPanel, Integer> linkedPanel=new
 	// LinkedHashMap<PrintDesignPanel, Integer>();
+
+	private HashMap<Integer, TableColumn> tableColumnMap = new HashMap<Integer, TableColumn>();
+
+	// private HashMap<Integer, PrintItem<?>> printItemMap = new
+	// HashMap<Integer, PrintItem<?>>();
 
 	// 用来排序，修改高度将其他的高度变小
 	private List<PrintDesignPanel> linkedPanel;
@@ -116,7 +122,7 @@ public class PrintDesignPanel extends JPanel implements MouseMotionListener {
 
 	private int height;
 
-	private JTable table;
+	private PrintTable table;
 
 	TableScrollPane tableScrollPane;
 
@@ -149,18 +155,9 @@ public class PrintDesignPanel extends JPanel implements MouseMotionListener {
 			// 如果是修改，则把列表数据存放到当前对象
 		}
 		if (TABLE_VIEW.equals(viewType)) {
-			table = new JTable() {
-
-				/*
-				 * public boolean isCellEditable(int row, int column) { return
-				 * false;// 表格不允许被编辑 }
-				 */
-			};
+			table = new PrintTable(this);
 			/* table.setTableHeader(new PrintTableHeader()); */
 			this.setLayout(new BorderLayout());
-
-			JPanel panel = new JPanel();
-			panel.setLayout(new BorderLayout());
 			tableScrollPane = new TableScrollPane(table);
 			table.setAutoscrolls(true);
 			TableColumnModel model = table.getColumnModel();
@@ -627,8 +624,8 @@ public class PrintDesignPanel extends JPanel implements MouseMotionListener {
 		return table;
 	}
 
-	public List<PrintItem> addItem(final PrintElementType printType, Point point) {
-		List<PrintItem> list = new ArrayList<PrintItem>();
+	public List<PrintItem<?>> addItem(final PrintElementType printType, Point point) {
+		List<PrintItem<?>> list = new ArrayList<PrintItem<?>>();
 		// 如果是表格
 		printPage.getItemDataSet().first();
 		int max = 0;
@@ -694,10 +691,13 @@ public class PrintDesignPanel extends JPanel implements MouseMotionListener {
 			cellRendere.setRelationId(haederRendere.getUniqueId());
 			haederRendere.setRelationId(cellRendere.getUniqueId());
 
+			tableColumnMap.put(haederRendere.getUniqueId(), column);
+			tableColumnMap.put(cellRendere.getUniqueId(), column);
+
 			if (!StringUtil.isEmpty(printType.getFieldName())) {
 				cellRendere.setText(printType.getTableName() + "." + printType.getFieldName());
 			} else {
-				cellRendere.setText("值" + table.getColumnCount());
+				cellRendere.setText("值" + (table.getColumnCount() + 1));
 			}
 
 			TableColumnModel model = table.getColumnModel();
@@ -708,35 +708,7 @@ public class PrintDesignPanel extends JPanel implements MouseMotionListener {
 			list.add(haederRendere);
 			// 移动到最后
 			final JScrollBar jscrollBar = tableScrollPane.getHorizontalScrollBar();
-			if (jscrollBar != null) {
-				Thread thread = new Thread() {
-
-					@SuppressWarnings("static-access")
-					@Override
-					public void run() {
-						try {
-							// 休眠50秒在更新状态
-							this.sleep(100);
-							jscrollBar.setValue(jscrollBar.getMaximum());
-							Dimension size = table.getTableHeader().getPreferredSize();
-							size.width = table.getWidth();
-							table.getTableHeader().setPreferredSize(size);
-							table.getTableHeader().revalidate();
-							table.getTableHeader().repaint();
-							if (!StringUtil.isEmpty(printType.getFieldName())) {
-								table.getModel().setValueAt(printType.getTableName() + "." + printType.getFieldName(),
-										0, table.getColumnCount() - 1);
-							} else {
-								table.getModel()
-										.setValueAt("值" + table.getColumnCount(), 0, table.getColumnCount() - 1);
-							}
-						} catch (InterruptedException e) {
-							e.printStackTrace();
-						}
-					}
-				};
-				thread.start();
-			}
+			jscrollBar.setValue(jscrollBar.getMaximum());
 		} else {
 			PrintElementType type = new PrintElementType(PrintElementType.LABEL, printType.getText(), null);
 			PrintElementItem printItem = PrintElementItem.createInstance(type, this);
@@ -757,6 +729,8 @@ public class PrintDesignPanel extends JPanel implements MouseMotionListener {
 			it.setFontSize(printPage.getFontSize());
 			it.setWidth(100);
 			it.setHeight(30);
+			// t添加到
+			itemsMap.put(it.getUniqueId(), it);
 		}
 		return list;
 	}
@@ -779,7 +753,7 @@ public class PrintDesignPanel extends JPanel implements MouseMotionListener {
 
 		// dataSet.setBigDecimal("FORECOLOR", );//前景色，字体颜色
 		// dataSet.setBigDecimal("BACKCOLOR",);//背景色
-		// dataSet.setBigDecimal("TEXT", );//显示的文字
+		dataSet.setString("TEXT", item.getText());// 显示的文字
 		dataSet.setString("FONT_NAME", printPage.getFontName());// 字体名称
 		dataSet.setBigDecimal("FONT_SIZE", BigDecimal.valueOf(printPage.getFontSize()));// 字体大小
 		dataSet.setString("ROTATION", "N");// 宽度
@@ -792,8 +766,8 @@ public class PrintDesignPanel extends JPanel implements MouseMotionListener {
 		// dataSet.setBigDecimal("WIDTH",);//旋转方向
 	}
 
-	public List<PrintItem> addItem(PrintElementSource printSource, Point point) {
-		List<PrintItem> list = new ArrayList<PrintItem>();
+	public List<PrintItem<?>> addItem(PrintElementSource printSource, Point point) {
+		List<PrintItem<?>> list = new ArrayList<PrintItem<?>>();
 		PrintElementType printType = new PrintElementType(PrintElementType.LABEL, printSource.getText(), null);
 		printType.setDataType(printSource.getDataType());
 		printType.setDesc(printSource.getText());
@@ -831,26 +805,30 @@ public class PrintDesignPanel extends JPanel implements MouseMotionListener {
 	}
 
 	// 添加复制的元素项
-	public List<PrintItem> copyItems(List<PrintItem> itemList) {
+	public List<PrintItem<?>> copyItems(List<PrintItem<?>> itemList) {
 		Set<Integer> set = new HashSet<Integer>();
 		// 如果当是显示表格,需要过滤重复
-		if (!TABLE_VIEW.equals(viewType)) {
-			for (PrintItem item : itemList) {
+		if (TABLE_VIEW.equals(viewType)) {
+			for (PrintItem<?> item : itemList) {
 				// 如果复制了表格，只需要同步表头，不需要俩个都实现
 				if (!set.contains(item.getUniqueId())) {
 					// 如果不包含
 					// 如果当前也是表格，只需要添加一个
+					copyItem(item);
+					set.add(item.getUniqueId());
+					set.add(item.getRelationId());
 				}
 			}
 		} else {
 
 		}
+		return null;
 	}
 
 	@SuppressWarnings("rawtypes")
-	public List<PrintItem> copyItem(PrintItem<?> ietm) {
+	public List<PrintItem> copyItem(PrintItem<?> item) {
 		// 如果粘贴到的地方是表格
-		if (PrintElementType.TABLE_HEAD == ietm.getType() || PrintElementType.TABLE_CELL == ietm.getType()) {
+		if (PrintElementType.TABLE_HEAD == item.getType() || PrintElementType.TABLE_CELL == item.getType()) {
 			List<PrintItem> list = new ArrayList<PrintItem>();
 			// 如果是表格
 			printPage.getItemDataSet().first();
@@ -871,6 +849,15 @@ public class PrintDesignPanel extends JPanel implements MouseMotionListener {
 				}
 				printPage.getItemDataSet().next();
 			}
+
+			TableColumn oldColumn = tableColumnMap.get(item.getUniqueId());
+			TableColumn column = new TableColumn();
+			column.setModelIndex(table.getColumnModel().getColumnCount());
+			column.setHeaderValue(oldColumn.getHeaderValue());
+			// column.setPreferredWidth(preferredWidth);
+			column.setWidth(oldColumn.getWidth());
+			column.setPreferredWidth(oldColumn.getPreferredWidth());
+
 			StorageDataSet dataSet = printPage.getItemDataSet();
 			dataSet.insertRow(false);
 			dataSet.setBigDecimal("UNIQUE_ID", BigDecimal.valueOf(max + 1));
@@ -878,30 +865,49 @@ public class PrintDesignPanel extends JPanel implements MouseMotionListener {
 			// 找到相关联的组件
 
 			dataSet.setBigDecimal("UNIQUE_ID", BigDecimal.valueOf(max + 2));
-			PrintItem itemNew = ietm.clone();
-			itemNew.setUniqueId(index);
 			// 找到缓存中的关联的数据对象
-			
+
 			PrintItem headPrintItem = null;
 			PrintItem cellPrintItem = null;
 			// 如果当前是表头
-			if (ietm.getType() == PrintElementType.TABLE_HEAD) {
-				headPrintItem = ietm;
-				cellPrintItem = itemsMap.get(ietm.getRelationId());
+			if (item.getType() == PrintElementType.TABLE_HEAD) {
+				headPrintItem = item;
+				cellPrintItem = itemsMap.get(item.getRelationId());
 			} else {
-				cellPrintItem = ietm;
-				headPrintItem = itemsMap.get(ietm.getRelationId());
+				cellPrintItem = item;
+				headPrintItem = itemsMap.get(item.getRelationId());
 			}
-			TableColumn column = new TableColumn();
-			column.setModelIndex(table.getColumnModel().getColumnCount());
-			// TableColumn column =
-			// table.getColumnModel().getColumn(defaultModel.getColumnCount()-1);
-			column.setHeaderValue(headPrintItem.getText()== null ? "列" + (table.getColumnModel().getColumnCount() + 1)
+			column.setHeaderValue(headPrintItem.getText() == null ? "列" + (table.getColumnModel().getColumnCount() + 1)
 					: headPrintItem.getText());
-			column.setPreferredWidth(headPrintItem.getWidth());
-			table.getModel().setValueAt(cellPrintItem.getText(),
-					0, table.getColumnCount() - 1);
-			//将表格的滚动条显示在最后的位置
+			// column.setPreferredWidth(headPrintItem.getWidth());
+
+			PrintTableCellHeaderRenderer headerRenderer = new PrintTableCellHeaderRenderer(this, column, dataSet);
+			headerRenderer.setUniqueId(max + 1);
+			headerRenderer.setRelationId(max + 2);
+			headerRenderer.setType(PrintElementType.TABLE_HEAD);
+			headerRenderer.setIndex(index + 1);
+
+			PrintTableCellHeaderRenderer cellHeaderRenderer = new PrintTableCellHeaderRenderer(this, column, dataSet);
+			cellHeaderRenderer.setUniqueId(max + 2);
+			cellHeaderRenderer.setRelationId(max + 1);
+			cellHeaderRenderer.setType(PrintElementType.TABLE_CELL);
+			cellHeaderRenderer.setIndex(index + 1);
+
+			column.setHeaderRenderer(headerRenderer);
+			column.setCellRenderer(cellHeaderRenderer);
+
+			TableColumnModel model = table.getColumnModel();
+			model.addColumn(column);
+			table.setColumnModel(model);
+
+			// 复制属性
+			PrintItemTool.copy(headPrintItem, headerRenderer);
+			PrintItemTool.copy(cellPrintItem, cellHeaderRenderer);
+
+			table.getModel().setValueAt(cellPrintItem.getText(), 0, table.getColumnCount() - 1);
+			// 复制对应的属性
+
+			// 将表格的滚动条显示在最后的位置
 			JScrollBar jscrollBar = tableScrollPane.getHorizontalScrollBar();
 			jscrollBar.setValue(jscrollBar.getMaximum());
 		}

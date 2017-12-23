@@ -14,7 +14,6 @@ import com.evangelsoft.easyui.print.client.PrintPage;
 @SuppressWarnings("rawtypes")
 public interface PrintItem<T extends PrintItem> {
 
-	
 	/**
 	 * @Description: 得到唯一标示
 	 * @return   
@@ -242,13 +241,21 @@ public interface PrintItem<T extends PrintItem> {
 	void hideEdit();
 
 	void setVisibleEdit(boolean aFlag);
-	
-	public  void setValue(String columnName, Object value);
+
+	public void setValue(String columnName, Object value);
+
 	@DataColumn(dataColumn = "TEXT")
 	public void setText(String text);
+
 	public String getText();
-	
-	public  T clone();
+
+	public T clone();
+
 	public int getRelationId();
+
 	public void setRelationId(int relationId);
+
+	public int getHorizontalAlignment();
+
+	public int getVerticalAlignment();
 }

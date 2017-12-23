@@ -26,7 +26,7 @@ public class PrintItemTool {
 		}
 	}
 
-	public static void setValue(List<PrintItem> itemList, String columnName, Object value) {
+	public static void setValue(List<PrintItem<?>> itemList, String columnName, Object value) {
 		if (itemList != null && value != null && methodMap.containsKey(columnName)) {
 			Method method = methodMap.get(columnName);
 			try {
@@ -52,7 +52,7 @@ public class PrintItemTool {
 					newValue = value.toString();
 				}
 				// Ñ­»·¸³Öµ
-				for (PrintItem item : itemList) {
+				for (PrintItem<?> item : itemList) {
 					method.invoke(item, newValue);
 				}
 			} catch (Exception e) {
@@ -102,4 +102,24 @@ public class PrintItemTool {
 			}
 		}
 	}
+
+	public static void copy(PrintItem<?> dataSource, PrintItem<?> item) {
+		item.setBorder(dataSource.getBorder());
+//		item.setElementHorizontalAlignment(dataSource.getElementHorizontalAlignment());
+//		item.setElementVerticalAlignment(dataSource.getElementVerticalAlignment());
+		item.setFontName(dataSource.getFontName());;
+		item.setFontSize(dataSource.getFontSize());
+		item.setHeight(dataSource.getHeight());
+		// item.setHorizontalAlignment(dataSource.gete);
+		item.setIsBold(dataSource.getIsBold());
+		item.setIsitalic(dataSource.getIsitalic());
+		item.setIsUnderline(dataSource.getIsUnderline());
+		item.setSize(dataSource.getSize());
+		item.setText(dataSource.getText());
+		// item.setVerticalAlignment(dataSource.getV);
+		item.setWidth(dataSource.getWidth());
+		item.setHorizontalAlignment(dataSource.getHorizontalAlignment());
+		item.setVerticalAlignment(dataSource.getVerticalAlignment());
+	}
+
 }

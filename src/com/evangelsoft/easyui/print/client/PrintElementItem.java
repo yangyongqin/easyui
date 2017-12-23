@@ -134,7 +134,7 @@ public class PrintElementItem extends JLabel implements Serializable, MouseMotio
 
 	private PrintDesignPanel parentPanel;
 
-	private PrintDesignPanel designPanel;
+//	private PrintDesignPanel designPanel;
 
 	private PrintPage printPage;
 
@@ -262,13 +262,13 @@ public class PrintElementItem extends JLabel implements Serializable, MouseMotio
 		this.editText = editText;
 	}
 
-	public PrintDesignPanel getDesignPanel() {
-		return designPanel;
-	}
-
-	public void setDesignPanel(PrintDesignPanel designPanel) {
-		this.designPanel = designPanel;
-	}
+//	public PrintDesignPanel getDesignPanel() {
+//		return designPanel;
+//	}
+//
+//	public void setDesignPanel(PrintDesignPanel designPanel) {
+//		this.designPanel = designPanel;
+//	}
 
 	public PrintPage getPrintPage() {
 		return printPage;

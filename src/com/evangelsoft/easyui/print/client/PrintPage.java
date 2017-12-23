@@ -177,11 +177,11 @@ public class PrintPage {
 		this.itemDataSet = itemDataSet;
 	}
 
-	public ArrayList<PrintItem> getSelectList() {
+	public ArrayList<PrintItem<?>> getSelectList() {
 		return printDesignFrame.selectList;
 	}
 
-	public PrintItem getSelectComp() {
+	public PrintItem<?> getSelectComp() {
 		return printDesignFrame.selectComp;
 	}
 

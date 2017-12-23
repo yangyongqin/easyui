@@ -24,9 +24,11 @@ import com.borland.dbswing.JdbTextField;
 import com.borland.dx.dataset.DataSet;
 import com.evangelsoft.easyui.print.type.PrintItem;
 import com.evangelsoft.easyui.print.type.PrintItemTool;
+import com.evangelsoft.easyui.template.client.nc.StringUtil;
 import com.evangelsoft.workbench.types.BoolStr;
 
-public class PrintTableCellHeaderRenderer extends DefaultTableCellRenderer implements PrintItem<PrintTableCellHeaderRenderer> {
+public class PrintTableCellHeaderRenderer extends DefaultTableCellRenderer implements
+		PrintItem<PrintTableCellHeaderRenderer> {
 
 	/**
 	 * @Fields serialVersionUID : 版本号
@@ -124,7 +126,6 @@ public class PrintTableCellHeaderRenderer extends DefaultTableCellRenderer imple
 		this.printTableColumn = printTableColumn;
 		this.parentPanel = parentPanel;
 		this.printPage = parentPanel.getPrintPage();
-
 	}
 
 	public javax.swing.border.Border getDefaultBorder() {
@@ -234,7 +235,7 @@ public class PrintTableCellHeaderRenderer extends DefaultTableCellRenderer imple
 	}
 
 	public void setText(String text) {
-		if (text != this.text && !text.equals(this.text)) {
+		if (!StringUtil.isEmpty(text) && text != this.text && !text.equals(this.text)) {
 			this.text = text;
 			// 如果当前是表头
 			if (PrintElementType.TABLE_HEAD.equals(type)) {
@@ -292,7 +293,7 @@ public class PrintTableCellHeaderRenderer extends DefaultTableCellRenderer imple
 	public void setFontSize(int fontSize) {
 		this.fontSize = fontSize;
 		if (toRow() > -1) {
-			if (fontSize == this.getDataSet().getBigDecimal("FONT_SIZE").intValue()) {
+			if (fontSize != this.getDataSet().getBigDecimal("FONT_SIZE").intValue()) {
 				this.getDataSet().setBigDecimal("FONT_SIZE", BigDecimal.valueOf(fontSize));
 			}
 			this.updateFont();
@@ -308,9 +309,15 @@ public class PrintTableCellHeaderRenderer extends DefaultTableCellRenderer imple
 	}
 
 	public void setBold(boolean isBold) {
-		this.isBold = isBold;
-		this.updateFont();
-		this.getDataSet().setString("BOLD", BoolStr.getString(isBold));
+		if (toRow() > -1) {
+			// 如果数据库为空或者不相等，则赋值
+			if (StringUtil.isEmpty(this.getDataSet().getString("BOLD"))
+					|| BoolStr.getBoolean(this.getDataSet().getString("BOLD")) != isBold) {
+				this.isBold = isBold;
+				this.updateFont();
+				this.getDataSet().setString("BOLD", BoolStr.getString(isBold));
+			}
+		}
 	}
 
 	public boolean isUnderline() {
@@ -318,9 +325,15 @@ public class PrintTableCellHeaderRenderer extends DefaultTableCellRenderer imple
 	}
 
 	public void setUnderline(boolean isUnderline) {
-		this.isUnderline = isUnderline;
-		this.updateFont();
-		this.getDataSet().setString("UNDERLINE", BoolStr.getString(isUnderline));
+		if (toRow() > -1) {
+			// 如果数据库为空或者不相等，则赋值
+			if (StringUtil.isEmpty(this.getDataSet().getString("UNDERLINE"))
+					|| BoolStr.getBoolean(this.getDataSet().getString("UNDERLINE")) != isUnderline) {
+				this.isUnderline = isUnderline;
+				this.updateFont();
+				this.getDataSet().setString("UNDERLINE", BoolStr.getString(isUnderline));
+			}
+		}
 	}
 
 	public boolean isIsstrikethrough() {
@@ -332,7 +345,12 @@ public class PrintTableCellHeaderRenderer extends DefaultTableCellRenderer imple
 	}
 
 	public void setElementWidth(int elementWidth) {
-		this.elementWidth = elementWidth;
+		if (toRow() > -1) {
+			if (this.elementWidth != elementWidth) {
+				this.elementWidth = elementWidth;
+				this.getDataSet().setBigDecimal("WIDTH", BigDecimal.valueOf(elementWidth));
+			}
+		}
 	}
 
 	public int getElementHeight() {
@@ -340,7 +358,12 @@ public class PrintTableCellHeaderRenderer extends DefaultTableCellRenderer imple
 	}
 
 	public void setElementHeight(int elementHeight) {
-		this.elementHeight = elementHeight;
+		if (toRow() > -1) {
+			if (this.elementHeight != elementHeight) {
+				this.elementHeight = elementHeight;
+				this.getDataSet().setBigDecimal("HEIGHT", BigDecimal.valueOf(elementHeight));
+			}
+		}
 	}
 
 	public double getRatio() {
@@ -483,10 +506,11 @@ public class PrintTableCellHeaderRenderer extends DefaultTableCellRenderer imple
 	}
 
 	public void setIsitalic(boolean isitalic) {
-		this.isitalic = isitalic;
-		this.updateFont();
+
 		if (toRow() > -1) {
 			if (isitalic != BoolStr.getBoolean(this.getDataSet().getString("ITALIC"))) {
+				this.isitalic = isitalic;
+				this.updateFont();
 				this.getDataSet().setString("ITALIC", BoolStr.getString(isitalic));
 			}
 		}
@@ -497,9 +521,13 @@ public class PrintTableCellHeaderRenderer extends DefaultTableCellRenderer imple
 	}
 
 	public void setIsBold(boolean isBold) {
-		this.isBold = isBold;
-		this.updateFont();
-		this.getDataSet().setString("BOLD", BoolStr.getString(isBold));
+		if (toRow() > -1) {
+			if (isBold != this.isBold || StringUtil.isEmpty(this.getDataSet().getString("BOLD"))) {
+				this.isBold = isBold;
+				this.updateFont();
+				this.getDataSet().setString("BOLD", BoolStr.getString(isBold));
+			}
+		}
 	}
 
 	public boolean getIsUnderline() {
@@ -507,9 +535,13 @@ public class PrintTableCellHeaderRenderer extends DefaultTableCellRenderer imple
 	}
 
 	public void setIsUnderline(boolean isUnderline) {
-		this.isUnderline = isUnderline;
-		this.updateFont();
-		this.getDataSet().setString("UNDERLINE", BoolStr.getString(isUnderline));
+		if (toRow() > -1) {
+			if (isUnderline != this.isUnderline || StringUtil.isEmpty(this.getDataSet().getString("UNDERLINE"))) {
+				this.isUnderline = isUnderline;
+				this.updateFont();
+				this.getDataSet().setString("UNDERLINE", BoolStr.getString(isUnderline));
+			}
+		}
 	}
 
 	public boolean getIsstrikethrough() {
@@ -517,10 +549,13 @@ public class PrintTableCellHeaderRenderer extends DefaultTableCellRenderer imple
 	}
 
 	public void setIsstrikethrough(boolean isstrikethrough) {
-		if (this.isstrikethrough != isstrikethrough) {
-			this.isstrikethrough = isstrikethrough;
-			this.updateFont();
-			this.getDataSet().setString("STRIKETHROUGH", BoolStr.getString(isstrikethrough));
+		if (toRow() > -1) {
+			if (isstrikethrough != this.isstrikethrough
+					|| StringUtil.isEmpty(this.getDataSet().getString("STRIKETHROUGH"))) {
+				this.isstrikethrough = isstrikethrough;
+				this.updateFont();
+				this.getDataSet().setString("STRIKETHROUGH", BoolStr.getString(isstrikethrough));
+			}
 		}
 	}
 
@@ -529,10 +564,26 @@ public class PrintTableCellHeaderRenderer extends DefaultTableCellRenderer imple
 	}
 
 	public void setElementHorizontalAlignment(String elementHorizontalAlignment) {
-		// 不相等才赋值
-		if (!elementHorizontalAlignment.equals(this.elementHorizontalAlignment)) {
-			this.elementHorizontalAlignment = elementHorizontalAlignment;
-			this.setHorizontalAlignment(Integer.parseInt(elementHorizontalAlignment));
+		if (toRow() > -1) {
+			// 不相等才赋值
+			if (!elementHorizontalAlignment.equals(this.elementHorizontalAlignment)) {
+				this.elementHorizontalAlignment = elementHorizontalAlignment;
+				this.setHorizontalAlignment(Integer.parseInt(elementHorizontalAlignment));
+				this.getDataSet().setString("HORIZONTAL_ALIGNMENT", elementHorizontalAlignment);
+			}
+		}
+	}
+
+	public void setHorizontalAlignment(int alignment) {
+		if (toRow() > -1) {
+			super.setHorizontalAlignment(alignment);
+			if (alignment != Integer.parseInt(this.elementHorizontalAlignment)
+					|| StringUtil.isEmpty(this.getDataSet().getString("HORIZONTAL_ALIGNMENT"))) {
+				// this.alignment = alignment;
+				this.elementHorizontalAlignment = alignment + "";
+				this.updateFont();
+				this.getDataSet().setString("HORIZONTAL_ALIGNMENT", elementVerticalAlignment);
+			}
 		}
 	}
 
@@ -541,12 +592,27 @@ public class PrintTableCellHeaderRenderer extends DefaultTableCellRenderer imple
 	}
 
 	public void setElementVerticalAlignment(String elementVerticalAlignment) {
-		this.elementVerticalAlignment = elementVerticalAlignment;
-		// 改变当前显示
-		this.setVerticalAlignment(Integer.parseInt(elementVerticalAlignment));
-		// 保存到数据表格
-		if (!elementVerticalAlignment.equals(this.getDataSet().getString("VERTICAL_ALIGNMENT"))) {
-			this.getDataSet().setString("VERTICAL_ALIGNMENT", elementVerticalAlignment);
+		if (toRow() > -1) {
+			this.elementVerticalAlignment = elementVerticalAlignment;
+			// 改变当前显示
+			this.setVerticalAlignment(Integer.parseInt(elementVerticalAlignment));
+			// 保存到数据表格
+			if (!elementVerticalAlignment.equals(this.getDataSet().getString("VERTICAL_ALIGNMENT"))) {
+				this.getDataSet().setString("VERTICAL_ALIGNMENT", elementVerticalAlignment);
+			}
+		}
+	}
+
+	public void setVerticalAlignment(int alignment) {
+		if (toRow() > -1) {
+			super.setHorizontalAlignment(alignment);
+			if (alignment != Integer.parseInt(this.elementVerticalAlignment)
+					|| StringUtil.isEmpty(this.getDataSet().getString("VERTICAL_ALIGNMENT"))) {
+				// this.alignment = alignment;
+				this.elementVerticalAlignment = alignment + "";
+				this.updateFont();
+				this.getDataSet().setString("VERTICAL_ALIGNMENT", elementVerticalAlignment);
+			}
 		}
 	}
 
@@ -674,7 +740,6 @@ public class PrintTableCellHeaderRenderer extends DefaultTableCellRenderer imple
 	public void setValue(String columnName, Object value) {
 		PrintItemTool.setValue(this, columnName, value);
 	}
-
 
 	@Override
 	public PrintTableCellHeaderRenderer clone() {

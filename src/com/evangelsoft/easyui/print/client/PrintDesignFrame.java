@@ -62,6 +62,7 @@ import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTable;
 import javax.swing.JToolBar;
+import javax.swing.JViewport;
 import javax.swing.KeyStroke;
 import javax.swing.ListSelectionModel;
 import javax.swing.SpinnerNumberModel;
@@ -270,10 +271,15 @@ public class PrintDesignFrame extends UMasterDetailFrame {
 	private final LineBorder defaultBorder = new LineBorder(Color.GRAY, 1);
 
 	// 选中的list的集合
-	public ArrayList<PrintItem> selectList = new ArrayList<PrintItem>();
+	public ArrayList<PrintItem<?>> selectList = new ArrayList<PrintItem<?>>();
+
+	/**
+	 * @Fields selectPanel : 被选中的面板
+	 */
+	private PrintDesignPanel selectPanel;
 
 	// 选中的组件
-	public PrintItem selectComp;
+	public PrintItem<?> selectComp;
 
 	// 上一次比例
 	private double lastZoom = 1;
@@ -313,12 +319,12 @@ public class PrintDesignFrame extends UMasterDetailFrame {
 	/**
 	 * @Fields copyCacheItem : 用于缓存的对象
 	 */
-	private PrintItem copyCacheItem;
+	private ArrayList<PrintItem<?>> copyCacheItem = new ArrayList<PrintItem<?>>();
 
 	/**
 	 * @Fields copyCacheItem : 复制格式
 	 */
-	private PrintItem copyFormatCacheItem;
+	private PrintItem<?> copyFormatCacheItem;
 
 	private HashMap<String, JComponent> componentMap = new HashMap<String, JComponent>();
 
@@ -1457,9 +1463,9 @@ public class PrintDesignFrame extends UMasterDetailFrame {
 		public boolean importData(JComponent c, Transferable t) {
 			if (canImport(c, t.getTransferDataFlavors())) {
 				try {
-					PrintItem item = null;
+					PrintItem<?> item = null;
 					PrintDesignPanel panel = null;
-					List<PrintItem> tempSelectList = null;
+					List<PrintItem<?>> tempSelectList = null;
 					// 如果接收的是表格
 					if (c instanceof JTable) {
 						// TODO 如果是表格
@@ -1475,7 +1481,7 @@ public class PrintDesignFrame extends UMasterDetailFrame {
 					Object data = t.getTransferData(FILTER_CREAT_FLAVOR);
 
 					// 清除之前选中的样式
-					for (PrintItem com : selectList) {
+					for (PrintItem<?> com : selectList) {
 						if (com != null)
 							com.setBorder(defaultBorder);
 					}
@@ -1490,7 +1496,7 @@ public class PrintDesignFrame extends UMasterDetailFrame {
 					if (tempSelectList != null && tempSelectList.size() > 0) {
 						item = tempSelectList.get(0);
 						/* item.setBorder(clicedBorder); */
-						for (PrintItem com : selectList) {
+						for (PrintItem<?> com : selectList) {
 							/* com.setBorder(defaultBorder); */
 							com.setBorder(clicedBorder);
 							com.addMouseListener(itemSelectAdapter);
@@ -1894,10 +1900,19 @@ public class PrintDesignFrame extends UMasterDetailFrame {
 
 				// 选中对象改为当前点击的控件
 				selectComp = item;
+				selectPanel = item.getParentPanel();
 
 			}// 如果是设计面板
-			else if (e.getSource() instanceof PrintDesignPanel) {
-				PrintDesignPanel item = (PrintDesignPanel) e.getSource();
+			else if (e.getSource() instanceof PrintDesignPanel || e.getSource() instanceof JViewport) {
+				PrintDesignPanel item = null;
+				if (e.getSource() instanceof JViewport) {
+					JViewport view = (JViewport) e.getSource();
+					PrintTable table = (PrintTable) view.getView();
+					item = table.getPanel();
+				} else {
+					item = (PrintDesignPanel) e.getSource();
+				}
+				selectPanel = item;
 				detailDataSet.first();
 				for (int i = 0; i < detailDataSet.rowCount(); i++) {
 					if (detailDataSet.getBigDecimal("UNIQUE_ID").intValue() == item.getUniqueId()) {
@@ -1905,9 +1920,11 @@ public class PrintDesignFrame extends UMasterDetailFrame {
 					}
 					detailDataSet.next();
 				}
+
 				if (e.getButton() == MouseEvent.BUTTON3) {
 					panelRightMenu.show(item, e.getPoint().x, e.getPoint().y);
 				}
+
 				// 定位到选择的行
 				cardLayout.first(attributePanel);
 				cardLayout.next(attributePanel);
@@ -1928,6 +1945,7 @@ public class PrintDesignFrame extends UMasterDetailFrame {
 				column.getHeaderRenderer();
 				PrintTableCellHeaderRenderer renderer = (PrintTableCellHeaderRenderer) column.getHeaderRenderer();
 				selectComp = renderer;
+				selectPanel = renderer.getParentPanel();
 			} else if (e.getSource() instanceof JTable) {
 				JTable table = (JTable) e.getSource();
 				int row = table.rowAtPoint(e.getPoint());
@@ -1936,6 +1954,7 @@ public class PrintDesignFrame extends UMasterDetailFrame {
 					PrintTableCellHeaderRenderer renderer = (PrintTableCellHeaderRenderer) table.getCellRenderer(row,
 							col);
 					selectComp = renderer;
+					selectPanel = renderer.getParentPanel();
 				}
 			} else {
 				// 如果是页面
@@ -1944,11 +1963,13 @@ public class PrintDesignFrame extends UMasterDetailFrame {
 
 			if (e.getSource() instanceof PrintItem || e.getSource() instanceof JTableHeader
 					|| e.getSource() instanceof JTable) {
-				selectList.remove(selectComp);
-				// 确保最后选中的放在第一个
-				selectList.add(0, selectComp);
-				for (PrintItem com : selectList) {
-					com.setBorder(clicedBorder);
+				if (!(e.getSource() instanceof JViewport)) {
+					selectList.remove(selectComp);
+					// 确保最后选中的放在第一个
+					selectList.add(0, selectComp);
+					for (PrintItem com : selectList) {
+						com.setBorder(clicedBorder);
+					}
 				}
 				// 如果是右键,显示右键菜单
 				if (e.getButton() == MouseEvent.BUTTON3) {
@@ -1991,12 +2012,17 @@ public class PrintDesignFrame extends UMasterDetailFrame {
 			// 复制
 			if (e.getSource() == copyItem) {
 				// 将当前选中的对象放到缓存里面
-				copyCacheItem = selectComp;
+				// copyCacheItem = selectList;
+				copyCacheItem.clear();
+				copyCacheItem.addAll(selectList);
+				pasteItem.setEnabled(true);
 			}// 粘贴
 			else if (e.getSource() == pasteItem) {
+				// 粘贴获取当前选中的面板
+
 				// 复制只有在面板上才会触发
-				PrintDesignPanel panel = (PrintDesignPanel) e.getSource();
-				panel.copyItems(selectList);
+				PrintDesignPanel panel = selectPanel;
+				panel.copyItems(copyCacheItem);
 			}// 删除
 			else if (e.getSource() == deleteItem) {
 				for (int i = 0; i < selectList.size(); i++) {
@@ -2008,17 +2034,22 @@ public class PrintDesignFrame extends UMasterDetailFrame {
 			}// 粘贴格式
 			else if (e.getSource() == pasteForamtItem) {
 				// 将当前缓存内存的对象格式复制到选中的集合
-				for (int i = 0; i < selectList.size(); i++) {
-					PrintItem temp = selectList.get(i);
-					temp.setFontName(copyFormatCacheItem.getFontName());
-					temp.setFontSize(copyFormatCacheItem.getFontSize());
-					temp.setIsBold(copyFormatCacheItem.getIsBold());
-					temp.setIsitalic(copyFormatCacheItem.getIsitalic());
-					temp.setIsstrikethrough(copyFormatCacheItem.getIsstrikethrough());
-					temp.setIsUnderline(copyFormatCacheItem.getIsUnderline());
-					temp.setElementHorizontalAlignment(copyFormatCacheItem.getElementHorizontalAlignment());
-					temp.setElementVerticalAlignment(copyFormatCacheItem.getElementVerticalAlignment());
-				}
+				/*
+				 * for (int i = 0; i < selectList.size(); i++) { PrintItem temp
+				 * = selectList.get(i);
+				 * temp.setFontName(copyFormatCacheItem.getFontName());
+				 * temp.setFontSize(copyFormatCacheItem.getFontSize());
+				 * temp.setIsBold(copyFormatCacheItem.getIsBold());
+				 * temp.setIsitalic(copyFormatCacheItem.getIsitalic());
+				 * temp.setIsstrikethrough
+				 * (copyFormatCacheItem.getIsstrikethrough());
+				 * temp.setIsUnderline(copyFormatCacheItem.getIsUnderline());
+				 * temp.setElementHorizontalAlignment(copyFormatCacheItem.
+				 * getElementHorizontalAlignment());
+				 * temp.setElementVerticalAlignment
+				 * (copyFormatCacheItem.getElementVerticalAlignment()); }
+				 */
+
 			} else if (e.getSource() == showAttribute) {
 				showDialog.setVisible(true);
 			}
@@ -2105,7 +2136,9 @@ public class PrintDesignFrame extends UMasterDetailFrame {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			// 将当前选中对象放在复制缓存对象
-			copyCacheItem = selectComp;
+			// copyCacheItem = selectList;
+			copyCacheItem.clear();
+			copyCacheItem.addAll(selectList);
 		}
 
 	}
@@ -2186,11 +2219,11 @@ public class PrintDesignFrame extends UMasterDetailFrame {
 		return Integer.parseInt(fontSize.getValue().toString());
 	}
 
-	public ArrayList<PrintItem> getSelectList() {
+	public ArrayList<PrintItem<?>> getSelectList() {
 		return selectList;
 	}
 
-	public PrintItem getSelectComp() {
+	public PrintItem<?> getSelectComp() {
 		return selectComp;
 	}
 
