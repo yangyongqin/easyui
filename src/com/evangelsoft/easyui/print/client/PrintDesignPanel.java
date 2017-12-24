@@ -36,6 +36,7 @@ import javax.swing.table.JTableHeader;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 
+import com.alee.utils.SwingUtils;
 import com.borland.dbswing.TableScrollPane;
 import com.borland.dx.dataset.StorageDataSet;
 import com.evangelsoft.easyui.print.type.PrintItem;
@@ -725,14 +726,41 @@ public class PrintDesignPanel extends JPanel implements MouseMotionListener {
 		}
 		for (PrintItem it : list) {
 			// 将当前选中的姿字体赋给新创建的对象
-			it.setFontName(printPage.getFontName());
-			it.setFontSize(printPage.getFontSize());
-			it.setWidth(100);
-			it.setHeight(30);
+			// it.setFontName(printPage.getFontName());
+			// it.setFontSize(printPage.getFontSize());
+			// it.setWidth(100);
+			// it.setHeight(30);
 			// t添加到
 			itemsMap.put(it.getUniqueId(), it);
 		}
 		return list;
+	}
+
+	public <T extends PrintItem> PrintItem getDefaultValue(T item) {
+		item.setFontName(this.getPrintPage().getFontName());
+		item.setFontSize(this.getPrintPage().getFontSize());
+		// dataSet.setBigDecimal("FONT_SIZE",
+		// BigDecimal.valueOf(item.getFontSize()));// 字体大小
+		item.setRotation("N");
+		item.setIsBold(this.getPrintPage().isBold());
+		// dataSet.setString("BOLD", BoolStr.getString(item.getIsBold()));//
+		// 是否加粗
+		item.setIsitalic(this.getPrintPage().isItalic());
+		// dataSet.setString("ITALIC", BoolStr.getString(item.getIsitalic()));//
+		// 是否斜体
+		item.setIsUnderline(this.getPrintPage().isUnderline());
+		// dataSet.setString("UNDERLINE",
+		// BoolStr.getString(item.getIsUnderline()));// 下划线
+		item.setIsstrikethrough(this.getPrintPage().isStrikethrough());
+		// dataSet.setString("STRIKETHROUGH",
+		// BoolStr.getString(item.getIsstrikethrough()));// 是否中划线
+		item.setElementHorizontalAlignment(this.getPrintPage().getHorizontalAlignment() + "");
+		// dataSet.setString("HORIZONTAL_ALIGNMENT",
+		// item.getElementHorizontalAlignment());// 水平对齐方式
+		item.setVerticalAlignment(this.getPrintPage().getVerticalAlignment());
+		// dataSet.setString("VERTICAL_ALIGNMENT",
+		// item.getElementVerticalAlignment());// 垂直对齐方式
+		return item;
 	}
 
 	private void addDataSetRow(PrintItem item) {
@@ -740,30 +768,9 @@ public class PrintDesignPanel extends JPanel implements MouseMotionListener {
 		dataSet.insertRow(false);
 		dataSet.setBigDecimal("UNIQUE_ID", new BigDecimal(item.getUniqueId()));
 		dataSet.setBigDecimal("INDEX", new BigDecimal(item.getIndex()));
-		dataSet.setString("TYPE", PrintElementType.LABEL);
-		dataSet.setBigDecimal("PANEL_ID", BigDecimal.valueOf(this.uniqueId));
-
-		/*
-		 * dataSet.setBigDecimal("X", Big); dataSet.setBigDecimal("Y",
-		 * BigDecimal.valueOf(index + 1));
-		 */
-		// 设置高度，如果为空或者为0.取最小值
-		dataSet.setBigDecimal("HEIGHT", BigDecimal.valueOf(item.getHeight()));
-		dataSet.setBigDecimal("WIDTH", BigDecimal.valueOf(item.getWidth()));
-
-		// dataSet.setBigDecimal("FORECOLOR", );//前景色，字体颜色
-		// dataSet.setBigDecimal("BACKCOLOR",);//背景色
-		dataSet.setString("TEXT", item.getText());// 显示的文字
-		dataSet.setString("FONT_NAME", printPage.getFontName());// 字体名称
-		dataSet.setBigDecimal("FONT_SIZE", BigDecimal.valueOf(printPage.getFontSize()));// 字体大小
-		dataSet.setString("ROTATION", "N");// 宽度
-		dataSet.setString("BOLD", BoolStr.getString(printPage.isBold()));// 是否加粗
-		dataSet.setString("ITALIC", BoolStr.getString(printPage.isItalic()));// 是否斜体
-		dataSet.setString("UNDERLINE", BoolStr.getString(printPage.isUnderline()));// 下划线
-		dataSet.setString("STRIKETHROUGH", BoolStr.getString(printPage.isStrikethrough()));// 是否中划线
-		dataSet.setString("HORIZONTAL_ALIGNMENT", String.valueOf(printPage.getHorizontalAlignment()));// 水平对齐方式
-		dataSet.setString("VERTICAL_ALIGNMENT", String.valueOf(printPage.getVerticalAlignment()));// 垂直对齐方式
-		// dataSet.setBigDecimal("WIDTH",);//旋转方向
+		dataSet.setString("TYPE", item.getType());
+		dataSet.setBigDecimal("PANEL_ID", BigDecimal.valueOf(item.getParentPanel().getUniqueId()));
+		getDefaultValue(item);
 	}
 
 	public List<PrintItem<?>> addItem(PrintElementSource printSource, Point point) {
@@ -807,65 +814,52 @@ public class PrintDesignPanel extends JPanel implements MouseMotionListener {
 	// 添加复制的元素项
 	public List<PrintItem<?>> copyItems(List<PrintItem<?>> itemList) {
 		Set<Integer> set = new HashSet<Integer>();
+		List<PrintItem<?>> list = new ArrayList<PrintItem<?>>();
 		// 如果当是显示表格,需要过滤重复
-		if (TABLE_VIEW.equals(viewType)) {
-			for (PrintItem<?> item : itemList) {
-				// 如果复制了表格，只需要同步表头，不需要俩个都实现
-				if (!set.contains(item.getUniqueId())) {
-					// 如果不包含
-					// 如果当前也是表格，只需要添加一个
-					copyItem(item);
-					set.add(item.getUniqueId());
+		for (PrintItem<?> item : itemList) {
+			// 如果复制了表格，只需要同步表头，不需要俩个都实现
+			if (!set.contains(item.getUniqueId())) {
+				// 如果不包含
+				// 如果当前也是表格，只需要添加一个
+				list.addAll(copyItem(item));
+				set.add(item.getUniqueId());
+				if (TABLE_VIEW.equals(viewType)) {
 					set.add(item.getRelationId());
 				}
 			}
-		} else {
-
 		}
-		return null;
+
+		for (PrintItem it : list) {
+			itemsMap.put(it.getUniqueId(), it);
+		}
+		return list;
 	}
 
 	@SuppressWarnings("rawtypes")
-	public List<PrintItem> copyItem(PrintItem<?> item) {
+	public List<PrintItem<?>> copyItem(PrintItem<?> item) {
+		List<PrintItem<?>> list = new ArrayList<PrintItem<?>>();
+		// 如果是表格
+		printPage.getItemDataSet().first();
+		int max = 0;
+		int index = 0;
+		for (int i = 0; i < printPage.getItemDataSet().rowCount(); i++) {
+			int temp = printPage.getItemDataSet().getBigDecimal("UNIQUE_ID").intValue();
+			if (max < temp) {
+				max = temp;
+			}
+			// 同一个面板才唯一下标
+			if (printPage.getItemDataSet().getBigDecimal("PANEL_ID").intValue() == this.getUniqueId()) {
+
+				int tempIndex = printPage.getItemDataSet().getBigDecimal("INDEX").intValue();
+				if (index < tempIndex) {
+					index = tempIndex;
+				}
+			}
+			printPage.getItemDataSet().next();
+		}
+
 		// 如果粘贴到的地方是表格
 		if (PrintElementType.TABLE_HEAD == item.getType() || PrintElementType.TABLE_CELL == item.getType()) {
-			List<PrintItem> list = new ArrayList<PrintItem>();
-			// 如果是表格
-			printPage.getItemDataSet().first();
-			int max = 0;
-			int index = 0;
-			for (int i = 0; i < printPage.getItemDataSet().rowCount(); i++) {
-				int temp = printPage.getItemDataSet().getBigDecimal("UNIQUE_ID").intValue();
-				if (max < temp) {
-					max = temp;
-				}
-				// 同一个面板才唯一下标
-				if (printPage.getItemDataSet().getBigDecimal("PANEL_ID").intValue() == this.getUniqueId()) {
-
-					int tempIndex = printPage.getItemDataSet().getBigDecimal("INDEX").intValue();
-					if (index < tempIndex) {
-						index = tempIndex;
-					}
-				}
-				printPage.getItemDataSet().next();
-			}
-
-			TableColumn oldColumn = tableColumnMap.get(item.getUniqueId());
-			TableColumn column = new TableColumn();
-			column.setModelIndex(table.getColumnModel().getColumnCount());
-			column.setHeaderValue(oldColumn.getHeaderValue());
-			// column.setPreferredWidth(preferredWidth);
-			column.setWidth(oldColumn.getWidth());
-			column.setPreferredWidth(oldColumn.getPreferredWidth());
-
-			StorageDataSet dataSet = printPage.getItemDataSet();
-			dataSet.insertRow(false);
-			dataSet.setBigDecimal("UNIQUE_ID", BigDecimal.valueOf(max + 1));
-			dataSet.insertRow(false);
-			// 找到相关联的组件
-
-			dataSet.setBigDecimal("UNIQUE_ID", BigDecimal.valueOf(max + 2));
-			// 找到缓存中的关联的数据对象
 
 			PrintItem headPrintItem = null;
 			PrintItem cellPrintItem = null;
@@ -877,47 +871,86 @@ public class PrintDesignPanel extends JPanel implements MouseMotionListener {
 				cellPrintItem = item;
 				headPrintItem = itemsMap.get(item.getRelationId());
 			}
-			column.setHeaderValue(headPrintItem.getText() == null ? "列" + (table.getColumnModel().getColumnCount() + 1)
-					: headPrintItem.getText());
-			// column.setPreferredWidth(headPrintItem.getWidth());
+			if (TABLE_VIEW.equals(viewType)) {
+				TableColumn oldColumn = tableColumnMap.get(item.getUniqueId());
+				TableColumn column = new TableColumn();
+				column.setModelIndex(table.getColumnModel().getColumnCount());
+				column.setHeaderValue(oldColumn.getHeaderValue());
+				// column.setPreferredWidth(preferredWidth);
+				column.setWidth(oldColumn.getWidth());
+				column.setPreferredWidth(oldColumn.getPreferredWidth());
 
-			PrintTableCellHeaderRenderer headerRenderer = new PrintTableCellHeaderRenderer(this, column, dataSet);
-			headerRenderer.setUniqueId(max + 1);
-			headerRenderer.setRelationId(max + 2);
-			headerRenderer.setType(PrintElementType.TABLE_HEAD);
-			headerRenderer.setIndex(index + 1);
+				StorageDataSet dataSet = printPage.getItemDataSet();
+				dataSet.insertRow(false);
+				dataSet.setBigDecimal("UNIQUE_ID", BigDecimal.valueOf(max + 1));
+				dataSet.setBigDecimal("PANEL_ID", BigDecimal.valueOf(this.getUniqueId()));
+				dataSet.insertRow(false);
+				// 找到相关联的组件
+				dataSet.setBigDecimal("UNIQUE_ID", BigDecimal.valueOf(max + 2));
+				dataSet.setBigDecimal("PANEL_ID", BigDecimal.valueOf(this.getUniqueId()));
+				// 找到缓存中的关联的数据对象
 
-			PrintTableCellHeaderRenderer cellHeaderRenderer = new PrintTableCellHeaderRenderer(this, column, dataSet);
-			cellHeaderRenderer.setUniqueId(max + 2);
-			cellHeaderRenderer.setRelationId(max + 1);
-			cellHeaderRenderer.setType(PrintElementType.TABLE_CELL);
-			cellHeaderRenderer.setIndex(index + 1);
+				column.setHeaderValue(headPrintItem.getText() == null ? "列"
+						+ (table.getColumnModel().getColumnCount() + 1) : headPrintItem.getText());
+				// column.setPreferredWidth(headPrintItem.getWidth());
 
-			column.setHeaderRenderer(headerRenderer);
-			column.setCellRenderer(cellHeaderRenderer);
+				PrintTableCellHeaderRenderer headerRenderer = new PrintTableCellHeaderRenderer(this, column, dataSet);
+				headerRenderer.setUniqueId(max + 1);
+				headerRenderer.setRelationId(max + 2);
+				headerRenderer.setType(PrintElementType.TABLE_HEAD);
+				headerRenderer.setIndex(index + 1);
 
-			TableColumnModel model = table.getColumnModel();
-			model.addColumn(column);
-			table.setColumnModel(model);
+				PrintTableCellHeaderRenderer cellHeaderRenderer = new PrintTableCellHeaderRenderer(this, column,
+						dataSet);
+				cellHeaderRenderer.setUniqueId(max + 2);
+				cellHeaderRenderer.setRelationId(max + 1);
+				cellHeaderRenderer.setType(PrintElementType.TABLE_CELL);
+				cellHeaderRenderer.setIndex(index + 1);
 
-			// 复制属性
-			PrintItemTool.copy(headPrintItem, headerRenderer);
-			PrintItemTool.copy(cellPrintItem, cellHeaderRenderer);
+				column.setHeaderRenderer(headerRenderer);
+				column.setCellRenderer(cellHeaderRenderer);
 
-			table.getModel().setValueAt(cellPrintItem.getText(), 0, table.getColumnCount() - 1);
-			// 复制对应的属性
+				TableColumnModel model = table.getColumnModel();
+				model.addColumn(column);
+				table.setColumnModel(model);
+				// 复制属性
+				PrintItemTool.copy(headPrintItem, headerRenderer);
+				PrintItemTool.copy(cellPrintItem, cellHeaderRenderer);
 
-			// 将表格的滚动条显示在最后的位置
-			JScrollBar jscrollBar = tableScrollPane.getHorizontalScrollBar();
-			jscrollBar.setValue(jscrollBar.getMaximum());
+				table.getModel().setValueAt(cellPrintItem.getText(), 0, table.getColumnCount() - 1);
+				// 复制对应的属性
+				list.add(headerRenderer);
+				list.add(cellHeaderRenderer);
+				// 将表格的滚动条显示在最后的位置
+				JScrollBar jscrollBar = tableScrollPane.getHorizontalScrollBar();
+				jscrollBar.setValue(jscrollBar.getMaximum());
+			} else {
+				// 计算鼠标在当前单元格的
+				Point mousePoint = SwingUtils.getMousePoint(this);;
+				// 如果是表格内容复制到面板，也显示俩个
+
+				PrintElementItem printItem = new PrintElementItem(PrintElementType.LABEL, this);
+				printItem.setUniqueId(max + 1);
+				// addDataSetRow(printItem);
+
+				PrintItemTool.copy(item, printItem);
+				this.add(printItem);
+				this.repaint();
+				printItem.setLocation(mousePoint);
+				printItem.setSize(headPrintItem.getElementWidth(), headPrintItem.getElementHeight());
+				item = printItem;
+				item.setIndex(index + 1);
+				printItem.setParentPanel(this);
+				list.add(item);
+			}
 		}
 
 		if (!TABLE_VIEW.equals(viewType)) {
-
+			// 如果是
 		} else {
 
 		}
-		return null;
+		return list;
 	}
 
 	public PrintItem<?> getPrintItem(int uniqueId) {

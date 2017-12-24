@@ -26,6 +26,7 @@ import com.borland.dx.dataset.DataSet;
 import com.evangelsoft.easyui.print.type.DataColumn;
 import com.evangelsoft.easyui.print.type.PrintItem;
 import com.evangelsoft.easyui.print.type.PrintItemTool;
+import com.evangelsoft.easyui.template.client.nc.StringUtil;
 import com.evangelsoft.workbench.types.BoolStr;
 
 public class PrintElementItem extends JLabel implements Serializable, MouseMotionListener, PrintItem<PrintElementItem> {
@@ -86,6 +87,8 @@ public class PrintElementItem extends JLabel implements Serializable, MouseMotio
 
 	private int elementHeight;
 
+	private String rotation;
+
 	/**
 	 * @Fields ratio : 缩放比率，默认为1
 	 */
@@ -134,13 +137,21 @@ public class PrintElementItem extends JLabel implements Serializable, MouseMotio
 
 	private PrintDesignPanel parentPanel;
 
-//	private PrintDesignPanel designPanel;
+	// private PrintDesignPanel designPanel;
 
 	private PrintPage printPage;
 
 	private JdbTextField dbText;
 
 	JLayeredPane layeredPane;
+
+	public PrintElementItem(String type, PrintDesignPanel panel) {
+		this.dataSet = panel.printPage.getItemDataSet();
+		this.printPage = panel.printPage;
+		this.parentPanel = panel;
+		this.type = type;
+		this.parentPanel = panel;
+	}
 
 	public static PrintElementItem createInstance(PrintElementType type, PrintDesignPanel panel) {
 		PrintElementItem item = null;
@@ -243,12 +254,12 @@ public class PrintElementItem extends JLabel implements Serializable, MouseMotio
 	}
 
 	public void setText(String text) {
-		if (text!=null&& text != this.text && !text.equals(this.text)) {
+		if (text != null && text != this.text && !text.equals(this.text)) {
 			this.text = text;
 			super.setText(text);
 			if (this.dataSet != null) {
 				if (toRow() > -1) {
-					 this.getDataSet().setString("TEXT", text);
+					this.getDataSet().setString("TEXT", text);
 				}
 			}
 		}
@@ -262,13 +273,13 @@ public class PrintElementItem extends JLabel implements Serializable, MouseMotio
 		this.editText = editText;
 	}
 
-//	public PrintDesignPanel getDesignPanel() {
-//		return designPanel;
-//	}
-//
-//	public void setDesignPanel(PrintDesignPanel designPanel) {
-//		this.designPanel = designPanel;
-//	}
+	// public PrintDesignPanel getDesignPanel() {
+	// return designPanel;
+	// }
+	//
+	// public void setDesignPanel(PrintDesignPanel designPanel) {
+	// this.designPanel = designPanel;
+	// }
 
 	public PrintPage getPrintPage() {
 		return printPage;
@@ -331,8 +342,8 @@ public class PrintElementItem extends JLabel implements Serializable, MouseMotio
 						point.setLocation(item.getLocation().x + e.getX(), item.getLocation().y + e.getY());
 						break;
 					case Direction.RIGHT_UP:
-						dimension.setSize(e.getX() - this.getWidth() + item.getWidth(),
-								dimension.getHeight() - e.getY());
+						dimension.setSize(e.getX() - this.getWidth() + item.getElementWidth(), dimension.getHeight()
+								- e.getY());
 						// this.setSize(dimension);
 						point.setLocation(item.getLocation().x, item.getLocation().y + e.getY());
 						break;
@@ -349,22 +360,22 @@ public class PrintElementItem extends JLabel implements Serializable, MouseMotio
 					case Direction.LEFT_DOWN:
 						point.setLocation(item.getLocation().x + e.getX(), item.getLocation().y);
 						dimension.setSize(dimension.getWidth() - e.getX(),
-								e.getY() - this.getHeight() + item.getHeight());
+								e.getY() - this.getHeight() + item.getElementHeight());
 						break;
 					case Direction.RIGHT:
 						point.setLocation(item.getLocation().x, item.getLocation().y);
-						dimension.setSize(e.getX() - this.getWidth() + item.getWidth(), dimension.getHeight());
+						dimension.setSize(e.getX() - this.getWidth() + item.getElementWidth(), dimension.getHeight());
 
 						break;
 					case Direction.RIGHT_DOWN:
 						point.setLocation(item.getLocation().x, item.getLocation().y);
-						dimension.setSize(e.getX() - this.getWidth() + item.getWidth(), e.getY() - this.getHeight()
-								+ item.getHeight());
+						dimension.setSize(e.getX() - this.getWidth() + item.getElementWidth(),
+								e.getY() - this.getHeight() + item.getElementHeight());
 
 						break;
 					case Direction.DOWN:
 						point.setLocation(item.getLocation().x, item.getLocation().y);
-						dimension.setSize(dimension.getWidth(), e.getY() - this.getHeight() + item.getHeight());
+						dimension.setSize(dimension.getWidth(), e.getY() - this.getHeight() + item.getElementHeight());
 						break;
 					default:
 						// isMove = true;
@@ -766,7 +777,7 @@ public class PrintElementItem extends JLabel implements Serializable, MouseMotio
 	}
 
 	public int getElementWidth() {
-		return elementWidth;
+		return this.getWidth();
 	}
 
 	public void setElementWidth(int elementWidth) {
@@ -779,7 +790,7 @@ public class PrintElementItem extends JLabel implements Serializable, MouseMotio
 	}
 
 	public int getElementHeight() {
-		return elementHeight;
+		return this.getHeight();
 	}
 
 	public void setElementHeight(int elementHeight) {
@@ -951,7 +962,21 @@ public class PrintElementItem extends JLabel implements Serializable, MouseMotio
 
 	@Override
 	public PrintElementItem clone() {
-		return null ; 
+		return null;
+	}
+
+	public String getRotation() {
+		return rotation;
+	}
+
+	public void setRotation(String rotation) {
+		if (toRow() > -1) {
+			// 不相等才赋值
+			if (StringUtil.isEmpty(this.rotation) || !rotation.equals(rotation)) {
+				this.rotation = rotation;
+				this.getDataSet().setString("ROTATION", rotation);
+			}
+		}
 	}
 
 }

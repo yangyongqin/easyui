@@ -64,7 +64,7 @@ public interface PrintItem<T extends PrintItem> {
 	 * @author yangyq02
 	 * @date 2017年10月23日
 	 */
-	public int getWidth();
+	public int getElementWidth();
 
 	/**
 	 * @Description: 设置打印元素宽度
@@ -85,7 +85,7 @@ public interface PrintItem<T extends PrintItem> {
 	 * @author yangyq02
 	 * @date 2017年10月23日
 	 */
-	public int getHeight();
+	public int getElementHeight();
 
 	/**
 	 * @Description: 得到打印元素高度
@@ -184,10 +184,8 @@ public interface PrintItem<T extends PrintItem> {
 
 	void setLocation(Point point);
 
-	@DataColumn(dataColumn = "VERTICAL_ALIGNMENT")
 	void setVerticalAlignment(int alignment);
 
-	@DataColumn(dataColumn = "HORIZONTAL_ALIGNMENT")
 	void setHorizontalAlignment(int alignment);
 
 	void delete();
@@ -204,8 +202,10 @@ public interface PrintItem<T extends PrintItem> {
 	@DataColumn(dataColumn = "UNDERLINE")
 	void setIsUnderline(boolean boolStr);
 
+	@DataColumn(dataColumn = "HORIZONTAL_ALIGNMENT")
 	void setElementHorizontalAlignment(String alignment);
 
+	@DataColumn(dataColumn = "VERTICAL_ALIGNMENT")
 	void setElementVerticalAlignment(String alignment);
 
 	Dimension getSize();
@@ -258,4 +258,9 @@ public interface PrintItem<T extends PrintItem> {
 	public int getHorizontalAlignment();
 
 	public int getVerticalAlignment();
+
+	public String getRotation();
+	
+	@DataColumn(dataColumn = "ROTATION")
+	public void setRotation(String rotation);
 }

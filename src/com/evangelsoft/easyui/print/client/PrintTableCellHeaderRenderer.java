@@ -12,6 +12,7 @@ import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.swing.JLabel;
 import javax.swing.JLayeredPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
@@ -101,6 +102,8 @@ public class PrintTableCellHeaderRenderer extends DefaultTableCellRenderer imple
 	private int width;
 
 	private int height;
+
+	private String rotation;
 
 	/**
 	 * @Fields ratio : 缩放比率，默认为1
@@ -340,9 +343,6 @@ public class PrintTableCellHeaderRenderer extends DefaultTableCellRenderer imple
 		return isstrikethrough;
 	}
 
-	public int getElementWidth() {
-		return elementWidth;
-	}
 
 	public void setElementWidth(int elementWidth) {
 		if (toRow() > -1) {
@@ -353,9 +353,6 @@ public class PrintTableCellHeaderRenderer extends DefaultTableCellRenderer imple
 		}
 	}
 
-	public int getElementHeight() {
-		return elementHeight;
-	}
 
 	public void setElementHeight(int elementHeight) {
 		if (toRow() > -1) {
@@ -508,7 +505,8 @@ public class PrintTableCellHeaderRenderer extends DefaultTableCellRenderer imple
 	public void setIsitalic(boolean isitalic) {
 
 		if (toRow() > -1) {
-			if (isitalic != BoolStr.getBoolean(this.getDataSet().getString("ITALIC"))) {
+			if (StringUtil.isEmpty(this.getDataSet().getString("ITALIC"))
+					|| isitalic != BoolStr.getBoolean(this.getDataSet().getString("ITALIC"))) {
 				this.isitalic = isitalic;
 				this.updateFont();
 				this.getDataSet().setString("ITALIC", BoolStr.getString(isitalic));
@@ -560,13 +558,17 @@ public class PrintTableCellHeaderRenderer extends DefaultTableCellRenderer imple
 	}
 
 	public String getElementHorizontalAlignment() {
+		// return elementHorizontalAlignment;
+		if (StringUtil.isEmpty(elementHorizontalAlignment)) {
+			elementHorizontalAlignment = JLabel.LEFT + "";
+		}
 		return elementHorizontalAlignment;
 	}
 
 	public void setElementHorizontalAlignment(String elementHorizontalAlignment) {
 		if (toRow() > -1) {
 			// 不相等才赋值
-			if (!elementHorizontalAlignment.equals(this.elementHorizontalAlignment)) {
+			if (!elementHorizontalAlignment.equals(this.getElementHorizontalAlignment())) {
 				this.elementHorizontalAlignment = elementHorizontalAlignment;
 				this.setHorizontalAlignment(Integer.parseInt(elementHorizontalAlignment));
 				this.getDataSet().setString("HORIZONTAL_ALIGNMENT", elementHorizontalAlignment);
@@ -576,18 +578,23 @@ public class PrintTableCellHeaderRenderer extends DefaultTableCellRenderer imple
 
 	public void setHorizontalAlignment(int alignment) {
 		if (toRow() > -1) {
-			super.setHorizontalAlignment(alignment);
-			if (alignment != Integer.parseInt(this.elementHorizontalAlignment)
-					|| StringUtil.isEmpty(this.getDataSet().getString("HORIZONTAL_ALIGNMENT"))) {
+			if (this.isVisible()) {
+				super.setHorizontalAlignment(alignment);
+			}
+			if (StringUtil.isEmpty(this.getDataSet().getString("HORIZONTAL_ALIGNMENT"))
+					|| alignment != Integer.parseInt(this.getElementHorizontalAlignment())) {
 				// this.alignment = alignment;
 				this.elementHorizontalAlignment = alignment + "";
 				this.updateFont();
-				this.getDataSet().setString("HORIZONTAL_ALIGNMENT", elementVerticalAlignment);
+				this.getDataSet().setString("HORIZONTAL_ALIGNMENT", elementHorizontalAlignment);
 			}
 		}
 	}
 
 	public String getElementVerticalAlignment() {
+		if (StringUtil.isEmpty(elementVerticalAlignment)) {
+			elementVerticalAlignment = JLabel.CENTER + "";
+		}
 		return elementVerticalAlignment;
 	}
 
@@ -595,7 +602,9 @@ public class PrintTableCellHeaderRenderer extends DefaultTableCellRenderer imple
 		if (toRow() > -1) {
 			this.elementVerticalAlignment = elementVerticalAlignment;
 			// 改变当前显示
-			this.setVerticalAlignment(Integer.parseInt(elementVerticalAlignment));
+			if (this.isVisible()) {
+				this.setVerticalAlignment(Integer.parseInt(elementVerticalAlignment));
+			}
 			// 保存到数据表格
 			if (!elementVerticalAlignment.equals(this.getDataSet().getString("VERTICAL_ALIGNMENT"))) {
 				this.getDataSet().setString("VERTICAL_ALIGNMENT", elementVerticalAlignment);
@@ -605,13 +614,16 @@ public class PrintTableCellHeaderRenderer extends DefaultTableCellRenderer imple
 
 	public void setVerticalAlignment(int alignment) {
 		if (toRow() > -1) {
-			super.setHorizontalAlignment(alignment);
-			if (alignment != Integer.parseInt(this.elementVerticalAlignment)
-					|| StringUtil.isEmpty(this.getDataSet().getString("VERTICAL_ALIGNMENT"))) {
+			if (this.isVisible()) {
+				super.setVerticalAlignment(alignment);
+			}
+			if (StringUtil.isEmpty(this.getDataSet().getString("VERTICAL_ALIGNMENT"))
+					|| StringUtil.isEmpty(this.elementVerticalAlignment)
+					|| alignment != Integer.parseInt(this.elementVerticalAlignment)) {
 				// this.alignment = alignment;
 				this.elementVerticalAlignment = alignment + "";
 				this.updateFont();
-				this.getDataSet().setString("VERTICAL_ALIGNMENT", elementVerticalAlignment);
+				this.getDataSet().setString("VERTICAL_ALIGNMENT", String.valueOf(elementVerticalAlignment));
 			}
 		}
 	}
@@ -736,6 +748,20 @@ public class PrintTableCellHeaderRenderer extends DefaultTableCellRenderer imple
 
 	}
 
+	public String getRotation() {
+		return rotation;
+	}
+
+	public void setRotation(String rotation) {
+		if (toRow() > -1) {
+			// 不相等才赋值
+			if (StringUtil.isEmpty(this.rotation) || !rotation.equals(rotation)) {
+				this.rotation = rotation;
+				this.getDataSet().setString("ROTATION", rotation);
+			}
+		}
+	}
+
 	@Override
 	public void setValue(String columnName, Object value) {
 		PrintItemTool.setValue(this, columnName, value);
@@ -746,4 +772,17 @@ public class PrintTableCellHeaderRenderer extends DefaultTableCellRenderer imple
 		return null;
 	}
 
+	public int getElementWidth() {
+		return this.getPrintTableColumn().getWidth();
+	}
+
+	public int getElementHeight() {
+		// 如果是表头，取表头高度，如果是单元格取表格行高
+		if (PrintElementType.TABLE_HEAD.equals(type)) {
+			Dimension size = this.getTable().getTableHeader().getPreferredSize();
+			return size.height;
+		} else {
+			return this.getTable().getRowHeight();
+		}
+	}
 }

@@ -105,21 +105,28 @@ public class PrintItemTool {
 
 	public static void copy(PrintItem<?> dataSource, PrintItem<?> item) {
 		item.setBorder(dataSource.getBorder());
-//		item.setElementHorizontalAlignment(dataSource.getElementHorizontalAlignment());
-//		item.setElementVerticalAlignment(dataSource.getElementVerticalAlignment());
+		/*
+		 * item.setElementHorizontalAlignment(dataSource.
+		 * getElementHorizontalAlignment());
+		 * item.setElementVerticalAlignment(dataSource
+		 * .getElementVerticalAlignment());
+		 */
 		item.setFontName(dataSource.getFontName());;
 		item.setFontSize(dataSource.getFontSize());
-		item.setHeight(dataSource.getHeight());
+		item.setHeight(dataSource.getElementHeight());
 		// item.setHorizontalAlignment(dataSource.gete);
 		item.setIsBold(dataSource.getIsBold());
 		item.setIsitalic(dataSource.getIsitalic());
 		item.setIsUnderline(dataSource.getIsUnderline());
+		item.setIsstrikethrough(dataSource.getIsstrikethrough());
 		item.setSize(dataSource.getSize());
 		item.setText(dataSource.getText());
 		// item.setVerticalAlignment(dataSource.getV);
-		item.setWidth(dataSource.getWidth());
-		item.setHorizontalAlignment(dataSource.getHorizontalAlignment());
-		item.setVerticalAlignment(dataSource.getVerticalAlignment());
+		item.setWidth(dataSource.getElementWidth());
+
+		item.setHorizontalAlignment(Integer.parseInt(dataSource.getElementHorizontalAlignment()));
+		item.setVerticalAlignment(Integer.parseInt(dataSource.getElementVerticalAlignment()));	
+
 	}
 
 }
