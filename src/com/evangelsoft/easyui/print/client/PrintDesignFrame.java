@@ -271,7 +271,7 @@ public class PrintDesignFrame extends UMasterDetailFrame {
 	private final LineBorder defaultBorder = new LineBorder(Color.GRAY, 1);
 
 	// 选中的list的集合
-	public ArrayList<PrintItem<?>> selectList = new ArrayList<PrintItem<?>>();
+	public List<PrintItem<?>> selectList = new ArrayList<PrintItem<?>>();
 
 	/**
 	 * @Fields selectPanel : 被选中的面板
@@ -2022,7 +2022,24 @@ public class PrintDesignFrame extends UMasterDetailFrame {
 
 				// 复制只有在面板上才会触发
 				PrintDesignPanel panel = selectPanel;
-				panel.copyItems(copyCacheItem);
+				List<PrintItem<?>> tempSelectList= panel.copyItems(copyCacheItem);
+				
+				// 清除之前选中的样式
+				for (PrintItem<?> com : selectList) {
+					if (com != null)
+						com.setBorder(defaultBorder);
+				}
+				selectList.clear();
+				selectList=tempSelectList;
+				if (tempSelectList != null && tempSelectList.size() > 0) {
+					selectComp  = tempSelectList.get(0);
+					/* item.setBorder(clicedBorder); */
+					for (PrintItem<?> com : tempSelectList) {
+						/* com.setBorder(defaultBorder); */
+						com.setBorder(clicedBorder);
+						com.addMouseListener(itemSelectAdapter);
+					}
+				}
 			}// 删除
 			else if (e.getSource() == deleteItem) {
 				for (int i = 0; i < selectList.size(); i++) {
@@ -2219,7 +2236,7 @@ public class PrintDesignFrame extends UMasterDetailFrame {
 		return Integer.parseInt(fontSize.getValue().toString());
 	}
 
-	public ArrayList<PrintItem<?>> getSelectList() {
+	public List<PrintItem<?>> getSelectList() {
 		return selectList;
 	}
 

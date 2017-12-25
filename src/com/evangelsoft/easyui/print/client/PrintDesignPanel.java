@@ -715,6 +715,8 @@ public class PrintDesignPanel extends JPanel implements MouseMotionListener {
 			PrintElementItem printItem = PrintElementItem.createInstance(type, this);
 			printItem.setUniqueId(max + 1);
 			addDataSetRow(printItem);
+			printItem.setText(printType.getText());
+			
 			this.add(printItem);
 			printItem.setLocation(point);
 			printItem.setSize(100, 30);
