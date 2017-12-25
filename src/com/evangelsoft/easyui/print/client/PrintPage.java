@@ -177,7 +177,7 @@ public class PrintPage {
 		this.itemDataSet = itemDataSet;
 	}
 
-	public ArrayList<PrintItem<?>> getSelectList() {
+	public List<PrintItem<?>> getSelectList() {
 		return printDesignFrame.selectList;
 	}
 
