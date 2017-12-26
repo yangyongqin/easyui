@@ -151,6 +151,7 @@ public class PrintElementItem extends JLabel implements Serializable, MouseMotio
 		this.parentPanel = panel;
 		this.type = type;
 		this.parentPanel = panel;
+		this.addMouseMotionListener(this);
 	}
 
 	public static PrintElementItem createInstance(PrintElementType type, PrintDesignPanel panel) {
@@ -763,6 +764,9 @@ public class PrintElementItem extends JLabel implements Serializable, MouseMotio
 	}
 
 	public String getElementVerticalAlignment() {
+		if (StringUtil.isEmpty(elementVerticalAlignment)) {
+			elementVerticalAlignment = JLabel.CENTER + "";
+		}
 		return elementVerticalAlignment;
 	}
 

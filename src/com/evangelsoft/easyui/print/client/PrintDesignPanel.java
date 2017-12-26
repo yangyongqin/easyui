@@ -716,7 +716,7 @@ public class PrintDesignPanel extends JPanel implements MouseMotionListener {
 			printItem.setUniqueId(max + 1);
 			addDataSetRow(printItem);
 			printItem.setText(printType.getText());
-			
+
 			this.add(printItem);
 			printItem.setLocation(point);
 			printItem.setSize(100, 30);
@@ -894,7 +894,6 @@ public class PrintDesignPanel extends JPanel implements MouseMotionListener {
 
 				column.setHeaderValue(headPrintItem.getText() == null ? "列"
 						+ (table.getColumnModel().getColumnCount() + 1) : headPrintItem.getText());
-				// column.setPreferredWidth(headPrintItem.getWidth());
 
 				PrintTableCellHeaderRenderer headerRenderer = new PrintTableCellHeaderRenderer(this, column, dataSet);
 				headerRenderer.setUniqueId(max + 1);
@@ -945,12 +944,97 @@ public class PrintDesignPanel extends JPanel implements MouseMotionListener {
 				printItem.setParentPanel(this);
 				list.add(item);
 			}
-		}
-
-		if (!TABLE_VIEW.equals(viewType)) {
-			// 如果是
 		} else {
+			if (TABLE_VIEW.equals(viewType)) {
+				PrintItem headPrintItem = null;
+				PrintItem cellPrintItem = null;
+				// 如果当前是表头
+				if (item.getType() == PrintElementType.TABLE_HEAD) {
+					headPrintItem = item;
+					cellPrintItem = itemsMap.get(item.getRelationId());
+				} else {
+					cellPrintItem = item;
+					headPrintItem = itemsMap.get(item.getRelationId());
+				}
 
+				TableColumn oldColumn = tableColumnMap.get(item.getUniqueId());
+				TableColumn column = new TableColumn();
+				column.setModelIndex(table.getColumnModel().getColumnCount());
+				column.setHeaderValue(oldColumn==null?item.getText(): oldColumn.getHeaderValue());
+				// column.setPreferredWidth(preferredWidth);
+				column.setWidth(oldColumn==null?item.getElementWidth(): oldColumn.getWidth());
+				column.setPreferredWidth(oldColumn==null?item.getElementWidth():oldColumn.getPreferredWidth());
+
+				StorageDataSet dataSet = printPage.getItemDataSet();
+				dataSet.insertRow(false);
+				dataSet.setBigDecimal("UNIQUE_ID", BigDecimal.valueOf(max + 1));
+				dataSet.setBigDecimal("PANEL_ID", BigDecimal.valueOf(this.getUniqueId()));
+				dataSet.insertRow(false);
+				// 找到相关联的组件
+				dataSet.setBigDecimal("UNIQUE_ID", BigDecimal.valueOf(max + 2));
+				dataSet.setBigDecimal("PANEL_ID", BigDecimal.valueOf(this.getUniqueId()));
+				// 找到缓存中的关联的数据对象
+
+				column.setHeaderValue(headPrintItem == null || headPrintItem.getText() == null ? "列"
+						+ (table.getColumnModel().getColumnCount() + 1) : headPrintItem.getText());
+
+				PrintTableCellHeaderRenderer headerRenderer = new PrintTableCellHeaderRenderer(this, column, dataSet);
+				headerRenderer.setUniqueId(max + 1);
+				headerRenderer.setRelationId(max + 2);
+				headerRenderer.setType(PrintElementType.TABLE_HEAD);
+				headerRenderer.setIndex(index + 1);
+
+				PrintTableCellHeaderRenderer cellHeaderRenderer = new PrintTableCellHeaderRenderer(this, column,
+						dataSet);
+				cellHeaderRenderer.setUniqueId(max + 2);
+				cellHeaderRenderer.setRelationId(max + 1);
+				cellHeaderRenderer.setType(PrintElementType.TABLE_CELL);
+				cellHeaderRenderer.setIndex(index + 1);
+
+				column.setHeaderRenderer(headerRenderer);
+				column.setCellRenderer(cellHeaderRenderer);
+
+				TableColumnModel model = table.getColumnModel();
+				model.addColumn(column);
+				table.setColumnModel(model);
+				// 复制属性
+				if (headPrintItem == null) {
+					// 如果是空去默认值
+					getDefaultValue(headerRenderer);
+				} else {
+					PrintItemTool.copy(headPrintItem, headerRenderer);
+				}
+				if (cellPrintItem == null) {
+					getDefaultValue(cellHeaderRenderer);
+				} else {
+					PrintItemTool.copy(cellPrintItem, cellHeaderRenderer);
+				}
+
+				table.getModel().setValueAt(cellPrintItem.getText(), 0, table.getColumnCount() - 1);
+				// 复制对应的属性
+				list.add(headerRenderer);
+				list.add(cellHeaderRenderer);
+				// 将表格的滚动条显示在最后的位置
+				JScrollBar jscrollBar = tableScrollPane.getHorizontalScrollBar();
+				jscrollBar.setValue(jscrollBar.getMaximum());
+			} else {
+				Point mousePoint = SwingUtils.getMousePoint(this);;
+				// 如果是表格内容复制到面板，也显示俩个
+
+				PrintElementItem printItem = new PrintElementItem(PrintElementType.LABEL, this);
+				printItem.setUniqueId(max + 1);
+				// addDataSetRow(printItem);
+
+				PrintItemTool.copy(item, printItem);
+				this.add(printItem);
+				this.repaint();
+				printItem.setLocation(mousePoint);
+				printItem.setSize(item.getElementWidth(), item.getElementHeight());
+				item = printItem;
+				item.setIndex(index + 1);
+				printItem.setParentPanel(this);
+				list.add(item);
+			}
 		}
 		return list;
 	}
