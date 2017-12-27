@@ -1,11 +1,15 @@
 package com.evangelsoft.easyui.print.client;
 
+import java.awt.BasicStroke;
 import java.awt.Container;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.RenderingHints;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
 import java.awt.font.TextAttribute;
@@ -23,7 +27,6 @@ import javax.swing.border.Border;
 import com.alee.utils.SwingUtils;
 import com.borland.dbswing.JdbTextField;
 import com.borland.dx.dataset.DataSet;
-import com.evangelsoft.easyui.print.type.DataColumn;
 import com.evangelsoft.easyui.print.type.PrintItem;
 import com.evangelsoft.easyui.print.type.PrintItemTool;
 import com.evangelsoft.easyui.template.client.nc.StringUtil;
@@ -982,5 +985,31 @@ public class PrintElementItem extends JLabel implements Serializable, MouseMotio
 			}
 		}
 	}
+
+	@Override
+	protected void paintComponent(Graphics g) {
+		// 如果是线条，
+		if (PrintElementType.LINE.equals(type)) {
+			// 判断线条方向
+
+			Graphics2D g2d = (Graphics2D) g;
+			g2d.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL, RenderingHints.VALUE_STROKE_PURE     );
+			g2d.setStroke(new BasicStroke(5.0f));
+			g.drawLine(0 - 3, 0, this.getWidth() + 3, this.getHeight());
+
+			/*
+			 * g.setColor(new Color(237, 237, 237)); g.fillRect(0, 0, 1, 1);
+			 * g.setColor(StyleConstants.darkBorderColor); g.drawLine(0, 0,
+			 * getWidth() - 1, getHeight() - 1);
+			 */
+			// g.set
+		} else {
+			super.paintComponent(g);
+		}
+	}
+	/*
+	 * @Override public void print(Graphics g) { // TODO Auto-generated method
+	 * stub super.print(g); }
+	 */
 
 }

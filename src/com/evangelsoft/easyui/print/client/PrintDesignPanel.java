@@ -711,8 +711,8 @@ public class PrintDesignPanel extends JPanel implements MouseMotionListener {
 			final JScrollBar jscrollBar = tableScrollPane.getHorizontalScrollBar();
 			jscrollBar.setValue(jscrollBar.getMaximum());
 		} else {
-			PrintElementType type = new PrintElementType(PrintElementType.LABEL, printType.getText(), null);
-			PrintElementItem printItem = PrintElementItem.createInstance(type, this);
+//			PrintElementType type = new PrintElementType(PrintElementType.LABEL, printType.getText(), null);
+			PrintElementItem printItem = PrintElementItem.createInstance(printType, this);
 			printItem.setUniqueId(max + 1);
 			addDataSetRow(printItem);
 			printItem.setText(printType.getText());

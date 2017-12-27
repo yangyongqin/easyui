@@ -853,17 +853,17 @@ public class PrintDesignFrame extends UMasterDetailFrame {
 
 		// componentList.setLayout(new BoxLayout(componentList, 3));
 
-		componentdModel.addElement(new PrintElementType("0", " 图表",
+		componentdModel.addElement(new PrintElementType(PrintElementType.CHART, " 图表",
 				"com/evangelsoft/workbench/resources/buttons/find.png"));
-		componentdModel.addElement(new PrintElementType("1", " 图片",
+		componentdModel.addElement(new PrintElementType(PrintElementType.IMAGE, " 图片",
 				"com/evangelsoft/workbench/resources/buttons/find.png"));
-		componentdModel.addElement(new PrintElementType("2", " 表格",
+		componentdModel.addElement(new PrintElementType(PrintElementType.TABLE, " 表格",
 				"com/evangelsoft/workbench/resources/buttons/find.png"));
-		componentdModel.addElement(new PrintElementType("3", " 线条",
+		componentdModel.addElement(new PrintElementType(PrintElementType.LINE, " 线条",
 				"com/evangelsoft/workbench/resources/buttons/find.png"));
-		componentdModel.addElement(new PrintElementType("4", " 静态文本",
+		componentdModel.addElement(new PrintElementType(PrintElementType.LABEL, " 静态文本",
 				"com/evangelsoft/workbench/resources/buttons/find.png"));
-		componentdModel.addElement(new PrintElementType("5", " 值控件",
+		componentdModel.addElement(new PrintElementType(PrintElementType.TEXT, " 值控件",
 				"com/evangelsoft/workbench/resources/buttons/find.png"));
 		componentList.setCellRenderer(new DefaultListCellRenderer() {
 
@@ -2022,17 +2022,17 @@ public class PrintDesignFrame extends UMasterDetailFrame {
 
 				// 复制只有在面板上才会触发
 				PrintDesignPanel panel = selectPanel;
-				List<PrintItem<?>> tempSelectList= panel.copyItems(copyCacheItem);
-				
+				List<PrintItem<?>> tempSelectList = panel.copyItems(copyCacheItem);
+
 				// 清除之前选中的样式
 				for (PrintItem<?> com : selectList) {
 					if (com != null)
 						com.setBorder(defaultBorder);
 				}
 				selectList.clear();
-				selectList=tempSelectList;
+				selectList = tempSelectList;
 				if (tempSelectList != null && tempSelectList.size() > 0) {
-					selectComp  = tempSelectList.get(0);
+					selectComp = tempSelectList.get(0);
 					/* item.setBorder(clicedBorder); */
 					for (PrintItem<?> com : tempSelectList) {
 						/* com.setBorder(defaultBorder); */
