@@ -36,12 +36,12 @@ import javax.swing.table.JTableHeader;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 
-import com.alee.utils.SwingUtils;
 import com.borland.dbswing.TableScrollPane;
 import com.borland.dx.dataset.StorageDataSet;
 import com.evangelsoft.easyui.print.type.PrintItem;
 import com.evangelsoft.easyui.print.type.PrintItemTool;
 import com.evangelsoft.easyui.template.client.nc.StringUtil;
+import com.evangelsoft.easyui.tool.SwingUtils;
 import com.evangelsoft.econnect.dataformat.Record;
 import com.evangelsoft.econnect.dataformat.RecordSet;
 import com.evangelsoft.workbench.types.BoolStr;

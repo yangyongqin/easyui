@@ -20,12 +20,12 @@ import javax.swing.border.LineBorder;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableColumn;
 
-import com.alee.utils.SwingUtils;
 import com.borland.dbswing.JdbTextField;
 import com.borland.dx.dataset.DataSet;
 import com.evangelsoft.easyui.print.type.PrintItem;
 import com.evangelsoft.easyui.print.type.PrintItemTool;
 import com.evangelsoft.easyui.template.client.nc.StringUtil;
+import com.evangelsoft.easyui.tool.SwingUtils;
 import com.evangelsoft.workbench.types.BoolStr;
 
 public class PrintTableCellHeaderRenderer extends DefaultTableCellRenderer implements

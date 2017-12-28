@@ -24,12 +24,12 @@ import javax.swing.JLayeredPane;
 import javax.swing.JTextField;
 import javax.swing.border.Border;
 
-import com.alee.utils.SwingUtils;
 import com.borland.dbswing.JdbTextField;
 import com.borland.dx.dataset.DataSet;
 import com.evangelsoft.easyui.print.type.PrintItem;
 import com.evangelsoft.easyui.print.type.PrintItemTool;
 import com.evangelsoft.easyui.template.client.nc.StringUtil;
+import com.evangelsoft.easyui.tool.SwingUtils;
 import com.evangelsoft.workbench.types.BoolStr;
 
 public class PrintElementItem extends JLabel implements Serializable, MouseMotionListener, PrintItem<PrintElementItem> {

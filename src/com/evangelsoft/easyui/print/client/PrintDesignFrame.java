@@ -79,7 +79,6 @@ import javax.swing.table.TableColumnModel;
 
 import org.apache.commons.collections.CollectionUtils;
 
-import com.alee.utils.SwingUtils;
 import com.borland.dbswing.JdbComboBox;
 import com.borland.dbswing.JdbTable;
 import com.borland.dbswing.JdbTextField;
@@ -105,6 +104,7 @@ import com.evangelsoft.easyui.template.type.FrameType;
 import com.evangelsoft.easyui.tool.ColumnsHelp;
 import com.evangelsoft.easyui.tool.ComponentResize;
 import com.evangelsoft.easyui.tool.DataTypeTool;
+import com.evangelsoft.easyui.tool.SwingUtils;
 import com.evangelsoft.easyui.type.FieldRecord;
 import com.evangelsoft.econnect.DataModel;
 import com.evangelsoft.econnect.dataformat.CodeValue;
