@@ -54,6 +54,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
@@ -114,6 +115,7 @@ import com.evangelsoft.econnect.dataformat.RecordSet;
 import com.evangelsoft.workbench.clientdataset.DataSetHelper;
 import com.evangelsoft.workbench.clientutil.CodeTable;
 import com.evangelsoft.workbench.config.client.SysCodeHelper;
+import com.evangelsoft.workbench.hotel.room.client.CheckInBillFrame;
 
 /**
  * ClassName: PrintDesignFrame
@@ -2067,6 +2069,15 @@ public class PrintDesignFrame extends UMasterDetailFrame {
 				 * (copyFormatCacheItem.getElementVerticalAlignment()); }
 				 */
 
+			} else if (e.getSource() == deletePaneItem) {
+				// 删除当前选中面板
+				// if(JOptionPane.showConfirmDialog(parentComponent,
+				// "您是否删除当前面板及其面板上所有组？"))
+				if (JOptionPane.YES_OPTION != JOptionPane.showConfirmDialog(PrintDesignFrame.this,
+						"您是否删除当前面板及其面板上所有组？", "", JOptionPane.YES_NO_OPTION)) {
+					return;
+				}
+				// 删除整个面板
 			} else if (e.getSource() == showAttribute) {
 				showDialog.setVisible(true);
 			}
