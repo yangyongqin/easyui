@@ -991,26 +991,13 @@ public class PrintElementItem extends JLabel implements Serializable, MouseMotio
 		// 如果是线条，
 		if (PrintElementType.LINE.equals(type)) {
 			// 判断线条方向
-
 			Graphics2D g2d = (Graphics2D) g;
 			// 添加抗锯齿效果
 			g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 			g2d.setStroke(new BasicStroke(1.50f));
-			g.drawLine(0 , 0, this.getWidth() , this.getHeight());
-
-			/*
-			 * g.setColor(new Color(237, 237, 237)); g.fillRect(0, 0, 1, 1);
-			 * g.setColor(StyleConstants.darkBorderColor); g.drawLine(0, 0,
-			 * getWidth() - 1, getHeight() - 1);
-			 */
-			// g.set
+			g.drawLine(0, 0, this.getWidth(), this.getHeight());
 		} else {
 			super.paintComponent(g);
 		}
 	}
-	/*
-	 * @Override public void print(Graphics g) { // TODO Auto-generated method
-	 * stub super.print(g); }
-	 */
-
 }

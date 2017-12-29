@@ -915,8 +915,8 @@ public class PrintDesignFrame extends UMasterDetailFrame {
 		rightMenu.add(copyForamtItem);
 		rightMenu.add(pasteForamtItem);
 
-		copyItem.addActionListener(itemAction);
-		pasteItem.addActionListener(itemAction);
+		copyItem.addActionListener(copyItemAction);
+		pasteItem.addActionListener(pasteItemAction);
 		deleteItem.addActionListener(itemAction);
 		copyForamtItem.addActionListener(itemAction);
 		pasteForamtItem.addActionListener(itemAction);
@@ -2053,21 +2053,17 @@ public class PrintDesignFrame extends UMasterDetailFrame {
 			}// 粘贴格式
 			else if (e.getSource() == pasteForamtItem) {
 				// 将当前缓存内存的对象格式复制到选中的集合
-				/*
-				 * for (int i = 0; i < selectList.size(); i++) { PrintItem temp
-				 * = selectList.get(i);
-				 * temp.setFontName(copyFormatCacheItem.getFontName());
-				 * temp.setFontSize(copyFormatCacheItem.getFontSize());
-				 * temp.setIsBold(copyFormatCacheItem.getIsBold());
-				 * temp.setIsitalic(copyFormatCacheItem.getIsitalic());
-				 * temp.setIsstrikethrough
-				 * (copyFormatCacheItem.getIsstrikethrough());
-				 * temp.setIsUnderline(copyFormatCacheItem.getIsUnderline());
-				 * temp.setElementHorizontalAlignment(copyFormatCacheItem.
-				 * getElementHorizontalAlignment());
-				 * temp.setElementVerticalAlignment
-				 * (copyFormatCacheItem.getElementVerticalAlignment()); }
-				 */
+				for (int i = 0; i < selectList.size(); i++) {
+					PrintItem temp = selectList.get(i);
+					temp.setFontName(copyFormatCacheItem.getFontName());
+					temp.setFontSize(copyFormatCacheItem.getFontSize());
+					temp.setIsBold(copyFormatCacheItem.getIsBold());
+					temp.setIsitalic(copyFormatCacheItem.getIsitalic());
+					temp.setIsstrikethrough(copyFormatCacheItem.getIsstrikethrough());
+					temp.setIsUnderline(copyFormatCacheItem.getIsUnderline());
+					temp.setElementHorizontalAlignment(copyFormatCacheItem.getElementHorizontalAlignment());
+					temp.setElementVerticalAlignment(copyFormatCacheItem.getElementVerticalAlignment());
+				}
 
 			} else if (e.getSource() == deletePaneItem) {
 				// 删除当前选中面板
@@ -2161,12 +2157,19 @@ public class PrintDesignFrame extends UMasterDetailFrame {
 
 	private class CopyItemAction extends AbstractAction {
 
+		/**
+		 * @Fields serialVersionUID : 版本号
+		 */
+		private static final long serialVersionUID = 1L;
+
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			// 将当前选中对象放在复制缓存对象
+			// 将当前选中的对象放到缓存里面
 			// copyCacheItem = selectList;
 			copyCacheItem.clear();
 			copyCacheItem.addAll(selectList);
+			pasteItem.setEnabled(true);
+
 		}
 
 	}
@@ -2194,9 +2197,35 @@ public class PrintDesignFrame extends UMasterDetailFrame {
 
 	private class PasteItemAction extends AbstractAction {
 
+		/**
+		 * @Fields serialVersionUID : 版本号
+		 */
+		private static final long serialVersionUID = 1L;
+
 		@Override
 		public void actionPerformed(ActionEvent e) {
+			// 粘贴获取当前选中的面板
 
+			// 复制只有在面板上才会触发
+			PrintDesignPanel panel = selectPanel;
+			List<PrintItem<?>> tempSelectList = panel.copyItems(copyCacheItem);
+
+			// 清除之前选中的样式
+			for (PrintItem<?> com : selectList) {
+				if (com != null)
+					com.setBorder(defaultBorder);
+			}
+			selectList.clear();
+			selectList = tempSelectList;
+			if (tempSelectList != null && tempSelectList.size() > 0) {
+				selectComp = tempSelectList.get(0);
+				/* item.setBorder(clicedBorder); */
+				for (PrintItem<?> com : tempSelectList) {
+					/* com.setBorder(defaultBorder); */
+					com.setBorder(clicedBorder);
+					com.addMouseListener(itemSelectAdapter);
+				}
+			}
 		}
 
 	}
@@ -2211,6 +2240,18 @@ public class PrintDesignFrame extends UMasterDetailFrame {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
+			// 将当前缓存内存的对象格式复制到选中的集合
+			for (int i = 0; i < selectList.size(); i++) {
+				PrintItem temp = selectList.get(i);
+				temp.setFontName(copyFormatCacheItem.getFontName());
+				temp.setFontSize(copyFormatCacheItem.getFontSize());
+				temp.setIsBold(copyFormatCacheItem.getIsBold());
+				temp.setIsitalic(copyFormatCacheItem.getIsitalic());
+				temp.setIsstrikethrough(copyFormatCacheItem.getIsstrikethrough());
+				temp.setIsUnderline(copyFormatCacheItem.getIsUnderline());
+				temp.setElementHorizontalAlignment(copyFormatCacheItem.getElementHorizontalAlignment());
+				temp.setElementVerticalAlignment(copyFormatCacheItem.getElementVerticalAlignment());
+			}
 		}
 
 	}
