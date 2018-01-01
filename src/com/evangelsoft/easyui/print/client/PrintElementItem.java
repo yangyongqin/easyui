@@ -26,6 +26,7 @@ import javax.swing.border.Border;
 
 import com.borland.dbswing.JdbTextField;
 import com.borland.dx.dataset.DataSet;
+import com.evangelsoft.easyui.print.type.PrintDesignView;
 import com.evangelsoft.easyui.print.type.PrintItem;
 import com.evangelsoft.easyui.print.type.PrintItemTool;
 import com.evangelsoft.easyui.template.client.nc.StringUtil;
@@ -138,9 +139,9 @@ public class PrintElementItem extends JLabel implements Serializable, MouseMotio
 
 	private int minheight = 0;
 
-	private PrintDesignPanel parentPanel;
+	private PrintDesignView parentPanel;
 
-	// private PrintDesignPanel designPanel;
+	// private PrintDesignView designPanel;
 
 	private PrintPage printPage;
 
@@ -148,16 +149,16 @@ public class PrintElementItem extends JLabel implements Serializable, MouseMotio
 
 	JLayeredPane layeredPane;
 
-	public PrintElementItem(String type, PrintDesignPanel panel) {
-		this.dataSet = panel.printPage.getItemDataSet();
-		this.printPage = panel.printPage;
+	public PrintElementItem(String type, PrintDesignView panel) {
+		this.dataSet = panel.getPrintPage().getItemDataSet();
+		this.printPage = panel.getPrintPage();
 		this.parentPanel = panel;
 		this.type = type;
 		this.parentPanel = panel;
 		this.addMouseMotionListener(this);
 	}
 
-	public static PrintElementItem createInstance(PrintElementType type, PrintDesignPanel panel) {
+	public static PrintElementItem createInstance(PrintElementType type, PrintDesignView panel) {
 		PrintElementItem item = null;
 		if (PrintElementType.CHART == type.getType()) {
 			item = createChart(type, panel);
@@ -176,62 +177,62 @@ public class PrintElementItem extends JLabel implements Serializable, MouseMotio
 		return item;
 	}
 
-	public PrintElementItem(PrintElementType type, PrintDesignPanel panel, boolean isAdd) {
-		this.dataSet = panel.printPage.getItemDataSet();
-		this.printPage = panel.printPage;
+	public PrintElementItem(PrintElementType type, PrintDesignView panel, boolean isAdd) {
+		this.dataSet = panel.getPrintPage().getItemDataSet();
+		this.printPage = panel.getPrintPage();
 		this.parentPanel = panel;
 		this.type = type.getType();
 		this.parentPanel = panel;
 	}
 
-	public PrintElementItem(PrintElementType type, PrintDesignPanel panel, String str, boolean isAdd) {
+	public PrintElementItem(PrintElementType type, PrintDesignView panel, String str, boolean isAdd) {
 		this(type, panel, isAdd);
 		this.setText(str);
 	}
 
-	public static PrintElementItem createLabel(PrintElementType type, PrintDesignPanel panel) {
+	public static PrintElementItem createLabel(PrintElementType type, PrintDesignView panel) {
 		PrintElementItem item = new PrintElementItem(type, panel, true);
 		// item.comp = new JLabel();
 		return item;
 	}
 
-	public static PrintElementItem createText(PrintElementType type, PrintDesignPanel panel) {
+	public static PrintElementItem createText(PrintElementType type, PrintDesignView panel) {
 		PrintElementItem item = new PrintElementItem(type, panel, true);
 		// item.comp = new JTextField();
 		return item;
 	}
 
-	public static PrintElementItem createLabel(PrintElementType type, PrintDesignPanel panel, String str) {
+	public static PrintElementItem createLabel(PrintElementType type, PrintDesignView panel, String str) {
 		PrintElementItem item = new PrintElementItem(type, panel, str, true);
 		// item.comp = new JLabel(str);
 		return item;
 	}
 
-	public static PrintElementItem createText(PrintElementType type, PrintDesignPanel panel, String text) {
+	public static PrintElementItem createText(PrintElementType type, PrintDesignView panel, String text) {
 		PrintElementItem item = new PrintElementItem(type, panel, text, true);
 		// item.comp = new JTextField(text);
 		return item;
 	}
 
-	public static PrintElementItem createLine(PrintElementType type, PrintDesignPanel panel) {
+	public static PrintElementItem createLine(PrintElementType type, PrintDesignView panel) {
 		PrintElementItem item = new PrintElementItem(type, panel, true);
 		// item.comp = new JLabel();
 		return item;
 	}
 
-	public static PrintElementItem createTable(PrintElementType type, PrintDesignPanel panel) {
+	public static PrintElementItem createTable(PrintElementType type, PrintDesignView panel) {
 		PrintElementItem item = new PrintElementItem(type, panel, true);
 		// item.comp = new JTable();
 		return item;
 	}
 
-	public static PrintElementItem createChart(PrintElementType type, PrintDesignPanel panel) {
+	public static PrintElementItem createChart(PrintElementType type, PrintDesignView panel) {
 		PrintElementItem item = new PrintElementItem(type, panel, true);
 		// item.comp = new JPanel();
 		return item;
 	}
 
-	public static PrintElementItem createImage(PrintElementType type, PrintDesignPanel panel) {
+	public static PrintElementItem createImage(PrintElementType type, PrintDesignView panel) {
 		PrintElementItem item = new PrintElementItem(type, panel, true);
 		// item.comp = new JPanel();
 		return item;
@@ -277,11 +278,11 @@ public class PrintElementItem extends JLabel implements Serializable, MouseMotio
 		this.editText = editText;
 	}
 
-	// public PrintDesignPanel getDesignPanel() {
+	// public PrintDesignView getDesignPanel() {
 	// return designPanel;
 	// }
 	//
-	// public void setDesignPanel(PrintDesignPanel designPanel) {
+	// public void setDesignPanel(PrintDesignView designPanel) {
 	// this.designPanel = designPanel;
 	// }
 
@@ -894,11 +895,11 @@ public class PrintElementItem extends JLabel implements Serializable, MouseMotio
 		super.setBorder(border);
 	}
 
-	public PrintDesignPanel getParentPanel() {
+	public PrintDesignView getParentPanel() {
 		return parentPanel;
 	}
 
-	public void setParentPanel(PrintDesignPanel parentPanel) {
+	public void setParentPanel(PrintDesignView parentPanel) {
 		this.parentPanel = parentPanel;
 	}
 

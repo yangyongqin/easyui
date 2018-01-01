@@ -8,7 +8,6 @@ import java.awt.event.MouseListener;
 
 import javax.swing.border.Border;
 
-import com.evangelsoft.easyui.print.client.PrintDesignPanel;
 import com.evangelsoft.easyui.print.client.PrintPage;
 
 @SuppressWarnings("rawtypes")
@@ -232,7 +231,7 @@ public interface PrintItem<T extends PrintItem> {
 
 	public PrintPage getPrintPage();
 
-	PrintDesignPanel getParentPanel();
+	PrintDesignView getParentPanel();
 
 	Font getFont();
 
@@ -260,7 +259,7 @@ public interface PrintItem<T extends PrintItem> {
 	public int getVerticalAlignment();
 
 	public String getRotation();
-	
+
 	@DataColumn(dataColumn = "ROTATION")
 	public void setRotation(String rotation);
 }

@@ -17,6 +17,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.image.BufferedImage;
+import java.beans.Transient;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -28,6 +29,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollBar;
 import javax.swing.JTable;
 import javax.swing.border.AbstractBorder;
+import javax.swing.border.LineBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.TableColumnModelEvent;
@@ -38,6 +40,7 @@ import javax.swing.table.TableColumnModel;
 
 import com.borland.dbswing.TableScrollPane;
 import com.borland.dx.dataset.StorageDataSet;
+import com.evangelsoft.easyui.print.type.PrintDesignView;
 import com.evangelsoft.easyui.print.type.PrintItem;
 import com.evangelsoft.easyui.print.type.PrintItemTool;
 import com.evangelsoft.easyui.template.client.nc.StringUtil;
@@ -46,17 +49,7 @@ import com.evangelsoft.econnect.dataformat.Record;
 import com.evangelsoft.econnect.dataformat.RecordSet;
 import com.evangelsoft.workbench.types.BoolStr;
 
-public class PrintDesignPanel extends JPanel implements MouseMotionListener {
-
-	/**
-	 * @Fields TABLE_VIEW : 表格显示
-	 */
-	public static String TABLE_VIEW = "T";
-
-	/**
-	 * @Fields ZDY_VIEW : 自定义显示
-	 */
-	public static String ZDY_VIEW = "N";
+public class PrintDesignPanel extends JPanel implements PrintDesignView {
 
 	// public LinkedHashMap<PrintDesignPanel, Integer> linkedPanel=new
 	// LinkedHashMap<PrintDesignPanel, Integer>();
@@ -67,7 +60,6 @@ public class PrintDesignPanel extends JPanel implements MouseMotionListener {
 	// HashMap<Integer, PrintItem<?>>();
 
 	// 用来排序，修改高度将其他的高度变小
-	private List<PrintDesignPanel> linkedPanel;
 
 	private static final long serialVersionUID = 2342887949083952968L;
 
@@ -141,10 +133,8 @@ public class PrintDesignPanel extends JPanel implements MouseMotionListener {
 	public PrintDesignPanel(PrintPage printPage, String watermark, String viewType, StorageDataSet dataSet,
 			boolean isAdd) {
 		this.printPage = printPage;
-		this.linkedPanel = printPage.getLinkedPanel();
-		this.addMouseMotionListener(this);
-		this.index = linkedPanel.size();
-		linkedPanel.add(this);
+		// this.addMouseMotionListener(this);
+		// this.index = linkedPanel.size();
 		this.viewType = viewType;
 		this.setLayout(null);
 		this.setBorder(zdyBorder);
@@ -155,218 +145,209 @@ public class PrintDesignPanel extends JPanel implements MouseMotionListener {
 		} else {
 			// 如果是修改，则把列表数据存放到当前对象
 		}
-		if (TABLE_VIEW.equals(viewType)) {
-			table = new PrintTable(this);
-			/* table.setTableHeader(new PrintTableHeader()); */
-			this.setLayout(new BorderLayout());
-			tableScrollPane = new TableScrollPane(table);
-			table.setAutoscrolls(true);
-			TableColumnModel model = table.getColumnModel();
-			model.addColumnModelListener(new TableColumnModelListener() {
+		table = new PrintTable(this);
+		/* table.setTableHeader(new PrintTableHeader()); */
+		// this.setLayout(new BorderLayout());
+		tableScrollPane = new TableScrollPane(table);
+		table.setAutoscrolls(true);
+		TableColumnModel model = table.getColumnModel();
+		model.addColumnModelListener(new TableColumnModelListener() {
 
-				@Override
-				public void columnSelectionChanged(ListSelectionEvent e) {
+			@Override
+			public void columnSelectionChanged(ListSelectionEvent e) {
+			}
 
-				}
+			@Override
+			public void columnRemoved(TableColumnModelEvent e) {
+			}
 
-				@Override
-				public void columnRemoved(TableColumnModelEvent e) {
-				}
-
-				@Override
-				public void columnMoved(TableColumnModelEvent e) {
-					if (e.getToIndex() != e.getFromIndex()) {
-						System.out.println("start:" + e.getFromIndex() + "   to:" + e.getToIndex());
-						// 如果是向前面移动
-						boolean backward = true;
-						int start = e.getFromIndex();
-						int end = e.getToIndex();
-						if (e.getFromIndex() > e.getToIndex()) {
-							backward = false;
-							end = e.getFromIndex();
-							start = e.getToIndex();
-						}
-						StorageDataSet dataSet = PrintDesignPanel.this.printPage.getItemDataSet();
-						int index = dataSet.getRow();
-						dataSet.first();
-						for (int i = 0; i < PrintDesignPanel.this.printPage.getItemDataSet().rowCount(); i++) {
-							if (dataSet.getBigDecimal("INDEX").intValue() == e.getFromIndex() + 1) {
-								dataSet.setBigDecimal("INDEX", BigDecimal.valueOf(e.getToIndex() + 1));
-							} else if (dataSet.getBigDecimal("INDEX").intValue() > start
-									&& dataSet.getBigDecimal("INDEX").intValue() <= end + 1) {
-								if (backward) {
-									dataSet.setBigDecimal("INDEX",
-											dataSet.getBigDecimal("INDEX").subtract(BigDecimal.ONE));
-								} else {
-									dataSet.setBigDecimal("INDEX", dataSet.getBigDecimal("INDEX").add(BigDecimal.ONE));
-								}
+			@Override
+			public void columnMoved(TableColumnModelEvent e) {
+				if (e.getToIndex() != e.getFromIndex()) {
+					System.out.println("start:" + e.getFromIndex() + "   to:" + e.getToIndex());
+					// 如果是向前面移动
+					boolean backward = true;
+					int start = e.getFromIndex();
+					int end = e.getToIndex();
+					if (e.getFromIndex() > e.getToIndex()) {
+						backward = false;
+						end = e.getFromIndex();
+						start = e.getToIndex();
+					}
+					StorageDataSet dataSet = PrintDesignPanel.this.printPage.getItemDataSet();
+					int index = dataSet.getRow();
+					dataSet.first();
+					for (int i = 0; i < PrintDesignPanel.this.printPage.getItemDataSet().rowCount(); i++) {
+						if (dataSet.getBigDecimal("INDEX").intValue() == e.getFromIndex() + 1) {
+							dataSet.setBigDecimal("INDEX", BigDecimal.valueOf(e.getToIndex() + 1));
+						} else if (dataSet.getBigDecimal("INDEX").intValue() > start
+								&& dataSet.getBigDecimal("INDEX").intValue() <= end + 1) {
+							if (backward) {
+								dataSet.setBigDecimal("INDEX", dataSet.getBigDecimal("INDEX").subtract(BigDecimal.ONE));
+							} else {
+								dataSet.setBigDecimal("INDEX", dataSet.getBigDecimal("INDEX").add(BigDecimal.ONE));
 							}
-							dataSet.next();
 						}
-						dataSet.goToRow(index);
+						dataSet.next();
 					}
+					dataSet.goToRow(index);
 				}
+			}
 
-				@Override
-				public void columnMarginChanged(ChangeEvent e) {
-					// TODO Auto-generated method stub
+			@Override
+			public void columnMarginChanged(ChangeEvent e) {
+			}
+
+			@Override
+			public void columnAdded(TableColumnModelEvent e) {
+			}
+		});
+		final JTableHeader tableHeader = table.getTableHeader();
+		// JComponent com=tableHeader.
+		tableHeader.setBackground(SystemColor.WHITE);
+		tableHeader.addMouseMotionListener(new MouseAdapter() {
+
+			private boolean canResize(TableColumn column, JTableHeader header) {
+				return (column != null) && header.getResizingAllowed() && column.getResizable();
+			}
+
+			private TableColumn getResizingColumn(Point p) {
+				return getResizingColumn(p, tableHeader.columnAtPoint(p));
+			}
+
+			private TableColumn getResizingColumn(Point p, int column) {
+				if (column == -1) {
+					return null;
 				}
-
-				@Override
-				public void columnAdded(TableColumnModelEvent e) {
-					// TODO Auto-generated method stub
+				Rectangle r = tableHeader.getHeaderRect(column);
+				r.grow(-3, 0);
+				if (r.contains(p)) {
+					return null;
 				}
-			});
-			final JTableHeader tableHeader = table.getTableHeader();
-			// JComponent com=tableHeader.
-			tableHeader.setBackground(SystemColor.WHITE);
-			tableHeader.addMouseMotionListener(new MouseAdapter() {
-
-				private boolean canResize(TableColumn column, JTableHeader header) {
-					return (column != null) && header.getResizingAllowed() && column.getResizable();
+				int midPoint = r.x + r.width / 2;
+				int columnIndex;
+				if (tableHeader.getComponentOrientation().isLeftToRight()) {
+					columnIndex = (p.x < midPoint) ? column - 1 : column;
+				} else {
+					columnIndex = (p.x < midPoint) ? column : column - 1;
 				}
-
-				private TableColumn getResizingColumn(Point p) {
-					return getResizingColumn(p, tableHeader.columnAtPoint(p));
+				if (columnIndex == -1) {
+					return null;
 				}
+				return tableHeader.getColumnModel().getColumn(columnIndex);
+			}
 
-				private TableColumn getResizingColumn(Point p, int column) {
-					if (column == -1) {
-						return null;
+			private int direction = 0;
+
+			@Override
+			public void mouseMoved(MouseEvent e) {
+				if (Math.abs(tableHeader.getHeight() - e.getPoint().y) < 5) {
+					tableHeader.setCursor(Cursor.getPredefinedCursor(Cursor.N_RESIZE_CURSOR));
+					direction = 1;
+				}
+				// 为了兼容表格宽度拖动显示
+				else if (canResize(getResizingColumn(e.getPoint()), tableHeader) != (tableHeader.getCursor() == resizeCursor)) {
+					tableHeader.setCursor(Cursor.getPredefinedCursor(Cursor.E_RESIZE_CURSOR));
+					// 左右移动的时候触发
+					direction = 2;
+				} else {
+					tableHeader.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+					direction = 0;
+				}
+			}
+
+			@Override
+			public void mouseDragged(MouseEvent e) {
+				// Dimension dimension = PrintDesignPanel.this.getSize();
+				if (direction == 1) {
+					Point point = e.getPoint();
+					int index = tableHeader.columnAtPoint(point);
+					TableColumn column = tableHeader.getColumnModel().getColumn(index);
+					if (column != null) {
+						PrintTableCellHeaderRenderer hendrender = (PrintTableCellHeaderRenderer) column
+								.getHeaderRenderer();
+						hendrender.setHeight(point.y);
 					}
-					Rectangle r = tableHeader.getHeaderRect(column);
-					r.grow(-3, 0);
-					if (r.contains(p)) {
-						return null;
-					}
-					int midPoint = r.x + r.width / 2;
-					int columnIndex;
-					if (tableHeader.getComponentOrientation().isLeftToRight()) {
-						columnIndex = (p.x < midPoint) ? column - 1 : column;
-					} else {
-						columnIndex = (p.x < midPoint) ? column : column - 1;
-					}
-					if (columnIndex == -1) {
-						return null;
-					}
-					return tableHeader.getColumnModel().getColumn(columnIndex);
+					tableHeader.setCursor(Cursor.getPredefinedCursor(Cursor.N_RESIZE_CURSOR));
+
+					Dimension size = tableHeader.getPreferredSize();
+					size.height = point.y;
+					tableHeader.setPreferredSize(size);
+					// hendrender.setHeight(point.y);
+					// 被拖动的单元格也设置为同样宽度
+					tableHeader.revalidate();
+					tableHeader.repaint();
+				} else if (direction == 2) {
+					// 得到正在被选中的组件，然后
+					TableColumn column = getResizingColumn(e.getPoint());
+					PrintTableCellHeaderRenderer hendrender = (PrintTableCellHeaderRenderer) column.getHeaderRenderer();
+					hendrender.setWidth(column.getWidth());
 				}
+			}
+		});
+		table.addMouseMotionListener(new MouseAdapter() {
 
-				// private boolean isMove = false;
-				private int direction = 0;
+			private boolean isMove = false;
 
-				@Override
-				public void mouseMoved(MouseEvent e) {
-					if (Math.abs(tableHeader.getHeight() - e.getPoint().y) < 5) {
-						tableHeader.setCursor(Cursor.getPredefinedCursor(Cursor.N_RESIZE_CURSOR));
-						direction = 1;
-					}
-					// 为了兼容表格宽度拖动显示
-					else if (canResize(getResizingColumn(e.getPoint()), tableHeader) != (tableHeader.getCursor() == resizeCursor)) {
-						tableHeader.setCursor(Cursor.getPredefinedCursor(Cursor.E_RESIZE_CURSOR));
-						// 左右移动的时候触发
-						direction = 2;
-					} else {
-						tableHeader.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-						direction = 0;
-					}
-				}
-
-				@Override
-				public void mouseDragged(MouseEvent e) {
-					// Dimension dimension = PrintDesignPanel.this.getSize();
-					if (direction == 1) {
-						Point point = e.getPoint();
+			@Override
+			public void mouseDragged(MouseEvent e) {
+				super.mouseDragged(e);
+				if (isMove) {
+					Point point = e.getPoint();
+					// TODO 行高需要测试计算，理论上要减去表头高度
+					// 最小三个像素，太少就看不到了。。。。
+					if (point.y > 2) {
+						table.setRowHeight(point.y);
 						int index = tableHeader.columnAtPoint(point);
 						TableColumn column = tableHeader.getColumnModel().getColumn(index);
 						if (column != null) {
 							PrintTableCellHeaderRenderer hendrender = (PrintTableCellHeaderRenderer) column
-									.getHeaderRenderer();
+									.getCellRenderer();
 							hendrender.setHeight(point.y);
 						}
-						tableHeader.setCursor(Cursor.getPredefinedCursor(Cursor.N_RESIZE_CURSOR));
-
-						Dimension size = tableHeader.getPreferredSize();
-						size.height = point.y;
-						tableHeader.setPreferredSize(size);
-						// hendrender.setHeight(point.y);
-						// 被拖动的单元格也设置为同样宽度
 						tableHeader.revalidate();
 						tableHeader.repaint();
-					} else if (direction == 2) {
-						// 得到正在被选中的组件，然后
-						TableColumn column = getResizingColumn(e.getPoint());
-						PrintTableCellHeaderRenderer hendrender = (PrintTableCellHeaderRenderer) column
-								.getHeaderRenderer();
-						hendrender.setWidth(column.getWidth());
 					}
 				}
-			});
-			table.addMouseMotionListener(new MouseAdapter() {
+			}
 
-				private boolean isMove = false;
-
-				@Override
-				public void mouseDragged(MouseEvent e) {
-					super.mouseDragged(e);
-					if (isMove) {
-						Point point = e.getPoint();
-						// TODO 行高需要测试计算，理论上要减去表头高度
-						// 最小三个像素，太少就看不到了。。。。
-						if (point.y > 2) {
-							table.setRowHeight(point.y);
-							int index = tableHeader.columnAtPoint(point);
-							TableColumn column = tableHeader.getColumnModel().getColumn(index);
-							if (column != null) {
-								PrintTableCellHeaderRenderer hendrender = (PrintTableCellHeaderRenderer) column
-										.getCellRenderer();
-								hendrender.setHeight(point.y);
-							}
-							tableHeader.revalidate();
-							tableHeader.repaint();
-						}
-					}
+			@Override
+			public void mouseMoved(MouseEvent e) {
+				super.mouseMoved(e);
+				// TODO 这个table.getHeight()还需要测试。。
+				if (Math.abs(table.getHeight() - e.getPoint().y) < 5) {
+					table.setCursor(Cursor.getPredefinedCursor(Cursor.N_RESIZE_CURSOR));
+					isMove = true;
+				} else {
+					table.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+					isMove = false;
 				}
+			}
 
-				@Override
-				public void mouseMoved(MouseEvent e) {
-					super.mouseMoved(e);
-					// TODO 这个table.getHeight()还需要测试。。
-					if (Math.abs(table.getHeight() - e.getPoint().y) < 5) {
-						table.setCursor(Cursor.getPredefinedCursor(Cursor.N_RESIZE_CURSOR));
-						isMove = true;
-					} else {
-						table.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-						isMove = false;
-					}
-				}
+		});
+		tableScrollPane.setBackground(SystemColor.WHITE);
+		tableScrollPane.getViewport().setBackground(SystemColor.WHITE);
 
-			});
-			// panel.add(table);
-			// panel.add(table.getTableHeader(),BorderLayout.NORTH);
-			tableScrollPane.setBackground(SystemColor.WHITE);
-			tableScrollPane.getViewport().setBackground(SystemColor.WHITE);
-			// pane.setBorder(new LineBorder(Color.GREEN, 5));
+		// 表格设置允许拖拽
+		/*
+		 * table.setDragEnabled(true);// 设置允许拖拽 // 复制拖拽事件
+		 * table.setTransferHandler(this.getTransferHandler());
+		 */
+		table.setBackground(SystemColor.WHITE);
+		// 关闭自动伸缩
+		table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+
+		// TODO 添加一行空记录，用于显示
+		defaultModel = new DBTableModel(table);
+		// PrintTableModel dataModel = new PrintTableModel();
+		// defaultModel.addRow(new Object[0]);
+		table.setModel(defaultModel);
+		table.setRowHeight(30);
+		// 如果显示表格才显示表格
+
+		 tableScrollPane.setBorder(null);
+		if (TABLE_VIEW.equals(viewType)) {
 			this.add(tableScrollPane);
-			// 表格设置允许拖拽
-			/*
-			 * table.setDragEnabled(true);// 设置允许拖拽 // 复制拖拽事件
-			 * table.setTransferHandler(this.getTransferHandler());
-			 */
-			table.setBackground(SystemColor.WHITE);
-			// 关闭自动伸缩
-			table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
-
-			// table.setPreferredSize(this.getPreferredSize());
-
-			// TODO 添加一行空记录，用于显示
-			defaultModel = new DBTableModel(table);
-			// PrintTableModel dataModel = new PrintTableModel();
-			// defaultModel.addRow(new Object[0]);
-			table.setModel(defaultModel);
-			table.setRowHeight(30);
-
-			// table.getParent().getParent();
 		}
 		this.setBackground(SystemColor.WHITE);
 	}
@@ -480,106 +461,6 @@ public class PrintDesignPanel extends JPanel implements MouseMotionListener {
 		g2d.setColor(new Color(0, 0, 0));// 设置黑色字体,同样可以
 		g2d.drawString(this.watermark, (this.getWidth() - 100) / 2, (this.getHeight() + 15) / 2);// 绘制水印，具体水印绘制方式根据自己的需求修改
 		g.drawImage(bi, 0, 0, this);
-	}
-
-	@Override
-	public void mouseMoved(MouseEvent e) {
-		if (PrintDesignPanel.this.getSize().getHeight() - e.getPoint().getY() <= 3) {
-			PrintDesignPanel.this.setCursor(Cursor.getPredefinedCursor(Cursor.N_RESIZE_CURSOR));
-			direction = Direction.DOWN;
-		} else {
-			PrintDesignPanel.this.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-			direction = 0;
-		}
-	}
-
-	@Override
-	public void mouseDragged(MouseEvent e) {
-		// 如果是缩小
-		Dimension dimension = PrintDesignPanel.this.getSize();
-		Point point = PrintDesignPanel.this.getLocation();
-		switch (direction) {
-			case Direction.LEFT_UP:
-				dimension.setSize(dimension.getWidth() - e.getX(), dimension.getHeight() - e.getY());
-				// PrintDesignPanel.this.setSize(dimension);
-				point.setLocation(PrintDesignPanel.this.getLocation().x + e.getX(),
-						PrintDesignPanel.this.getLocation().y + e.getY());
-				break;
-			case Direction.RIGHT_UP:
-				dimension.setSize(dimension.getWidth() - dimension.getWidth() + e.getX(),
-						dimension.getHeight() - e.getY());
-				// PrintDesignPanel.this.setSize(dimension);
-				point.setLocation(PrintDesignPanel.this.getLocation().x,
-						PrintDesignPanel.this.getLocation().y + e.getY());
-				break;
-			case Direction.UP:
-				dimension.setSize(dimension.getWidth(), dimension.getHeight() - e.getY());
-				// PrintDesignPanel.this.setSize(dimension);
-				point.setLocation(PrintDesignPanel.this.getLocation().x,
-						PrintDesignPanel.this.getLocation().y + e.getY());
-				break;
-			case Direction.LEFT:
-				dimension.setSize(dimension.getWidth() - e.getX(), dimension.getHeight());
-				// PrintDesignPanel.this.setSize(dimension);
-				point.setLocation(PrintDesignPanel.this.getLocation().x + e.getX(),
-						PrintDesignPanel.this.getLocation().y);
-				break;
-			case Direction.LEFT_DOWN:
-				// System.out.println( e.getX());
-				point.setLocation(PrintDesignPanel.this.getLocation().x + e.getX(),
-						PrintDesignPanel.this.getLocation().y);
-				dimension.setSize(dimension.getWidth() - e.getX(), e.getY());
-				break;
-			case Direction.RIGHT:
-				dimension.setSize(e.getX(), dimension.getHeight());
-				// PrintDesignPanel.this.setSize(dimension);
-
-				break;
-			case Direction.RIGHT_DOWN:
-				point.setLocation(PrintDesignPanel.this.getLocation().x, PrintDesignPanel.this.getLocation().y);
-				dimension.setSize(dimension.getWidth() - dimension.getWidth() + e.getX(), e.getY());
-
-				break;
-			case Direction.DOWN:
-				dimension.setSize(dimension.getWidth(), e.getY());
-				break;
-		}
-		if (maxWidth != 0 && maxWidth < dimension.getWidth()) {
-			dimension.width = maxWidth;
-		}
-		if (minWidth != 0 && minWidth > dimension.getWidth()) {
-			dimension.width = minWidth;
-		}
-		if (maxheight != 0 && maxheight < dimension.getWidth()) {
-			dimension.height = maxheight;
-		}
-		if (minheight != 0 && minheight > dimension.getWidth()) {
-			dimension.height = minheight;
-		}
-		// 最小为0，要不然就看不到了
-		dimension.setSize(dimension.getWidth() < SYS_MIN_WIDTH ? SYS_MIN_WIDTH : dimension.getWidth(),
-				dimension.getHeight() < SYS_MIN_HEIGHT ? SYS_MIN_HEIGHT : dimension.getHeight());
-		PrintDesignPanel.this.setSize(dimension);
-		if (point.x < 0) {
-			point.x = 0;
-		}
-		if (point.x >= this.getParent().getWidth() - 3) {
-			point.x = this.getParent().getWidth() - 3;
-		}
-		if (point.y < 0) {
-			point.y = 0;
-		}
-		if (point.y >= this.getParent().getHeight() - 3) {
-			point.y = this.getParent().getHeight() - 3;
-		}
-		PrintDesignPanel.this.setLocation(point);
-		int statrY = point.y + this.getHeight();
-		for (int i = this.index + 1; i < linkedPanel.size(); i++) {
-			// 计算下一个面板的高度
-			PrintDesignPanel panel = linkedPanel.get(i);
-			panel.setLocation(panel.getLocation().x, statrY);
-			statrY = statrY + panel.getHeight();
-		}
 	}
 
 	private static class ZdyBorder extends AbstractBorder {
@@ -711,7 +592,9 @@ public class PrintDesignPanel extends JPanel implements MouseMotionListener {
 			final JScrollBar jscrollBar = tableScrollPane.getHorizontalScrollBar();
 			jscrollBar.setValue(jscrollBar.getMaximum());
 		} else {
-//			PrintElementType type = new PrintElementType(PrintElementType.LABEL, printType.getText(), null);
+			// PrintElementType type = new
+			// PrintElementType(PrintElementType.LABEL, printType.getText(),
+			// null);
 			PrintElementItem printItem = PrintElementItem.createInstance(printType, this);
 			printItem.setUniqueId(max + 1);
 			addDataSetRow(printItem);
@@ -960,10 +843,10 @@ public class PrintDesignPanel extends JPanel implements MouseMotionListener {
 				TableColumn oldColumn = tableColumnMap.get(item.getUniqueId());
 				TableColumn column = new TableColumn();
 				column.setModelIndex(table.getColumnModel().getColumnCount());
-				column.setHeaderValue(oldColumn==null?item.getText(): oldColumn.getHeaderValue());
+				column.setHeaderValue(oldColumn == null ? item.getText() : oldColumn.getHeaderValue());
 				// column.setPreferredWidth(preferredWidth);
-				column.setWidth(oldColumn==null?item.getElementWidth(): oldColumn.getWidth());
-				column.setPreferredWidth(oldColumn==null?item.getElementWidth():oldColumn.getPreferredWidth());
+				column.setWidth(oldColumn == null ? item.getElementWidth() : oldColumn.getWidth());
+				column.setPreferredWidth(oldColumn == null ? item.getElementWidth() : oldColumn.getPreferredWidth());
 
 				StorageDataSet dataSet = printPage.getItemDataSet();
 				dataSet.insertRow(false);
@@ -1045,4 +928,75 @@ public class PrintDesignPanel extends JPanel implements MouseMotionListener {
 		}
 		return null;
 	}
+
+	@Override
+	public void setWidth(int width) {
+		// TODO Auto-generated method stub
+		System.out.println("AAAAAAAA");
+	}
+
+	@Override
+	public void setHeight(int height) {
+		// TODO Auto-generated method stub
+		System.out.println("BBBBBBBBBBB");
+	}
+
+	public void toForward(int num) {
+		// TODO Auto-generated method stub
+
+	}
+
+	public void toBack(int num) {
+		// TODO Auto-generated method stub
+
+	}
+
+	public void toTable() {
+		// TODO Auto-generated method stub
+
+	}
+
+	public void toZdy() {
+		// TODO Auto-generated method stub
+
+	}
+
+	public void toIndex(int index) {
+		// TODO Auto-generated method stub
+
+	}
+
+	public void toFisrt() {
+		// TODO Auto-generated method stub
+
+	}
+
+	public void toLast() {
+		// TODO Auto-generated method stub
+
+	}
+
+	public void setShowtype(String type) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void addMouseMotionListener(MouseMotionListener l) {
+		super.addMouseMotionListener(l);
+		this.table.addMouseMotionListener(l);
+		tableScrollPane.addMouseMotionListener(l);
+	}
+
+	public void setSize(double width, double height) {
+		// this.width = (int) Math.ceil(width);
+		// this.height = (int) Math.ceil(height);
+		super.setSize((int) width, (int) height);
+		this.tableScrollPane.setSize((int) width, (int) height-2);
+	}
+
+/*	public void setSize(Dimension d) {
+		super.setSize(d);
+		this.tableScrollPane.setSize(d);
+	}*/
 }

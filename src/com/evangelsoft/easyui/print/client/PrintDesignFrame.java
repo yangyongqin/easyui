@@ -97,6 +97,7 @@ import com.borland.dx.dataset.ReadWriteRow;
 import com.borland.dx.dataset.StorageDataSet;
 import com.borland.dx.dataset.Variant;
 import com.borland.jb.util.ErrorResponse;
+import com.evangelsoft.easyui.print.type.PrintDesignView;
 import com.evangelsoft.easyui.print.type.PrintItem;
 import com.evangelsoft.easyui.print.type.PrintItemTool;
 import com.evangelsoft.easyui.template.client.DesignFrame;
@@ -115,7 +116,6 @@ import com.evangelsoft.econnect.dataformat.RecordSet;
 import com.evangelsoft.workbench.clientdataset.DataSetHelper;
 import com.evangelsoft.workbench.clientutil.CodeTable;
 import com.evangelsoft.workbench.config.client.SysCodeHelper;
-import com.evangelsoft.workbench.hotel.room.client.CheckInBillFrame;
 
 /**
  * ClassName: PrintDesignFrame
@@ -192,7 +192,7 @@ public class PrintDesignFrame extends UMasterDetailFrame {
 
 	private JButton horizontallyButton;// 水平居中
 
-	private JPanel designPanel;// 设计面板
+	private PrintDesignManagePanel designPanel;// 设计面板
 
 	private JScrollPane designPane;// 设计面板
 
@@ -232,15 +232,15 @@ public class PrintDesignFrame extends UMasterDetailFrame {
 
 	CardLayout cardLayout = new CardLayout();
 
-	private JPanel pageHeadPane;// 头部面板，
+	private PrintDesignView pageHeadPane;// 头部面板，
 
-	private JPanel tableHeadPane;// 头部面板，
+	private PrintDesignView tableHeadPane;// 头部面板，
 
-	private JPanel tablePanel;// 中间选项卡
+	private PrintDesignView tablePanel;// 中间选项卡
 
-	private JPanel tableTailPanel;// 表尾
+	private PrintDesignView tableTailPanel;// 表尾
 
-	private JPanel pageTailPanel;// 底部面板
+	private PrintDesignView pageTailPanel;// 底部面板
 
 	private JButton borderButton;// 默认边框
 
@@ -254,7 +254,7 @@ public class PrintDesignFrame extends UMasterDetailFrame {
 	StorageDataSet elementDataSet;// 元素属性
 
 	// 面板管理器，
-	// List<PrintDesignPanel> linkedPanel = new ArrayList<PrintDesignPanel>();
+	// List<PrintDesignView> linkedPanel = new ArrayList<PrintDesignView>();
 
 	PrintPage printPage = new PrintPage(this);
 
@@ -278,7 +278,7 @@ public class PrintDesignFrame extends UMasterDetailFrame {
 	/**
 	 * @Fields selectPanel : 被选中的面板
 	 */
-	private PrintDesignPanel selectPanel;
+	private PrintDesignView selectPanel;
 
 	// 选中的组件
 	public PrintItem<?> selectComp;
@@ -310,7 +310,17 @@ public class PrintDesignFrame extends UMasterDetailFrame {
 
 	private JMenuItem addPane;// 添加一个新的面板
 
+	private JPopupMenu pageRightMenu;// 页面右键菜单
+
+	// private JMenuItem fastAddItem;// 快速添加一个面板
+
+	private JMenuItem addPanelByPageItem;// 添加一个新的面板
+
+	private JMenuItem pageConfigureItem;// 页面属性设置
+
 	private JMenuItem showAttribute;// 显示属性
+	
+	private JMenuItem showPanelAttribute;// 显示面板属性
 
 	private boolean isCreate = false;
 
@@ -647,12 +657,14 @@ public class PrintDesignFrame extends UMasterDetailFrame {
 		allPane.setRightComponent(mainPane);
 
 		// 设计面板
-		designPanel = new JPanel();
+		designPanel = new PrintDesignManagePanel(printPage);
+		designPanel.addMouseListener(itemSelectAdapter);
+		this.addMouseListener(itemSelectAdapter);
 		// designPanel.setBackground(SystemColor.WHITE);
-		designPanel.setLayout(null);
+		// designPanel.setLayout(null);
 		// designPane.setBounds(0, 0, 842, 700);
 		// designPanel.setSize(842, 700);
-		designPanel.setPreferredSize(new Dimension(597, 844));
+		// designPanel.setPreferredSize(new Dimension(597, 844));
 		final JPanel panel = new JPanel();
 
 		// panel.setPreferredSize(new Dimension(597, 844));
@@ -928,6 +940,7 @@ public class PrintDesignFrame extends UMasterDetailFrame {
 		insertPane = new JMenuItem("插入一个新的面板");
 		addPane = new JMenuItem("添加一个新的面板");
 		showAttribute = new JMenuItem("显示属性");
+		showPanelAttribute=new JMenuItem("");
 
 		panelRightMenu.add(pasteItem);
 		panelRightMenu.add(deletePaneItem);
@@ -944,6 +957,13 @@ public class PrintDesignFrame extends UMasterDetailFrame {
 		addPane.addActionListener(itemAction);
 		showAttribute.addActionListener(itemAction);
 
+		pageRightMenu = new JPopupMenu();
+		addPanelByPageItem = new JMenuItem("添加一个新的面板");
+		pageConfigureItem = new JMenuItem("设置页面属性");
+		pageRightMenu.add(addPanelByPageItem);
+		pageRightMenu.add(pageConfigureItem);
+		addPanelByPageItem.addActionListener(itemAction);
+		pageConfigureItem.addActionListener(itemAction);
 	}
 
 	public void showFrame(String str) {
@@ -1030,7 +1050,7 @@ public class PrintDesignFrame extends UMasterDetailFrame {
 		masterDataSet.setColumns(ColumnsHelp.getColumns("SYS_PRINT_TEMPLATE_PAGE", columnStrs));
 		masterDataSet.open();
 		String[] plate = new String[] { "PRINT_ID", "UNIQUE_ID", "INDEX", "HEIGHT", "WIDTH", "AUTO_STRETCH",
-				"AUTO_STRETCH_DESC", "VIEW_TYPE", "VIEW_TYPE_DESC", "BACK_TEXT" };
+				"AUTO_STRETCH_DESC", "VIEW_TYPE", "VIEW_TYPE_DESC", "BACK_TEXT","TABLE_NAME","CIRCULATION","CIRCULATION_DESC" };
 		detailDataSet.setColumns(ColumnsHelp.getColumns("SYS_PRINT_TEMPLATE_PLATE", plate));
 		detailDataSet.getColumn("VIEW_TYPE_DESC").setPickList(
 				new PickListDescriptor(printViewDataSet, new String[] { "CODE" }, new String[] { "DESCRIPTION" },
@@ -1087,24 +1107,6 @@ public class PrintDesignFrame extends UMasterDetailFrame {
 		} catch (TooManyListenersException e1) {
 			e1.printStackTrace();
 		}
-		elementDataSet.addEditListener(new EditAdapter() {
-
-			@Override
-			public void updateError(DataSet arg0, ReadWriteRow arg1, DataSetException arg2, ErrorResponse arg3) {
-				super.updateError(arg0, arg1, arg2, arg3);
-			}
-
-			@Override
-			public void updated(DataSet arg0) {
-				super.updated(arg0);
-			}
-
-			@Override
-			public void updating(DataSet arg0, ReadWriteRow arg1, ReadRow arg2) throws Exception {
-				super.updating(arg0, arg1, arg2);
-			}
-
-		});
 		GraphicsEnvironment e = GraphicsEnvironment.getLocalGraphicsEnvironment();
 		String[] fontName = e.getAvailableFontFamilyNames();
 		int index = 0;
@@ -1155,7 +1157,7 @@ public class PrintDesignFrame extends UMasterDetailFrame {
 		// 粘贴快捷键
 		KeyStroke ctrlv = KeyStroke.getKeyStroke(KeyEvent.VK_V, InputEvent.CTRL_MASK, false);
 		inputMap.put(ctrlv, "ctrl+v");
-		actionMap.put("ctrl+c", this.pasteItemAction);
+		actionMap.put("ctrl+v", this.pasteItemAction);
 		// 删除快捷键
 		KeyStroke ctrld = KeyStroke.getKeyStroke(KeyEvent.VK_D, InputEvent.CTRL_MASK, false);
 		inputMap.put(ctrld, "ctrl+d");
@@ -1226,8 +1228,8 @@ public class PrintDesignFrame extends UMasterDetailFrame {
 				GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
 
 		// 页面属性
-		String[] paneAttr = new String[] { "INDEX", "WIDTH", "HEIGHT", "VIEW_TYPE_DESC", "AUTO_STRETCH_DESC",
-				"BACK_TEXT" };
+		String[] paneAttr = new String[] { "INDEX", "WIDTH", "HEIGHT","TABLE_NAME", "VIEW_TYPE_DESC", "AUTO_STRETCH_DESC",
+				"BACK_TEXT","CIRCULATION_DESC" };
 
 		filterlayout = new GridBagLayout();
 		rows = new int[paneAttr.length + 1];
@@ -1248,7 +1250,7 @@ public class PrintDesignFrame extends UMasterDetailFrame {
 				label.setText(DataModel.getDefault().getLabel("SYS_PRINT_TEMPLATE_PLATE." + paneAttr[i]));
 			}
 			JComponent jcom = null;
-			if (paneAttr[i].equals("AUTO_STRETCH_DESC") || paneAttr[i].equals("VIEW_TYPE_DESC")) {
+			if (paneAttr[i].equals("AUTO_STRETCH_DESC") || paneAttr[i].equals("VIEW_TYPE_DESC")||paneAttr[i].equals("CIRCULATION_DESC")) {
 				JdbComboBox text = new JdbComboBox();
 				text.setColumnName(paneAttr[i]);
 				jcom = text;
@@ -1466,14 +1468,14 @@ public class PrintDesignFrame extends UMasterDetailFrame {
 			if (canImport(c, t.getTransferDataFlavors())) {
 				try {
 					PrintItem<?> item = null;
-					PrintDesignPanel panel = null;
+					PrintDesignView panel = null;
 					List<PrintItem<?>> tempSelectList = null;
 					// 如果接收的是表格
 					if (c instanceof JTable) {
 						// TODO 如果是表格
 						// panel=XXX;
-					} else if (c instanceof PrintDesignPanel) {
-						panel = (PrintDesignPanel) c;
+					} else if (c instanceof PrintDesignView) {
+						panel = (PrintDesignView) c;
 					}
 					if (panel == null) {
 						return true;
@@ -1905,14 +1907,14 @@ public class PrintDesignFrame extends UMasterDetailFrame {
 				selectPanel = item.getParentPanel();
 
 			}// 如果是设计面板
-			else if (e.getSource() instanceof PrintDesignPanel || e.getSource() instanceof JViewport) {
-				PrintDesignPanel item = null;
+			else if (e.getSource() instanceof PrintDesignView || e.getSource() instanceof JViewport) {
+				PrintDesignView item = null;
 				if (e.getSource() instanceof JViewport) {
 					JViewport view = (JViewport) e.getSource();
 					PrintTable table = (PrintTable) view.getView();
 					item = table.getPanel();
 				} else {
-					item = (PrintDesignPanel) e.getSource();
+					item = (PrintDesignView) e.getSource();
 				}
 				selectPanel = item;
 				detailDataSet.first();
@@ -1924,7 +1926,7 @@ public class PrintDesignFrame extends UMasterDetailFrame {
 				}
 
 				if (e.getButton() == MouseEvent.BUTTON3) {
-					panelRightMenu.show(item, e.getPoint().x, e.getPoint().y);
+					panelRightMenu.show((PrintDesignPanel) item, e.getPoint().x, e.getPoint().y);
 				}
 
 				// 定位到选择的行
@@ -1961,6 +1963,9 @@ public class PrintDesignFrame extends UMasterDetailFrame {
 			} else {
 				// 如果是页面
 				cardLayout.first(attributePanel);
+				if (e.getButton() == MouseEvent.BUTTON3) {
+					pageRightMenu.show(designPanel, e.getPoint().x, e.getPoint().y);
+				}
 			}
 
 			if (e.getSource() instanceof PrintItem || e.getSource() instanceof JTableHeader
@@ -1977,9 +1982,9 @@ public class PrintDesignFrame extends UMasterDetailFrame {
 				if (e.getButton() == MouseEvent.BUTTON3) {
 					// TODO这里貌似可能问题,后面验证完善
 					if (selectComp instanceof PrintTableCellHeaderRenderer) {
-						// selectComp.getParentPanel();
-						Point point = SwingUtils.getMousePoint(selectComp.getParentPanel());
-						rightMenu.show(selectComp.getParentPanel(), point.x, point.y);
+						// 尴尬这个俩地方必须得用子类 PrintDesignView
+						Point point = SwingUtils.getMousePoint((PrintDesignPanel) selectComp.getParentPanel());
+						rightMenu.show((PrintDesignPanel) selectComp.getParentPanel(), point.x, point.y);
 					} else {
 						JLabel label = (JLabel) selectComp;
 						rightMenu.show(label, e.getPoint().x, e.getPoint().y);
@@ -2023,7 +2028,7 @@ public class PrintDesignFrame extends UMasterDetailFrame {
 				// 粘贴获取当前选中的面板
 
 				// 复制只有在面板上才会触发
-				PrintDesignPanel panel = selectPanel;
+				PrintDesignView panel = selectPanel;
 				List<PrintItem<?>> tempSelectList = panel.copyItems(copyCacheItem);
 
 				// 清除之前选中的样式
@@ -2069,13 +2074,23 @@ public class PrintDesignFrame extends UMasterDetailFrame {
 				// 删除当前选中面板
 				// if(JOptionPane.showConfirmDialog(parentComponent,
 				// "您是否删除当前面板及其面板上所有组？"))
-				if (JOptionPane.YES_OPTION != JOptionPane.showConfirmDialog(PrintDesignFrame.this,
-						"您是否删除当前面板及其面板上所有组？", "", JOptionPane.YES_NO_OPTION)) {
+				if (JOptionPane.YES_OPTION == JOptionPane.showConfirmDialog(null, "您是否删除当前面板及其面板上所有组？", "",
+						JOptionPane.YES_NO_OPTION)) {
+					designPanel.delete(selectPanel);
 					return;
 				}
 				// 删除整个面板
 			} else if (e.getSource() == showAttribute) {
 				showDialog.setVisible(true);
+			} else if (e.getSource() == pageConfigureItem) {
+
+			} else if (e.getSource() == addPanelByPageItem || e.getSource() == addPane) {
+				// 增加一个新的
+				PrintDesignView panel = designPanel.addPrintDesignPanel(0, 100, PrintDesignView.ZDY_VIEW, "自定义面板");
+				// 添加拖动接收处理事件
+				panel.setTransferHandler(targatTransferHandler);
+				// panel.setBackground(SystemColor.WHITE);
+				panel.addMouseListener(itemSelectAdapter);
 			}
 		}
 	}
@@ -2088,48 +2103,47 @@ public class PrintDesignFrame extends UMasterDetailFrame {
 	 * @date 2017年9月29日
 	 */
 	private void createDefaultTemplate() {
-		pageHeadPane = new PrintDesignPanel(printPage, "这个是页头", PrintDesignPanel.ZDY_VIEW, detailDataSet, true);
+		pageHeadPane = designPanel.addPrintDesignPanel(0, 100, PrintDesignView.ZDY_VIEW, "这个是页头");
 		// 添加拖动接收处理事件
 		pageHeadPane.setTransferHandler(targatTransferHandler);
-		pageHeadPane.setBounds(1, 1, 595, 200);
-		pageHeadPane.setBackground(SystemColor.WHITE);
-		designPanel.add(pageHeadPane);
+		// pageHeadPane.setBounds(1, 1, 595, 200);
+		// pageHeadPane.setBackground(SystemColor.WHITE);
+		// designPanel.add(pageHeadPane);
 		pageHeadPane.addMouseListener(itemSelectAdapter);
 
-		tableHeadPane = new PrintDesignPanel(printPage, "这个是表头", PrintDesignPanel.ZDY_VIEW, detailDataSet, true);
+		tableHeadPane = designPanel.addPrintDesignPanel(1, 30, PrintDesignView.ZDY_VIEW, "这个是表头");
 		// 添加拖动接收处理事件
 		tableHeadPane.setTransferHandler(targatTransferHandler);
-		tableHeadPane.setBounds(1, 201, 595, 30);
-		tableHeadPane.setBackground(SystemColor.WHITE);
-		designPanel.add(tableHeadPane);
+		// tableHeadPane.setBounds(1, 201, 595, 30);
+		// tableHeadPane.setBackground(SystemColor.WHITE);
+		// designPanel.add(tableHeadPane);
 		tableHeadPane.addMouseListener(itemSelectAdapter);
 
-		tablePanel = new PrintDesignPanel(printPage, "这个是表体", PrintDesignPanel.TABLE_VIEW, detailDataSet, true);
+		tablePanel = designPanel.addPrintDesignPanel(2, 200, PrintDesignView.TABLE_VIEW, "这个是表体");
 		// 添加拖动接收处理事件
 		tablePanel.setTransferHandler(targatTransferHandler);
-		tablePanel.setBounds(1, 232, 595, 300);
-		tablePanel.setBackground(SystemColor.WHITE);
+		// tablePanel.setBounds(1, 232, 595, 300);
+		// tablePanel.setBackground(SystemColor.WHITE);
 		tablePanel.addMouseListener(itemSelectAdapter);
 
-		designPanel.add(tablePanel);
+		// designPanel.add(tablePanel);
 
-		tableTailPanel = new PrintDesignPanel(printPage, "这个是表尾", PrintDesignPanel.ZDY_VIEW, detailDataSet, true);
+		tableTailPanel = designPanel.addPrintDesignPanel(3, 100, PrintDesignView.ZDY_VIEW, "这个是表尾");
 		// 添加拖动接收处理事件
 		tableTailPanel.setTransferHandler(targatTransferHandler);
-		tableTailPanel.setBounds(1, 532, 595, 30);
-		tableTailPanel.setBackground(SystemColor.WHITE);
+		// tableTailPanel.setBounds(1, 532, 595, 30);
+		// tableTailPanel.setBackground(SystemColor.WHITE);
 		tableTailPanel.addMouseListener(itemSelectAdapter);
 
-		designPanel.add(tableTailPanel);
+		// designPanel.add(tableTailPanel);
 
-		pageTailPanel = new PrintDesignPanel(printPage, "这个是页尾", PrintDesignPanel.ZDY_VIEW, detailDataSet, true);
+		pageTailPanel = designPanel.addPrintDesignPanel(4, 200, PrintDesignPanel.ZDY_VIEW, "这个是页尾");
 		// 添加拖动接收处理事件
 		pageTailPanel.setTransferHandler(targatTransferHandler);
-		pageTailPanel.setBounds(1, 562, 595, 240);
-		pageTailPanel.setBackground(SystemColor.WHITE);
+		// pageTailPanel.setBounds(1, 562, 595, 240);
+		// pageTailPanel.setBackground(SystemColor.WHITE);
 		pageTailPanel.addMouseListener(itemSelectAdapter);
-		designPanel.add(pageTailPanel);
-
+		designPanel.updateUI();
 	}
 
 	DeleteItemAction deleteItemAction = new DeleteItemAction();
@@ -2207,7 +2221,7 @@ public class PrintDesignFrame extends UMasterDetailFrame {
 			// 粘贴获取当前选中的面板
 
 			// 复制只有在面板上才会触发
-			PrintDesignPanel panel = selectPanel;
+			PrintDesignView panel = selectPanel;
 			List<PrintItem<?>> tempSelectList = panel.copyItems(copyCacheItem);
 
 			// 清除之前选中的样式
