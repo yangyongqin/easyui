@@ -319,7 +319,7 @@ public class PrintDesignFrame extends UMasterDetailFrame {
 	private JMenuItem pageConfigureItem;// 页面属性设置
 
 	private JMenuItem showAttribute;// 显示属性
-	
+
 	private JMenuItem showPanelAttribute;// 显示面板属性
 
 	private boolean isCreate = false;
@@ -940,7 +940,7 @@ public class PrintDesignFrame extends UMasterDetailFrame {
 		insertPane = new JMenuItem("插入一个新的面板");
 		addPane = new JMenuItem("添加一个新的面板");
 		showAttribute = new JMenuItem("显示属性");
-		showPanelAttribute=new JMenuItem("");
+		showPanelAttribute = new JMenuItem("");
 
 		panelRightMenu.add(pasteItem);
 		panelRightMenu.add(deletePaneItem);
@@ -1050,7 +1050,8 @@ public class PrintDesignFrame extends UMasterDetailFrame {
 		masterDataSet.setColumns(ColumnsHelp.getColumns("SYS_PRINT_TEMPLATE_PAGE", columnStrs));
 		masterDataSet.open();
 		String[] plate = new String[] { "PRINT_ID", "UNIQUE_ID", "INDEX", "HEIGHT", "WIDTH", "AUTO_STRETCH",
-				"AUTO_STRETCH_DESC", "VIEW_TYPE", "VIEW_TYPE_DESC", "BACK_TEXT","TABLE_NAME","CIRCULATION","CIRCULATION_DESC" };
+				"AUTO_STRETCH_DESC", "VIEW_TYPE", "VIEW_TYPE_DESC", "BACK_TEXT", "TABLE_NAME", "CIRCULATION",
+				"CIRCULATION_DESC","COL_NUM","COL_WIDTH","COL_SPACING" };
 		detailDataSet.setColumns(ColumnsHelp.getColumns("SYS_PRINT_TEMPLATE_PLATE", plate));
 		detailDataSet.getColumn("VIEW_TYPE_DESC").setPickList(
 				new PickListDescriptor(printViewDataSet, new String[] { "CODE" }, new String[] { "DESCRIPTION" },
@@ -1059,6 +1060,11 @@ public class PrintDesignFrame extends UMasterDetailFrame {
 		detailDataSet.getColumn("AUTO_STRETCH_DESC").setPickList(
 				new PickListDescriptor(boolStrDataSet, new String[] { "CODE" }, new String[] { "DESCRIPTION" },
 						new String[] { "AUTO_STRETCH" }, "DESCRIPTION", true));
+		detailDataSet.getColumn("CIRCULATION_DESC").setPickList(
+				new PickListDescriptor(boolStrDataSet, new String[] { "CODE" }, new String[] { "DESCRIPTION" },
+						new String[] { "CIRCULATION" }, "DESCRIPTION", true));
+		detailDataSet.getColumn("TABLE_NAME").setItemList(
+				new ItemListDescriptor(dataSetPanelMap.keySet().toArray(), false));
 
 		//
 		String[] detailColumn = new String[] { "PRINT_ID", "PANEL_ID", "UNIQUE_ID", "RELATION_ID", "INDEX", "TYPE",
@@ -1228,8 +1234,8 @@ public class PrintDesignFrame extends UMasterDetailFrame {
 				GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
 
 		// 页面属性
-		String[] paneAttr = new String[] { "INDEX", "WIDTH", "HEIGHT","TABLE_NAME", "VIEW_TYPE_DESC", "AUTO_STRETCH_DESC",
-				"BACK_TEXT","CIRCULATION_DESC" };
+		String[] paneAttr = new String[] { "INDEX", "WIDTH", "HEIGHT", "TABLE_NAME", "VIEW_TYPE_DESC",
+				"AUTO_STRETCH_DESC", "BACK_TEXT", "CIRCULATION_DESC","COL_NUM","COL_WIDTH","COL_SPACING" };
 
 		filterlayout = new GridBagLayout();
 		rows = new int[paneAttr.length + 1];
@@ -1250,7 +1256,8 @@ public class PrintDesignFrame extends UMasterDetailFrame {
 				label.setText(DataModel.getDefault().getLabel("SYS_PRINT_TEMPLATE_PLATE." + paneAttr[i]));
 			}
 			JComponent jcom = null;
-			if (paneAttr[i].equals("AUTO_STRETCH_DESC") || paneAttr[i].equals("VIEW_TYPE_DESC")||paneAttr[i].equals("CIRCULATION_DESC")) {
+			if (paneAttr[i].equals("AUTO_STRETCH_DESC") || paneAttr[i].equals("VIEW_TYPE_DESC")
+					|| paneAttr[i].equals("CIRCULATION_DESC") || paneAttr[i].equals("TABLE_NAME")) {
 				JdbComboBox text = new JdbComboBox();
 				text.setColumnName(paneAttr[i]);
 				jcom = text;

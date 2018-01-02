@@ -1,5 +1,7 @@
 package com.evangelsoft.easyui.print.client;
 
+import java.awt.SystemColor;
+
 import javax.swing.JTable;
 
 public class PrintTable extends JTable {

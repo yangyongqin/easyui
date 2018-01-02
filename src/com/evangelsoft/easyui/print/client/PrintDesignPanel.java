@@ -117,7 +117,7 @@ public class PrintDesignPanel extends JPanel implements PrintDesignView {
 
 	private PrintTable table;
 
-	TableScrollPane tableScrollPane;
+	PrintTableScrollPane tableScrollPane;
 
 	private static Cursor resizeCursor = Cursor.getPredefinedCursor(Cursor.E_RESIZE_CURSOR);
 
@@ -148,7 +148,7 @@ public class PrintDesignPanel extends JPanel implements PrintDesignView {
 		table = new PrintTable(this);
 		/* table.setTableHeader(new PrintTableHeader()); */
 		// this.setLayout(new BorderLayout());
-		tableScrollPane = new TableScrollPane(table);
+		tableScrollPane = new PrintTableScrollPane(table);
 		table.setAutoscrolls(true);
 		TableColumnModel model = table.getColumnModel();
 		model.addColumnModelListener(new TableColumnModelListener() {
@@ -345,7 +345,7 @@ public class PrintDesignPanel extends JPanel implements PrintDesignView {
 		table.setRowHeight(30);
 		// 如果显示表格才显示表格
 
-		 tableScrollPane.setBorder(null);
+		tableScrollPane.setBorder(null);
 		if (TABLE_VIEW.equals(viewType)) {
 			this.add(tableScrollPane);
 		}
@@ -992,11 +992,12 @@ public class PrintDesignPanel extends JPanel implements PrintDesignView {
 		// this.width = (int) Math.ceil(width);
 		// this.height = (int) Math.ceil(height);
 		super.setSize((int) width, (int) height);
-		this.tableScrollPane.setSize((int) width, (int) height-2);
+		this.tableScrollPane.setSize((int) width, (int) height - 2);
+		this.tableScrollPane.getViewport().setSize((int) width, (int) height - 2);
 	}
 
-/*	public void setSize(Dimension d) {
-		super.setSize(d);
-		this.tableScrollPane.setSize(d);
-	}*/
+	/*
+	 * public void setSize(Dimension d) { super.setSize(d);
+	 * this.tableScrollPane.setSize(d); }
+	 */
 }
