@@ -940,7 +940,7 @@ public class PrintDesignFrame extends UMasterDetailFrame {
 		insertPane = new JMenuItem("插入一个新的面板");
 		addPane = new JMenuItem("添加一个新的面板");
 		showAttribute = new JMenuItem("显示属性");
-		showPanelAttribute = new JMenuItem("");
+		showPanelAttribute = new JMenuItem("显示面板属性");
 
 		panelRightMenu.add(pasteItem);
 		panelRightMenu.add(deletePaneItem);
@@ -949,6 +949,7 @@ public class PrintDesignFrame extends UMasterDetailFrame {
 		panelRightMenu.add(insertPane);
 		panelRightMenu.add(addPane);
 		panelRightMenu.add(showAttribute);
+		panelRightMenu.add(showPanelAttribute);
 
 		deletePaneItem.addActionListener(itemAction);
 		toTableFormat.addActionListener(itemAction);
@@ -956,6 +957,7 @@ public class PrintDesignFrame extends UMasterDetailFrame {
 		insertPane.addActionListener(itemAction);
 		addPane.addActionListener(itemAction);
 		showAttribute.addActionListener(itemAction);
+		showPanelAttribute.addActionListener(itemAction);
 
 		pageRightMenu = new JPopupMenu();
 		addPanelByPageItem = new JMenuItem("添加一个新的面板");

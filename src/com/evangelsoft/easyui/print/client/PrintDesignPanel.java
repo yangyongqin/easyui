@@ -7,6 +7,7 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
@@ -51,13 +52,7 @@ import com.evangelsoft.workbench.types.BoolStr;
 
 public class PrintDesignPanel extends JPanel implements PrintDesignView {
 
-	// public LinkedHashMap<PrintDesignPanel, Integer> linkedPanel=new
-	// LinkedHashMap<PrintDesignPanel, Integer>();
-
 	private HashMap<Integer, TableColumn> tableColumnMap = new HashMap<Integer, TableColumn>();
-
-	// private HashMap<Integer, PrintItem<?>> printItemMap = new
-	// HashMap<Integer, PrintItem<?>>();
 
 	// 用来排序，修改高度将其他的高度变小
 
@@ -104,7 +99,17 @@ public class PrintDesignPanel extends JPanel implements PrintDesignView {
 	private String viewType;
 
 	// 是否自动伸缩
-	private int autoStretch;
+	private boolean autoStretch;
+
+	private boolean circulation;
+
+	private String tableName;
+
+	private int colNum;
+
+	private int colWidth;
+
+	private int colSpacing;
 
 	private String backFont;
 
@@ -458,7 +463,8 @@ public class PrintDesignPanel extends JPanel implements PrintDesignView {
 		Graphics2D g2d = bi.createGraphics();
 		g2d.getComposite();
 		g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.2f));
-		g2d.setColor(new Color(0, 0, 0));// 设置黑色字体,同样可以
+		g2d.setColor(new Color(0, 0, 0));
+		g2d.setFont(new Font("黑体", 0, 18));// 设置黑色字体,同样可以
 		g2d.drawString(this.watermark, (this.getWidth() - 100) / 2, (this.getHeight() + 15) / 2);// 绘制水印，具体水印绘制方式根据自己的需求修改
 		g.drawImage(bi, 0, 0, this);
 	}
@@ -981,6 +987,58 @@ public class PrintDesignPanel extends JPanel implements PrintDesignView {
 
 	}
 
+	public boolean getAutoStretch() {
+		return autoStretch;
+	}
+
+	public void setAutoStretch(boolean autoStretch) {
+		this.autoStretch = autoStretch;
+	}
+
+	public boolean isCirculation() {
+		return circulation;
+	}
+
+	public void setCirculation(boolean circulation) {
+		this.circulation = circulation;
+	}
+
+	public String getTableName() {
+		return tableName;
+	}
+
+	public void setTableName(String tableName) {
+		this.tableName = tableName;
+	}
+
+	public int getColNum() {
+		return colNum;
+	}
+
+	public void setColNum(int colNum) {
+		this.colNum = colNum;
+	}
+
+	public int getColWidth() {
+		return colWidth;
+	}
+
+	public void setColWidth(int colWidth) {
+		this.colWidth = colWidth;
+	}
+
+	public int getColSpacing() {
+		return colSpacing;
+	}
+
+	public void setColSpacing(int colSpacing) {
+		this.colSpacing = colSpacing;
+	}
+
+	public int getWidth() {
+		return width;
+	}
+
 	@Override
 	public void addMouseMotionListener(MouseMotionListener l) {
 		super.addMouseMotionListener(l);
@@ -996,8 +1054,4 @@ public class PrintDesignPanel extends JPanel implements PrintDesignView {
 		this.tableScrollPane.getViewport().setSize((int) width, (int) height - 2);
 	}
 
-	/*
-	 * public void setSize(Dimension d) { super.setSize(d);
-	 * this.tableScrollPane.setSize(d); }
-	 */
 }
