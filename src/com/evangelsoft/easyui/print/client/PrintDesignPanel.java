@@ -116,9 +116,9 @@ public class PrintDesignPanel extends JPanel implements PrintDesignView {
 	//
 	private Record record;
 
-	private int width;
+//	private int width;
 
-	private int height;
+//	private int height;
 
 	private PrintTable table;
 
@@ -1035,9 +1035,9 @@ public class PrintDesignPanel extends JPanel implements PrintDesignView {
 		this.colSpacing = colSpacing;
 	}
 
-	public int getWidth() {
-		return width;
-	}
+//	public int getWidth() {
+//		return width;
+//	}
 
 	@Override
 	public void addMouseMotionListener(MouseMotionListener l) {
@@ -1052,6 +1052,23 @@ public class PrintDesignPanel extends JPanel implements PrintDesignView {
 		super.setSize((int) width, (int) height);
 		this.tableScrollPane.setSize((int) width, (int) height - 2);
 		this.tableScrollPane.getViewport().setSize((int) width, (int) height - 2);
+	}
+
+	@Override
+	public void setParentId(int parentId) {
+		
+	}
+
+	@Override
+	public void setX(int x) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setY(int y) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

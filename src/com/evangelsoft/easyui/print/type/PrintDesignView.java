@@ -41,8 +41,10 @@ public interface PrintDesignView {
 
 	public void setWidth(int width);
 
+	@DataColumn(dataColumn = "WIDTH")
 	public int getWidth();
 
+	@DataColumn(dataColumn = "HEIGHT")
 	public void setHeight(int height);
 
 	public int getHeight();
@@ -55,14 +57,17 @@ public interface PrintDesignView {
 
 	public void toZdy();
 
+	@DataColumn(dataColumn = "INDEX")
 	public void toIndex(int index);
 
 	public void toFisrt();
 
 	public void toLast();
 
+	@DataColumn(dataColumn = "TYPE")
 	public void setShowtype(String type);
 
+	@DataColumn(dataColumn = "BACK_TEXT")
 	public void setWatermark(String watermark);
 
 	public PrintPage getPrintPage();
@@ -72,6 +77,9 @@ public interface PrintDesignView {
 	public void repaint();
 
 	public int getUniqueId();
+
+	@DataColumn(dataColumn = "UNIQUE_ID")
+	public void setUniqueId(int uniqueId);
 
 	public List<PrintItem<?>> copyItems(List<PrintItem<?>> itemList);
 
@@ -83,19 +91,27 @@ public interface PrintDesignView {
 
 	public Point getLocation();
 
+	public void setParentId(int parentId);
+
+	@DataColumn(dataColumn = "X")
+	public void setX(int x);
+
+	@DataColumn(dataColumn = "Y")
+	public void setY(int y);
+
 	public void setLocation(int x, int y);
-	
+
 	public void setTransferHandler(TransferHandler newHandler);
-	
-	public  void addMouseListener(MouseListener l) ;
-	
+
+	public void addMouseListener(MouseListener l);
+
 	public void setSize(double width, double height);
-	
+
 	public void setBackground(Color bg);
-	
-	public void addMouseMotionListener(MouseMotionListener l) ;
-	
+
+	public void addMouseMotionListener(MouseMotionListener l);
+
 	public Dimension getSize();
-	
-	public Container getParent() ;
+
+	public Container getParent();
 }
