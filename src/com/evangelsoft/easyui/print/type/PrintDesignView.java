@@ -60,6 +60,8 @@ public interface PrintDesignView {
 	@DataColumn(dataColumn = "INDEX")
 	public void toIndex(int index);
 
+	public int getIndex();
+
 	public void toFisrt();
 
 	public void toLast();

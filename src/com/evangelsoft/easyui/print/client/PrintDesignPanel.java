@@ -2,7 +2,6 @@ package com.evangelsoft.easyui.print.client;
 
 import java.awt.AlphaComposite;
 import java.awt.BasicStroke;
-import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Cursor;
@@ -18,7 +17,6 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.image.BufferedImage;
-import java.beans.Transient;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -30,7 +28,6 @@ import javax.swing.JPanel;
 import javax.swing.JScrollBar;
 import javax.swing.JTable;
 import javax.swing.border.AbstractBorder;
-import javax.swing.border.LineBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.TableColumnModelEvent;
@@ -39,7 +36,6 @@ import javax.swing.table.JTableHeader;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 
-import com.borland.dbswing.TableScrollPane;
 import com.borland.dx.dataset.StorageDataSet;
 import com.evangelsoft.easyui.print.type.PrintDesignView;
 import com.evangelsoft.easyui.print.type.PrintItem;
@@ -116,9 +112,9 @@ public class PrintDesignPanel extends JPanel implements PrintDesignView {
 	//
 	private Record record;
 
-//	private int width;
+	// private int width;
 
-//	private int height;
+	// private int height;
 
 	private PrintTable table;
 
@@ -909,7 +905,6 @@ public class PrintDesignPanel extends JPanel implements PrintDesignView {
 			} else {
 				Point mousePoint = SwingUtils.getMousePoint(this);;
 				// 如果是表格内容复制到面板，也显示俩个
-
 				PrintElementItem printItem = new PrintElementItem(PrintElementType.LABEL, this);
 				printItem.setUniqueId(max + 1);
 				// addDataSetRow(printItem);
@@ -937,54 +932,53 @@ public class PrintDesignPanel extends JPanel implements PrintDesignView {
 
 	@Override
 	public void setWidth(int width) {
-		// TODO Auto-generated method stub
-		System.out.println("AAAAAAAA");
+		setSize(width, this.getSize().height);
 	}
 
 	@Override
 	public void setHeight(int height) {
-		// TODO Auto-generated method stub
-		System.out.println("BBBBBBBBBBB");
+		setSize(this.getSize().getWidth(), height);
 	}
 
 	public void toForward(int num) {
-		// TODO Auto-generated method stub
-
+		int index = toRow();
+		toIndex(index - num);
 	}
 
 	public void toBack(int num) {
-		// TODO Auto-generated method stub
-
-	}
-
-	public void toTable() {
-		// TODO Auto-generated method stub
-
-	}
-
-	public void toZdy() {
-		// TODO Auto-generated method stub
-
+		int index = toRow();
+		toIndex(index + num);
 	}
 
 	public void toIndex(int index) {
-		// TODO Auto-generated method stub
+		// TODO 调用管理面板，传INDEX
 
 	}
 
 	public void toFisrt() {
-		// TODO Auto-generated method stub
-
+		toIndex(0);
 	}
 
 	public void toLast() {
-		// TODO Auto-generated method stub
+		// TODO
+		// toIndex()
+	}
 
+	public void toTable() {
+		setShowtype(TABLE_VIEW);
+	}
+
+	public void toZdy() {
+		setShowtype(ZDY_VIEW);
 	}
 
 	public void setShowtype(String type) {
-		// TODO Auto-generated method stub
+		// 根据类型将面板属性改成对应的值显示
+		if (ZDY_VIEW.equals(type) && !type.equals(this.viewType)) {
 
+		} else if (TABLE_VIEW.equals(type) && !type.equals(this.viewType)) {
+
+		}
 	}
 
 	public boolean getAutoStretch() {
@@ -1035,10 +1029,6 @@ public class PrintDesignPanel extends JPanel implements PrintDesignView {
 		this.colSpacing = colSpacing;
 	}
 
-//	public int getWidth() {
-//		return width;
-//	}
-
 	@Override
 	public void addMouseMotionListener(MouseMotionListener l) {
 		super.addMouseMotionListener(l);
@@ -1047,8 +1037,6 @@ public class PrintDesignPanel extends JPanel implements PrintDesignView {
 	}
 
 	public void setSize(double width, double height) {
-		// this.width = (int) Math.ceil(width);
-		// this.height = (int) Math.ceil(height);
 		super.setSize((int) width, (int) height);
 		this.tableScrollPane.setSize((int) width, (int) height - 2);
 		this.tableScrollPane.getViewport().setSize((int) width, (int) height - 2);
@@ -1056,19 +1044,34 @@ public class PrintDesignPanel extends JPanel implements PrintDesignView {
 
 	@Override
 	public void setParentId(int parentId) {
-		
+
 	}
 
 	@Override
 	public void setX(int x) {
-		// TODO Auto-generated method stub
-		
+		this.setLocation(x, this.getLocation().x);
 	}
 
 	@Override
 	public void setY(int y) {
-		// TODO Auto-generated method stub
-		
+		this.setLocation(this.getLocation().x, y);
+	}
+
+	public int toRow() {
+		// 如果当前行不在
+		if (this.printPage.getPaneDataSet() != null) {
+			if (this.printPage.getPaneDataSet().getBigDecimal("UNIQUE_ID").intValue() == this.getUniqueId()) {
+				return this.printPage.getPaneDataSet().getRow();
+			}
+			this.printPage.getPaneDataSet().first();
+			for (int i = 0; i < this.printPage.getPaneDataSet().rowCount(); i++) {
+				if (this.printPage.getPaneDataSet().getBigDecimal("UNIQUE_ID").intValue() == this.getUniqueId()) {
+					return i;
+				}
+				this.printPage.getPaneDataSet().next();
+			}
+		}
+		return -1;
 	}
 
 }
