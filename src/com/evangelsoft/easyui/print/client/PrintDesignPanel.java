@@ -95,30 +95,34 @@ public class PrintDesignPanel extends JPanel implements PrintDesignView {
 	private String viewType;
 
 	// 是否自动伸缩
-	private boolean autoStretch;
+	private Boolean autoStretch;
 
-	private boolean circulation;
+	private Boolean circulation;
 
-	private String tableName;
+	private String tableId;
 
-	private int colNum;
+	private Integer colNum;
 
-	private int colWidth;
+	private Integer colWidth;
 
-	private int colSpacing;
+	private Integer colSpacing;
 
 	private String backFont;
 
 	//
 	private Record record;
 
-	// private int width;
+	private double width, height;
 
 	// private int height;
 
 	private PrintTable table;
 
 	PrintTableScrollPane tableScrollPane;
+
+	private StorageDataSet paneDataSet;
+
+	int x, y;
 
 	private static Cursor resizeCursor = Cursor.getPredefinedCursor(Cursor.E_RESIZE_CURSOR);
 
@@ -134,6 +138,7 @@ public class PrintDesignPanel extends JPanel implements PrintDesignView {
 	public PrintDesignPanel(PrintPage printPage, String watermark, String viewType, StorageDataSet dataSet,
 			boolean isAdd) {
 		this.printPage = printPage;
+		paneDataSet = printPage.getPaneDataSet();
 		// this.addMouseMotionListener(this);
 		// this.index = linkedPanel.size();
 		this.viewType = viewType;
@@ -351,6 +356,11 @@ public class PrintDesignPanel extends JPanel implements PrintDesignView {
 			this.add(tableScrollPane);
 		}
 		this.setBackground(SystemColor.WHITE);
+
+		// 设置默认值
+		this.setColNum(1);
+		this.setColWidth(this.getWidth());
+		this.setColSpacing(0);
 	}
 
 	void insert(int width, int height) {
@@ -986,7 +996,11 @@ public class PrintDesignPanel extends JPanel implements PrintDesignView {
 	}
 
 	public void setAutoStretch(boolean autoStretch) {
-		this.autoStretch = autoStretch;
+		if (this.autoStretch == null || this.autoStretch != autoStretch) {
+			paneDataSet.setString("AUTO_STRETCH", BoolStr.getString(autoStretch));
+			this.autoStretch = autoStretch;
+		}
+
 	}
 
 	public boolean isCirculation() {
@@ -994,38 +1008,53 @@ public class PrintDesignPanel extends JPanel implements PrintDesignView {
 	}
 
 	public void setCirculation(boolean circulation) {
-		this.circulation = circulation;
+		if (this.circulation == null || this.circulation != circulation) {
+			paneDataSet.setString("CIRCULATION", BoolStr.getString(circulation));
+			this.circulation = circulation;
+		}
 	}
 
-	public String getTableName() {
-		return tableName;
+	public String getTableId() {
+		return tableId;
 	}
 
-	public void setTableName(String tableName) {
-		this.tableName = tableName;
+	public void setTableId(String tableId) {
+		if (this.table == null || !this.table.equals(tableId)) {
+			this.tableId = tableId;
+			paneDataSet.setString("TABLE_ID", tableId);
+		}
 	}
 
-	public int getColNum() {
+	public Integer getColNum() {
 		return colNum;
 	}
 
 	public void setColNum(int colNum) {
+		if (this.colNum == null || this.colNum != colNum) {
+			paneDataSet.setBigDecimal("COL_NUM", BigDecimal.valueOf(colNum));
+		}
 		this.colNum = colNum;
 	}
 
-	public int getColWidth() {
+	public Integer getColWidth() {
 		return colWidth;
 	}
 
 	public void setColWidth(int colWidth) {
+		if (this.colWidth == null || this.colWidth != colWidth) {
+			paneDataSet.setBigDecimal("COL_WIDTH", BigDecimal.valueOf(colWidth));
+		}
 		this.colWidth = colWidth;
 	}
 
-	public int getColSpacing() {
+	public Integer getColSpacing() {
 		return colSpacing;
 	}
 
 	public void setColSpacing(int colSpacing) {
+		if (this.colSpacing == null || this.colSpacing != colSpacing) {
+			paneDataSet.setBigDecimal("COL_SPACING", BigDecimal.valueOf(colSpacing));
+		}
 		this.colSpacing = colSpacing;
 	}
 
@@ -1040,11 +1069,19 @@ public class PrintDesignPanel extends JPanel implements PrintDesignView {
 		super.setSize((int) width, (int) height);
 		this.tableScrollPane.setSize((int) width, (int) height - 2);
 		this.tableScrollPane.getViewport().setSize((int) width, (int) height - 2);
+		if (this.width != width) {
+			paneDataSet.setBigDecimal("WIDTH", BigDecimal.valueOf(width));
+		}
+		if (this.height != height) {
+			paneDataSet.setBigDecimal("HEIGHT", BigDecimal.valueOf(height));
+		}
+		this.height = height;
+		this.width = width;
 	}
 
 	@Override
 	public void setParentId(int parentId) {
-
+		paneDataSet.setBigDecimal("PARENT_ID", BigDecimal.valueOf(parentId));
 	}
 
 	@Override
@@ -1055,6 +1092,21 @@ public class PrintDesignPanel extends JPanel implements PrintDesignView {
 	@Override
 	public void setY(int y) {
 		this.setLocation(this.getLocation().x, y);
+	}
+
+	public void setLocation(int x, int y) {
+		super.setLocation(this.getLocation().x, y);
+		if (toRow() > -1) {
+			// 值不同就
+			if (this.x != x) {
+				paneDataSet.setBigDecimal("X", BigDecimal.valueOf(x));
+			}
+			if (this.y != y) {
+				paneDataSet.setBigDecimal("Y", BigDecimal.valueOf(y));
+			}
+			this.x = x;
+			this.y = y;
+		}
 	}
 
 	public int toRow() {

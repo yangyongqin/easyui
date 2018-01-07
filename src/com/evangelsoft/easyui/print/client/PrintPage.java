@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.borland.dx.dataset.StorageDataSet;
+import com.evangelsoft.easyui.print.type.PrintDesignView;
 import com.evangelsoft.easyui.print.type.PrintItem;
 
 /**
@@ -26,7 +27,7 @@ public class PrintPage {
 	/**
 	 * Ãæ°å¼¯ºÏ
 	 */
-	List<PrintDesignPanel> linkedPanel = new ArrayList<PrintDesignPanel>();
+	List<PrintDesignView> linkedPanel = new ArrayList<PrintDesignView>();
 
 	/**
 	 * Ò³¿í
@@ -81,11 +82,11 @@ public class PrintPage {
 		this.printDesignFrame = frame;
 	}
 
-	public List<PrintDesignPanel> getLinkedPanel() {
+	public List<PrintDesignView> getLinkedPanel() {
 		return linkedPanel;
 	}
 
-	public void setLinkedPanel(List<PrintDesignPanel> linkedPanel) {
+	public void setLinkedPanel(List<PrintDesignView> linkedPanel) {
 		this.linkedPanel = linkedPanel;
 	}
 

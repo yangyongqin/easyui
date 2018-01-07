@@ -262,7 +262,7 @@ public class PrintDesignManagePanel extends JPanel implements MouseMotionListene
 
 	public PrintDesignView addPrintDesignPanel() {
 		// 默认之定义显示
-		return this.addPrintDesignPanel(linkedPanel.size(), 200, PrintDesignPanel.ZDY_VIEW, "自定义");
+		return this.addPrintDesignPanel(linkedPanel.size(), 200, PrintDesignView.ZDY_VIEW, "自定义");
 	}
 
 	public PrintDesignView addPrintDesignPanel(String type, String watermark) {
@@ -435,7 +435,7 @@ public class PrintDesignManagePanel extends JPanel implements MouseMotionListene
 		PrintDesignPanel panel;
 		if (e.getSource() instanceof PrintTable) {
 			PrintTable table = (PrintTable) e.getSource();
-			panel = table.getPanel();
+			panel = (PrintDesignPanel) table.getPanel();
 		} else if (e.getSource() instanceof TableScrollPane) {
 			TableScrollPane table = (TableScrollPane) e.getSource();
 			panel = (PrintDesignPanel) table.getParent();

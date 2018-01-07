@@ -89,14 +89,10 @@ import com.borland.dx.dataset.ColumnAware;
 import com.borland.dx.dataset.ColumnChangeAdapter;
 import com.borland.dx.dataset.DataSet;
 import com.borland.dx.dataset.DataSetException;
-import com.borland.dx.dataset.EditAdapter;
 import com.borland.dx.dataset.ItemListDescriptor;
 import com.borland.dx.dataset.PickListDescriptor;
-import com.borland.dx.dataset.ReadRow;
-import com.borland.dx.dataset.ReadWriteRow;
 import com.borland.dx.dataset.StorageDataSet;
 import com.borland.dx.dataset.Variant;
-import com.borland.jb.util.ErrorResponse;
 import com.evangelsoft.easyui.print.type.PrintDesignView;
 import com.evangelsoft.easyui.print.type.PrintItem;
 import com.evangelsoft.easyui.print.type.PrintItemTool;
@@ -260,7 +256,8 @@ public class PrintDesignFrame extends UMasterDetailFrame {
 
 	private String frameType;// 表单类型
 
-	private HashMap<String, PrintStorageDataSet> dataSetPanelMap;
+	// private HashMap<String, PrintStorageDataSet> dataSetPanelMap;
+	private PrintDataManage printDataManage;
 
 	private String mainTable;//
 
@@ -326,6 +323,8 @@ public class PrintDesignFrame extends UMasterDetailFrame {
 
 	private JDialog showDialog = new JDialog();
 
+	private JDialog showPanelDialog = new JDialog();
+
 	private JdbTable elementTable;
 
 	/**
@@ -349,28 +348,26 @@ public class PrintDesignFrame extends UMasterDetailFrame {
 	 * @param frameType
 	 *            单据类型
 	 */
-	public PrintDesignFrame(String funcId, String frameType, HashMap<String, PrintStorageDataSet> dataSetPanelMap,
-			String mainTable, boolean isCreate) {
+	public PrintDesignFrame(String funcId, String frameType, PrintDataManage printDataManage, boolean isCreate) {
 		this.frameType = frameType;
-		this.dataSetPanelMap = dataSetPanelMap;
+		this.printDataManage = printDataManage;
 		this.mainTable = mainTable;
 		this.isCreate = isCreate;
 		init();
 	}
 
-	public PrintDesignFrame(String funcId, HashMap<String, PrintStorageDataSet> dataSetPanelMap, String mainTable,
-			boolean isCreate) {
+	public PrintDesignFrame(String funcId, PrintDataManage printDataManage, String mainTable, boolean isCreate) {
 		this.isCreate = isCreate;
 		/* this.frameType = frameType; */
-		this.dataSetPanelMap = dataSetPanelMap;
+		this.printDataManage = printDataManage;
 		this.mainTable = mainTable;
 		this.isCreate = isCreate;
 		init();
 	}
 
-	public PrintDesignFrame(String funcId, HashMap<String, PrintStorageDataSet> dataSetPanelMap, boolean isCreate) {
+	public PrintDesignFrame(String funcId, PrintDataManage printDataManage, boolean isCreate) {
 		/* this.frameType = frameType; */
-		this.dataSetPanelMap = dataSetPanelMap;
+		this.printDataManage = printDataManage;
 		this.isCreate = isCreate;
 		init();
 	}
@@ -398,20 +395,20 @@ public class PrintDesignFrame extends UMasterDetailFrame {
 	}
 
 	public PrintDesignFrame(String funcId, StorageDataSet masterDataSet, StorageDataSet detailDataSet, boolean isCreate) {
+
 		PrintStorageDataSet master = new PrintStorageDataSet();
+
 		master.setTableDesc("主表");
 		master.setDataSet(masterDataSet);
-		master.setTableName("master");
-		if (dataSetPanelMap == null) {
-			dataSetPanelMap = new HashMap<String, PrintStorageDataSet>();
-		}
-		dataSetPanelMap.put("master", master);
+		master.setTableId("master");
+
+		printDataManage.setMainPrintStorageDataSet(master);
 
 		PrintStorageDataSet detail = new PrintStorageDataSet();
 		detail.setTableDesc("明细");
 		detail.setDataSet(detailDataSet);
-		detail.setTableName("detail");
-		dataSetPanelMap.put("detail", detail);
+		detail.setTableId("detail");
+		printDataManage.setListPrintStorageDataSet(detail);
 		this.isCreate = isCreate;
 		init();
 	}
@@ -429,12 +426,12 @@ public class PrintDesignFrame extends UMasterDetailFrame {
 		this.dataSet = new StorageDataSet();
 		dataSet.setColumns(listColumn.toArray(new Column[0]));
 		listColumn.addAll(listColumn);
-		if (dataSetPanelMap == null || dataSetPanelMap.isEmpty()) {
+		if (printDataManage == null) {
 			PrintStorageDataSet list = new PrintStorageDataSet();
 			list.setTableDesc("列表");
 			list.setDataSet(masterDataSet);
-			list.setTableName("detail");
-			dataSetPanelMap.put("list", list);
+			list.setTableId("detail");
+			printDataManage.setListPrintStorageDataSet(list);
 		}
 		this.isCreate = true;
 		init();
@@ -499,6 +496,13 @@ public class PrintDesignFrame extends UMasterDetailFrame {
 		TableScrollPane pane = new TableScrollPane(elementTable);
 		showDialog.add(pane);
 		elementTable.setDataSet(elementDataSet);
+
+		showPanelDialog = new JDialog();
+		showPanelDialog.setPreferredSize(new Dimension(400, 300));
+		showPanelDialog.pack();
+		TableScrollPane panelPane = new TableScrollPane(detailTable);
+		showPanelDialog.add(panelPane);
+
 	}
 
 	// 初始化界面
@@ -1052,8 +1056,9 @@ public class PrintDesignFrame extends UMasterDetailFrame {
 		masterDataSet.setColumns(ColumnsHelp.getColumns("SYS_PRINT_TEMPLATE_PAGE", columnStrs));
 		masterDataSet.open();
 		String[] plate = new String[] { "PRINT_ID", "UNIQUE_ID", "INDEX", "HEIGHT", "WIDTH", "AUTO_STRETCH",
-				"AUTO_STRETCH_DESC", "VIEW_TYPE", "VIEW_TYPE_DESC", "BACK_TEXT", "TABLE_NAME", "CIRCULATION",
-				"CIRCULATION_DESC","COL_NUM","COL_WIDTH","COL_SPACING" };
+				"AUTO_STRETCH_DESC", "VIEW_TYPE", "VIEW_TYPE_DESC", "BACK_TEXT", "TABLE_ID", "CIRCULATION",
+				"CIRCULATION_DESC", "COL_NUM", "COL_WIDTH", "COL_SPACING", "X", "Y", "PARENT_ID", "HEIGHT", "WIDTH",
+				"INDEX" };
 		detailDataSet.setColumns(ColumnsHelp.getColumns("SYS_PRINT_TEMPLATE_PLATE", plate));
 		detailDataSet.getColumn("VIEW_TYPE_DESC").setPickList(
 				new PickListDescriptor(printViewDataSet, new String[] { "CODE" }, new String[] { "DESCRIPTION" },
@@ -1065,8 +1070,8 @@ public class PrintDesignFrame extends UMasterDetailFrame {
 		detailDataSet.getColumn("CIRCULATION_DESC").setPickList(
 				new PickListDescriptor(boolStrDataSet, new String[] { "CODE" }, new String[] { "DESCRIPTION" },
 						new String[] { "CIRCULATION" }, "DESCRIPTION", true));
-		detailDataSet.getColumn("TABLE_NAME").setItemList(
-				new ItemListDescriptor(dataSetPanelMap.keySet().toArray(), false));
+		detailDataSet.getColumn("TABLE_ID").setItemList(
+				new ItemListDescriptor(printDataManage.getPrintSet().keySet().toArray(), false));
 
 		//
 		String[] detailColumn = new String[] { "PRINT_ID", "PANEL_ID", "UNIQUE_ID", "RELATION_ID", "INDEX", "TYPE",
@@ -1236,8 +1241,8 @@ public class PrintDesignFrame extends UMasterDetailFrame {
 				GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
 
 		// 页面属性
-		String[] paneAttr = new String[] { "INDEX", "WIDTH", "HEIGHT", "TABLE_NAME", "VIEW_TYPE_DESC",
-				"AUTO_STRETCH_DESC", "BACK_TEXT", "CIRCULATION_DESC","COL_NUM","COL_WIDTH","COL_SPACING" };
+		String[] paneAttr = new String[] { "INDEX", "WIDTH", "HEIGHT", "TABLE_ID", "VIEW_TYPE_DESC",
+				"AUTO_STRETCH_DESC", "BACK_TEXT", "CIRCULATION_DESC", "COL_NUM", "COL_WIDTH", "COL_SPACING" };
 
 		filterlayout = new GridBagLayout();
 		rows = new int[paneAttr.length + 1];
@@ -1671,11 +1676,11 @@ public class PrintDesignFrame extends UMasterDetailFrame {
 		DataSetHelper.loadFromRecordSet(fontNameDataSet, set);
 
 		// 处理数据，因为prepared方法经常比较慢。。。。
-		if (dataSetPanelMap != null) {
-			for (String key : dataSetPanelMap.keySet()) {
-				PrintStorageDataSet printtable = dataSetPanelMap.get(key);
-				tableListModel.addElement(new CodeValue(printtable.getTableName(), printtable.getTableDesc() + "<"
-						+ printtable.getTableName() + ">"));
+		if (printDataManage != null) {
+			for (String key : printDataManage.getPrintSet().keySet()) {
+				PrintStorageDataSet printtable = printDataManage.getPrintSet().get(key);
+				tableListModel.addElement(new CodeValue(printtable.getTableId(), printtable.getTableDesc() + "<"
+						+ printtable.getTableId() + ">"));
 				// 循环表数据，得到字段
 				DefaultListModel<PrintElementSource> fieldListModel = new DefaultListModel<PrintElementSource>();
 				for (int i = 0; i < printtable.getDataSet().getColumnCount(); i++) {
@@ -1787,13 +1792,13 @@ public class PrintDesignFrame extends UMasterDetailFrame {
 
 	}
 
-	public static void createPrint(String funcId, HashMap<String, PrintStorageDataSet> printSet) {
-		new PrintDesignFrame(funcId, printSet, true).showFrame();
+	public static void createPrint(String funcId, PrintDataManage printDataManage) {
+
+		new PrintDesignFrame(funcId, printDataManage, true).showFrame();
 	}
 
-	public static void createPrint(String funcId, String frameType,
-			HashMap<String, PrintStorageDataSet> dataSetPanelMap, String mainTable) {
-		new PrintDesignFrame(funcId, frameType, dataSetPanelMap, mainTable, true).showFrame();
+	public static void createPrint(String funcId, String frameType, PrintDataManage printDataManage) {
+		new PrintDesignFrame(funcId, frameType, printDataManage, true).showFrame();
 	}
 
 	public static void createPrint(String funcId, StorageDataSet masterDataSet, StorageDataSet detailDataSet) {
@@ -2100,6 +2105,8 @@ public class PrintDesignFrame extends UMasterDetailFrame {
 				panel.setTransferHandler(targatTransferHandler);
 				// panel.setBackground(SystemColor.WHITE);
 				panel.addMouseListener(itemSelectAdapter);
+			} else if (showPanelAttribute == e.getSource()) {
+				showPanelDialog.setVisible(true);
 			}
 		}
 	}
@@ -2115,43 +2122,40 @@ public class PrintDesignFrame extends UMasterDetailFrame {
 		pageHeadPane = designPanel.addPrintDesignPanel(0, 100, PrintDesignView.ZDY_VIEW, "这个是页头");
 		// 添加拖动接收处理事件
 		pageHeadPane.setTransferHandler(targatTransferHandler);
-		// pageHeadPane.setBounds(1, 1, 595, 200);
-		// pageHeadPane.setBackground(SystemColor.WHITE);
-		// designPanel.add(pageHeadPane);
 		pageHeadPane.addMouseListener(itemSelectAdapter);
-
+		pageHeadPane.setTableId(printDataManage.getMainPrintStorageDataSet().getTableId());
+		pageHeadPane.setCirculation(false);// 不循环
+		pageHeadPane.setAutoStretch(false);// 不伸缩，固定高度
 		tableHeadPane = designPanel.addPrintDesignPanel(1, 30, PrintDesignView.ZDY_VIEW, "这个是表头");
 		// 添加拖动接收处理事件
 		tableHeadPane.setTransferHandler(targatTransferHandler);
-		// tableHeadPane.setBounds(1, 201, 595, 30);
-		// tableHeadPane.setBackground(SystemColor.WHITE);
-		// designPanel.add(tableHeadPane);
 		tableHeadPane.addMouseListener(itemSelectAdapter);
-
+		tableHeadPane.setTableId(printDataManage.getMainPrintStorageDataSet().getTableId());
+		tableHeadPane.setCirculation(false);// 不循环
+		tableHeadPane.setAutoStretch(false);// 不伸缩，固定高度
 		tablePanel = designPanel.addPrintDesignPanel(2, 200, PrintDesignView.TABLE_VIEW, "这个是表体");
 		// 添加拖动接收处理事件
 		tablePanel.setTransferHandler(targatTransferHandler);
-		// tablePanel.setBounds(1, 232, 595, 300);
-		// tablePanel.setBackground(SystemColor.WHITE);
 		tablePanel.addMouseListener(itemSelectAdapter);
-
-		// designPanel.add(tablePanel);
+		tablePanel.setTableId(printDataManage.getListPrintStorageDataSet().getTableId());
+		tablePanel.setCirculation(true);// 表格默认循环
+		tablePanel.setAutoStretch(true);// 随内容自动伸缩面板
 
 		tableTailPanel = designPanel.addPrintDesignPanel(3, 100, PrintDesignView.ZDY_VIEW, "这个是表尾");
 		// 添加拖动接收处理事件
 		tableTailPanel.setTransferHandler(targatTransferHandler);
-		// tableTailPanel.setBounds(1, 532, 595, 30);
-		// tableTailPanel.setBackground(SystemColor.WHITE);
 		tableTailPanel.addMouseListener(itemSelectAdapter);
-
-		// designPanel.add(tableTailPanel);
+		tableTailPanel.setTableId(printDataManage.getMainPrintStorageDataSet().getTableId());
+		tableTailPanel.setCirculation(false);// 不循环
+		tableTailPanel.setAutoStretch(false);// 不伸缩，固定高度
 
 		pageTailPanel = designPanel.addPrintDesignPanel(4, 200, PrintDesignPanel.ZDY_VIEW, "这个是页尾");
 		// 添加拖动接收处理事件
 		pageTailPanel.setTransferHandler(targatTransferHandler);
-		// pageTailPanel.setBounds(1, 562, 595, 240);
-		// pageTailPanel.setBackground(SystemColor.WHITE);
 		pageTailPanel.addMouseListener(itemSelectAdapter);
+		pageTailPanel.setTableId(printDataManage.getMainPrintStorageDataSet().getTableId());
+		pageTailPanel.setCirculation(false);
+		pageTailPanel.setAutoStretch(false);// 不伸缩，固定高度
 		designPanel.updateUI();
 	}
 

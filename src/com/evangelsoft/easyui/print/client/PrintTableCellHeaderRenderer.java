@@ -22,6 +22,7 @@ import javax.swing.table.TableColumn;
 
 import com.borland.dbswing.JdbTextField;
 import com.borland.dx.dataset.DataSet;
+import com.evangelsoft.easyui.print.type.PrintDesignView;
 import com.evangelsoft.easyui.print.type.PrintItem;
 import com.evangelsoft.easyui.print.type.PrintItemTool;
 import com.evangelsoft.easyui.template.client.nc.StringUtil;
@@ -93,9 +94,9 @@ public class PrintTableCellHeaderRenderer extends DefaultTableCellRenderer imple
 
 	private int elementHeight;
 
-	private PrintDesignPanel parentPanel;
+	private PrintDesignView parentPanel;
 
-	private PrintDesignPanel designPanel;
+	private PrintDesignView designPanel;
 
 	private PrintPage printPage;
 
@@ -343,7 +344,6 @@ public class PrintTableCellHeaderRenderer extends DefaultTableCellRenderer imple
 		return isstrikethrough;
 	}
 
-
 	public void setElementWidth(int elementWidth) {
 		if (toRow() > -1) {
 			if (this.elementWidth != elementWidth) {
@@ -352,7 +352,6 @@ public class PrintTableCellHeaderRenderer extends DefaultTableCellRenderer imple
 			}
 		}
 	}
-
 
 	public void setElementHeight(int elementHeight) {
 		if (toRow() > -1) {
@@ -395,19 +394,19 @@ public class PrintTableCellHeaderRenderer extends DefaultTableCellRenderer imple
 		this.table = table;
 	}
 
-	public PrintDesignPanel getParentPanel() {
+	public PrintDesignView getParentPanel() {
 		return parentPanel;
 	}
 
-	public void setParentPanel(PrintDesignPanel parentPanel) {
+	public void setParentPanel(PrintDesignView parentPanel) {
 		this.parentPanel = parentPanel;
 	}
 
-	public PrintDesignPanel getDesignPanel() {
+	public PrintDesignView getDesignPanel() {
 		return designPanel;
 	}
 
-	public void setDesignPanel(PrintDesignPanel designPanel) {
+	public void setDesignPanel(PrintDesignView designPanel) {
 		this.designPanel = designPanel;
 	}
 

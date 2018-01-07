@@ -1,8 +1,8 @@
 package com.evangelsoft.easyui.print.client;
 
-import java.awt.SystemColor;
-
 import javax.swing.JTable;
+
+import com.evangelsoft.easyui.print.type.PrintDesignView;
 
 public class PrintTable extends JTable {
 
@@ -11,18 +11,18 @@ public class PrintTable extends JTable {
 	 */
 	private static final long serialVersionUID = 1L;
 
-	PrintDesignPanel panel;
+	PrintDesignView panel;
 
-	public PrintTable(PrintDesignPanel panel) {
+	public PrintTable(PrintDesignView panel) {
 		super();
 		this.panel = panel;
 	}
 
-	public PrintDesignPanel getPanel() {
+	public PrintDesignView getPanel() {
 		return panel;
 	}
 
-	public void setPanel(PrintDesignPanel panel) {
+	public void setPanel(PrintDesignView panel) {
 		this.panel = panel;
 	}
 

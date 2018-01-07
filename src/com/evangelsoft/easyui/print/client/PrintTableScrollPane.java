@@ -48,7 +48,6 @@ public class PrintTableScrollPane extends TableScrollPane {
 		newView.setMaximumSize(oldniew.getMaximumSize());
 		newView.setMinimumSize(oldniew.getMaximumSize());
 		newView.setName(oldniew.getName());
-		newView.setNextFocusableComponent(oldniew.getNextFocusableComponent());
 		newView.setPreferredSize(oldniew.getPreferredSize());
 		newView.setScrollMode(oldniew.getScrollMode());
 		newView.setUI(oldniew.getUI());
@@ -56,7 +55,6 @@ public class PrintTableScrollPane extends TableScrollPane {
 		newView.setView(oldniew.getView());
 		newView.setViewPosition(oldniew.getViewPosition());
 		newView.setViewSize(oldniew.getViewSize());
-		newView.setDefaultLocale(oldniew.getDefaultLocale());
 		this.setViewport(newView);
 	}
 
@@ -69,7 +67,7 @@ public class PrintTableScrollPane extends TableScrollPane {
 		g2d.getComposite();
 		g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.2f));
 		g2d.setColor(new Color(0, 0, 0));
-		g2d.setFont( new Font("黑体", 0, 18));// 设置黑色字体,同样可以
+		g2d.setFont(new Font("黑体", 0, 18));// 设置黑色字体,同样可以
 		g2d.drawString("我是表格", (this.getWidth() - 100) / 2, (this.getHeight() + 15) / 2);// 绘制水印，具体水印绘制方式根据自己的需求修改
 		g.drawImage(bi, 0, 0, this);
 	}

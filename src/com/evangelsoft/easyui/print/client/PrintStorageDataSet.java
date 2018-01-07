@@ -12,7 +12,7 @@ public class PrintStorageDataSet {
 	/**
 	 * 表名
 	 */
-	private String tableName;
+	private String tableId;
 
 	/**
 	 * 表名称描述
@@ -27,20 +27,20 @@ public class PrintStorageDataSet {
 		this.dataSet = dataSet;
 	}
 
-	public String getTableName() {
-		return tableName;
-	}
-
-	public void setTableName(String tableName) {
-		this.tableName = tableName;
-	}
-
 	public String getTableDesc() {
 		return tableDesc;
 	}
 
 	public void setTableDesc(String tableDesc) {
 		this.tableDesc = tableDesc;
+	}
+
+	public String getTableId() {
+		return tableId;
+	}
+
+	public void setTableId(String tableId) {
+		this.tableId = tableId;
 	}
 
 }

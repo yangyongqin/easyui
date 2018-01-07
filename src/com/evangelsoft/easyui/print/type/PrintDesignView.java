@@ -116,4 +116,21 @@ public interface PrintDesignView {
 	public Dimension getSize();
 
 	public Container getParent();
+
+	@DataColumn(dataColumn = "TABLE")
+	public void setTableId(String tableName);
+
+	@DataColumn(dataColumn = "CIRCULATION")
+	public void setCirculation(boolean circulation);
+
+	/**
+	 * @Description: 是否自动伸缩
+	 * @param autoStretch   
+	 * @return void  
+	 * @throws
+	 * @author yyq
+	 * @date 2018年1月7日
+	 */
+	@DataColumn(dataColumn = "AUTO_STRETCH")
+	public void setAutoStretch(boolean autoStretch);
 }
