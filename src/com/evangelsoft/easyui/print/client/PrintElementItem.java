@@ -909,6 +909,9 @@ public class PrintElementItem extends JLabel implements Serializable, MouseMotio
 
 	public void setIndex(int index) {
 		this.index = index;
+		if (toRow() > -1) {
+			this.getDataSet().setBigDecimal("ELEMENT_INDEX", BigDecimal.valueOf(index));
+		}
 	}
 
 	public int getRelationId() {

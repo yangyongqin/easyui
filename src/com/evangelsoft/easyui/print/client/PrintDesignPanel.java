@@ -184,14 +184,16 @@ public class PrintDesignPanel extends JPanel implements PrintDesignView {
 					int index = dataSet.getRow();
 					dataSet.first();
 					for (int i = 0; i < PrintDesignPanel.this.printPage.getItemDataSet().rowCount(); i++) {
-						if (dataSet.getBigDecimal("INDEX").intValue() == e.getFromIndex() + 1) {
-							dataSet.setBigDecimal("INDEX", BigDecimal.valueOf(e.getToIndex() + 1));
-						} else if (dataSet.getBigDecimal("INDEX").intValue() > start
-								&& dataSet.getBigDecimal("INDEX").intValue() <= end + 1) {
+						if (dataSet.getBigDecimal("PLATE_INDEX").intValue() == e.getFromIndex() + 1) {
+							dataSet.setBigDecimal("PLATE_INDEX", BigDecimal.valueOf(e.getToIndex() + 1));
+						} else if (dataSet.getBigDecimal("PLATE_INDEX").intValue() > start
+								&& dataSet.getBigDecimal("PLATE_INDEX").intValue() <= end + 1) {
 							if (backward) {
-								dataSet.setBigDecimal("INDEX", dataSet.getBigDecimal("INDEX").subtract(BigDecimal.ONE));
+								dataSet.setBigDecimal("PLATE_INDEX",
+										dataSet.getBigDecimal("PLATE_INDEX").subtract(BigDecimal.ONE));
 							} else {
-								dataSet.setBigDecimal("INDEX", dataSet.getBigDecimal("INDEX").add(BigDecimal.ONE));
+								dataSet.setBigDecimal("PLATE_INDEX",
+										dataSet.getBigDecimal("PLATE_INDEX").add(BigDecimal.ONE));
 							}
 						}
 						dataSet.next();
@@ -434,7 +436,7 @@ public class PrintDesignPanel extends JPanel implements PrintDesignView {
 			if (max < temp) {
 				max = temp;
 			}
-			int tempIndex = printPage.getPaneDataSet().getBigDecimal("INDEX").intValue();
+			int tempIndex = printPage.getPaneDataSet().getBigDecimal("PLATE_INDEX").intValue();
 			if (index < tempIndex) {
 				index = tempIndex;
 			}
@@ -444,7 +446,7 @@ public class PrintDesignPanel extends JPanel implements PrintDesignView {
 		printPage.getPaneDataSet().setBigDecimal("UNIQUE_ID", BigDecimal.valueOf(max + 1));
 		printPage.getPaneDataSet().setString("AUTO_STRETCH", BoolStr.TRUE);
 		printPage.getPaneDataSet().setString("VIEW_TYPE", "N");
-		printPage.getPaneDataSet().setBigDecimal("INDEX", BigDecimal.valueOf(index + 1));
+		printPage.getPaneDataSet().setBigDecimal("PLATE_INDEX", BigDecimal.valueOf(index + 1));
 		// 设置高度，如果为空或者为0.取最小值
 		if (height == null || 0 == height) {
 			printPage.getPaneDataSet().setBigDecimal("WIDTH", BigDecimal.valueOf(SYS_MIN_HEIGHT));
@@ -532,7 +534,7 @@ public class PrintDesignPanel extends JPanel implements PrintDesignView {
 			// 同一个面板才唯一下标
 			if (printPage.getItemDataSet().getBigDecimal("PANEL_ID").intValue() == this.getUniqueId()) {
 
-				int tempIndex = printPage.getItemDataSet().getBigDecimal("INDEX").intValue();
+				int tempIndex = printPage.getItemDataSet().getBigDecimal("PLATE_INDEX").intValue();
 				if (index < tempIndex) {
 					index = tempIndex;
 				}
@@ -664,7 +666,7 @@ public class PrintDesignPanel extends JPanel implements PrintDesignView {
 		StorageDataSet dataSet = printPage.getItemDataSet();
 		dataSet.insertRow(false);
 		dataSet.setBigDecimal("UNIQUE_ID", new BigDecimal(item.getUniqueId()));
-		dataSet.setBigDecimal("INDEX", new BigDecimal(item.getIndex()));
+		dataSet.setBigDecimal("ELEMENT_INDEX", new BigDecimal(item.getIndex()));
 		dataSet.setString("TYPE", item.getType());
 		dataSet.setBigDecimal("PANEL_ID", BigDecimal.valueOf(item.getParentPanel().getUniqueId()));
 		getDefaultValue(item);
@@ -747,7 +749,7 @@ public class PrintDesignPanel extends JPanel implements PrintDesignView {
 			// 同一个面板才唯一下标
 			if (printPage.getItemDataSet().getBigDecimal("PANEL_ID").intValue() == this.getUniqueId()) {
 
-				int tempIndex = printPage.getItemDataSet().getBigDecimal("INDEX").intValue();
+				int tempIndex = printPage.getItemDataSet().getBigDecimal("PLATE_INDEX").intValue();
 				if (index < tempIndex) {
 					index = tempIndex;
 				}
@@ -961,7 +963,7 @@ public class PrintDesignPanel extends JPanel implements PrintDesignView {
 	}
 
 	public void toIndex(int index) {
-		// TODO 调用管理面板，传INDEX
+		// TODO 调用管理面板，传PLATE_INDEX
 
 	}
 

@@ -668,7 +668,7 @@ public class PrintTableCellHeaderRenderer extends DefaultTableCellRenderer imple
 	public void setIndex(int index) {
 		this.index = index;
 		if (toRow() > -1) {
-			this.getDataSet().setBigDecimal("INDEX", BigDecimal.valueOf(index));
+			this.getDataSet().setBigDecimal("ELEMENT_INDEX", BigDecimal.valueOf(index));
 		}
 	}
 

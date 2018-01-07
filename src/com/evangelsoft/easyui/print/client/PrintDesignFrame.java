@@ -1037,6 +1037,8 @@ public class PrintDesignFrame extends UMasterDetailFrame {
 	private StorageDataSet fontNameDataSet;
 
 	private StorageDataSet printViewDataSet;
+	
+	private StorageDataSet lineDirectionDataSet;
 
 	/**
 	 * 初始化表格
@@ -1049,16 +1051,16 @@ public class PrintDesignFrame extends UMasterDetailFrame {
 		rotationDataSet = new StorageDataSet();
 		fontNameDataSet = new StorageDataSet();
 		printViewDataSet = new StorageDataSet();
+		lineDirectionDataSet=new StorageDataSet();
 
 		String[] columnStrs = new String[] { "FUNC_ID", "PAGE_WIDTH", "HEIGHT_AUTO", "HEIGHT_AUTO_DESC", "PAGE_HEIGHT",
 				"ORIENTATION", "ORIENTATION_DESC", "LEFT_MARGIN", "RIGHT_MARGIN", "TOP_MARGIN", "BOTTOM_MARGIN",
 				"COL_NUM", "COL_WIDTH" };
 		masterDataSet.setColumns(ColumnsHelp.getColumns("SYS_PRINT_TEMPLATE_PAGE", columnStrs));
 		masterDataSet.open();
-		String[] plate = new String[] { "PRINT_ID", "UNIQUE_ID", "INDEX", "HEIGHT", "WIDTH", "AUTO_STRETCH",
+		String[] plate = new String[] { "PRINT_ID", "UNIQUE_ID", "PLATE_INDEX", "HEIGHT", "WIDTH", "AUTO_STRETCH",
 				"AUTO_STRETCH_DESC", "VIEW_TYPE", "VIEW_TYPE_DESC", "BACK_TEXT", "TABLE_ID", "CIRCULATION",
-				"CIRCULATION_DESC", "COL_NUM", "COL_WIDTH", "COL_SPACING", "X", "Y", "PARENT_ID", "HEIGHT", "WIDTH",
-				"INDEX" };
+				"CIRCULATION_DESC", "COL_NUM", "COL_WIDTH", "COL_SPACING", "X", "Y", "PARENT_ID", "HEIGHT", "WIDTH" };
 		detailDataSet.setColumns(ColumnsHelp.getColumns("SYS_PRINT_TEMPLATE_PLATE", plate));
 		detailDataSet.getColumn("VIEW_TYPE_DESC").setPickList(
 				new PickListDescriptor(printViewDataSet, new String[] { "CODE" }, new String[] { "DESCRIPTION" },
@@ -1074,7 +1076,7 @@ public class PrintDesignFrame extends UMasterDetailFrame {
 				new ItemListDescriptor(printDataManage.getPrintSet().keySet().toArray(), false));
 
 		//
-		String[] detailColumn = new String[] { "PRINT_ID", "PANEL_ID", "UNIQUE_ID", "RELATION_ID", "INDEX", "TYPE",
+		String[] detailColumn = new String[] { "PRINT_ID", "PANEL_ID", "UNIQUE_ID", "RELATION_ID", "ELEMENT_INDEX", "TYPE",
 				"X", "Y", "WIDTH", "HEIGHT", "FORECOLOR", "BACKCOLOR", "TEXT", "EXPRESSION", "FONT_NAME", "FONT_SIZE",
 				"BOLD", "BOLD_DESC", "ITALIC", "ITALIC_DESC", "UNDERLINE", "UNDERLINE_DESC", "STRIKETHROUGH",
 				"STRIKETHROUGH_DESC", "HORIZONTAL_ALIGNMENT", "HORIZONTAL_ALIGNMENT_DESC", "VERTICAL_ALIGNMENT",
@@ -1095,7 +1097,7 @@ public class PrintDesignFrame extends UMasterDetailFrame {
 				new PickListDescriptor(boolStrDataSet, new String[] { "CODE" }, new String[] { "DESCRIPTION" },
 						new String[] { "STRIKETHROUGH" }, "DESCRIPTION", true));
 		elementDataSet.getColumn("LINE_DIRECTION_DESC").setPickList(
-				new PickListDescriptor(boolStrDataSet, new String[] { "CODE" }, new String[] { "DESCRIPTION" },
+				new PickListDescriptor(lineDirectionDataSet , new String[] { "CODE" }, new String[] { "DESCRIPTION" },
 						new String[] { "LINE_DIRECTION" }, "DESCRIPTION", true));
 
 		elementDataSet.getColumn("HORIZONTAL_ALIGNMENT_DESC").setPickList(
@@ -1241,7 +1243,7 @@ public class PrintDesignFrame extends UMasterDetailFrame {
 				GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
 
 		// 页面属性
-		String[] paneAttr = new String[] { "INDEX", "WIDTH", "HEIGHT", "TABLE_ID", "VIEW_TYPE_DESC",
+		String[] paneAttr = new String[] { "PLATE_INDEX", "WIDTH", "HEIGHT", "TABLE_ID", "VIEW_TYPE_DESC",
 				"AUTO_STRETCH_DESC", "BACK_TEXT", "CIRCULATION_DESC", "COL_NUM", "COL_WIDTH", "COL_SPACING" };
 
 		filterlayout = new GridBagLayout();
@@ -1664,6 +1666,8 @@ public class PrintDesignFrame extends UMasterDetailFrame {
 		DataSetHelper.loadFromRecordSet(textPositionDataSet, SysCodeHelper.getRecordSet("TEXT_POSITION"));
 		DataSetHelper.loadFromRecordSet(rotationDataSet, SysCodeHelper.getRecordSet("ROTATION"));
 		DataSetHelper.loadFromRecordSet(printViewDataSet, SysCodeHelper.getRecordSet("PRINT_VIEW"));
+		DataSetHelper.loadFromRecordSet(lineDirectionDataSet, SysCodeHelper.getRecordSet("LINE_DIRECTION"));
+		
 		RecordFormat format = new RecordFormat("@");
 		format.appendField(new RecordFieldFormat("SYS_PRINT_TEMPLATE_ELEMENT.FONT_NAME"));
 		RecordSet set = new RecordSet(format);
