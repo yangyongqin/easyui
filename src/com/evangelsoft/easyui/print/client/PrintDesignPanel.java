@@ -401,6 +401,9 @@ public class PrintDesignPanel extends JPanel implements PrintDesignView {
 	}
 
 	public void setIndex(int index) {
+		if (this.index != index) {
+			paneDataSet.setBigDecimal("PLATE_INDEX", BigDecimal.valueOf(index));
+		}
 		this.index = index;
 	}
 
@@ -450,6 +453,7 @@ public class PrintDesignPanel extends JPanel implements PrintDesignView {
 		printPage.getPaneDataSet().setString("AUTO_STRETCH", BoolStr.TRUE);
 		printPage.getPaneDataSet().setString("VIEW_TYPE", "N");
 		printPage.getPaneDataSet().setBigDecimal("PLATE_INDEX", BigDecimal.valueOf(index + 1));
+		this.setIndex(index);
 		// 设置高度，如果为空或者为0.取最小值
 		if (height == null || 0 == height) {
 			printPage.getPaneDataSet().setBigDecimal("WIDTH", BigDecimal.valueOf(SYS_MIN_HEIGHT));
@@ -967,7 +971,7 @@ public class PrintDesignPanel extends JPanel implements PrintDesignView {
 
 	public void toIndex(int newIndex) {
 		// TODO 调用管理面板，传PLATE_INDEX
-		managepane.changeIndex(this.index, index);
+		managepane.changeIndex(this.index, newIndex);
 	}
 
 	public void toFisrt() {
