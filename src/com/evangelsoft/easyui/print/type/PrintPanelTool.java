@@ -8,12 +8,12 @@ import java.util.Map;
 
 import com.evangelsoft.workbench.types.BoolStr;
 
-public class PrintItemTool {
+public class PrintPanelTool {
 
 	static Map<String, Method> methodMap = new HashMap<String, Method>();
 	static {
 		// 根据注解获取反射信息
-		Method[] methods = PrintItem.class.getDeclaredMethods();
+		Method[] methods = PrintDesignView.class.getDeclaredMethods();
 		for (Method method : methods) {
 			DataColumn loginTokenAnnotation = method.getDeclaringClass().getAnnotation(DataColumn.class);
 
@@ -26,7 +26,7 @@ public class PrintItemTool {
 		}
 	}
 
-	public static void setValue(List<PrintItem<?>> itemList, String columnName, Object value) {
+	public static void setValue(List<PrintDesignView> itemList, String columnName, Object value) {
 		if (itemList != null && value != null && methodMap.containsKey(columnName)) {
 			Method method = methodMap.get(columnName);
 			try {
@@ -52,7 +52,7 @@ public class PrintItemTool {
 					newValue = value.toString();
 				}
 				// 循环赋值
-				for (PrintItem<?> item : itemList) {
+				for (PrintDesignView item : itemList) {
 					method.invoke(item, newValue);
 				}
 			} catch (Exception e) {
@@ -70,13 +70,13 @@ public class PrintItemTool {
 	 * @author yyq
 	 * @date 2017年12月17日
 	 */
-	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public <T extends PrintItem<T>> T clone(T entity) {
+	@SuppressWarnings("unchecked")
+	public <T extends PrintDesignView> T clone(T entity) {
 		if (entity == null) {
 			return null;
 		}
-		Class<? extends PrintItem> classType = entity.getClass();
-		PrintItem<T> obj;
+		Class<? extends PrintDesignView> classType = entity.getClass();
+		PrintDesignView obj;
 		try {
 			obj = classType.newInstance();
 			return (T) obj;
@@ -88,7 +88,7 @@ public class PrintItemTool {
 		return null;
 	}
 
-	public static void setValue(PrintItem<?> item, String columnName, Object value) {
+	public static void setValue(PrintDesignView item, String columnName, Object value) {
 		if (item != null && value != null && methodMap.containsKey(columnName)) {
 			Method method = methodMap.get(columnName);
 			try {
@@ -117,30 +117,17 @@ public class PrintItemTool {
 		}
 	}
 
-	public static void copy(PrintItem<?> dataSource, PrintItem<?> item) {
-		item.setBorder(dataSource.getBorder());
-		/*
-		 * item.setElementHorizontalAlignment(dataSource.
-		 * getElementHorizontalAlignment());
-		 * item.setElementVerticalAlignment(dataSource
-		 * .getElementVerticalAlignment());
-		 */
-		item.setFontName(dataSource.getFontName());;
-		item.setFontSize(dataSource.getFontSize());
-		item.setHeight(dataSource.getElementHeight());
-		// item.setHorizontalAlignment(dataSource.gete);
-		item.setIsBold(dataSource.getIsBold());
-		item.setIsitalic(dataSource.getIsitalic());
-		item.setIsUnderline(dataSource.getIsUnderline());
-		item.setIsstrikethrough(dataSource.getIsstrikethrough());
-		item.setSize(dataSource.getSize());
-		item.setText(dataSource.getText());
-		// item.setVerticalAlignment(dataSource.getV);
-		item.setWidth(dataSource.getElementWidth());
-
-		item.setHorizontalAlignment(Integer.parseInt(dataSource.getElementHorizontalAlignment()));
-		item.setVerticalAlignment(Integer.parseInt(dataSource.getElementVerticalAlignment()));
-
+	public static void copy(PrintDesignView dataSource, PrintDesignView panel) {
+		panel.setAutoStretch(dataSource.getAutoStretch());
+		panel.setBackground(dataSource.getBackground());
+		panel.setCirculation(dataSource.isCirculation());
+		panel.setHeight(dataSource.getHeight());
+		panel.setLocation(dataSource.getLocation().x, dataSource.getLocation().y);
+		// panel.setParentId(parentId);
+		panel.setShowType(dataSource.getShowType());
+		panel.setSize(dataSource.getWidth(), dataSource.getHeight());
+		panel.setTableId(dataSource.getTableId());
+		panel.setWatermark(dataSource.getWatermark());
 	}
 
 }

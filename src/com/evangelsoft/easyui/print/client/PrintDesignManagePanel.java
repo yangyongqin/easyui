@@ -285,7 +285,7 @@ public class PrintDesignManagePanel extends JPanel implements MouseMotionListene
 	 */
 	public PrintDesignView addPrintDesignPanel(int index, int height, String type, String watermark) {
 
-		PrintDesignView panel = new PrintDesignPanel(printPage, watermark, type, printPage.getPaneDataSet(), true);
+		PrintDesignView panel = new PrintDesignPanel(this, watermark, type, printPage.getPaneDataSet(), true);
 		this.centerPanel.add((PrintDesignPanel) panel);
 		int y = 1;
 		if (linkedPanel.size() > 0) {
@@ -448,6 +448,24 @@ public class PrintDesignManagePanel extends JPanel implements MouseMotionListene
 		} else {
 			panel.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 			direction = 0;
+		}
+	}
+
+	/**
+	 * @Description: 切换面板显示顺序
+	 * @param oldIndex
+	 * @param newIndex   
+	 * @return void  
+	 * @throws
+	 * @author yangyq02
+	 * @date 2018年1月8日
+	 */
+	public void changeIndex(int oldIndex, int newIndex) {
+		if (oldIndex < newIndex) {
+			//如果是向下移动
+			
+		} else if (oldIndex < newIndex) {
+			//如果是向上移动
 		}
 	}
 }

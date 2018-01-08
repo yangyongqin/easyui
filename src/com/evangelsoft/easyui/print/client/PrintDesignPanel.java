@@ -83,6 +83,8 @@ public class PrintDesignPanel extends JPanel implements PrintDesignView {
 	// 页面信息
 	PrintPage printPage;
 
+	PrintDesignManagePanel managepane;
+
 	private int direction;
 
 	private static ZdyBorder zdyBorder = new ZdyBorder();
@@ -109,6 +111,8 @@ public class PrintDesignPanel extends JPanel implements PrintDesignView {
 
 	private String backFont;
 
+	private String showType;
+
 	//
 	private Record record;
 
@@ -131,16 +135,15 @@ public class PrintDesignPanel extends JPanel implements PrintDesignView {
 	 */
 	HashMap<Integer, PrintItem> itemsMap = new HashMap<Integer, PrintItem>();
 
-	public PrintDesignPanel(PrintPage printPage, StorageDataSet dataSet, boolean isAdd) {
-		this(printPage, null, null, dataSet, isAdd);
+	public PrintDesignPanel(PrintDesignManagePanel managepane, StorageDataSet dataSet, boolean isAdd) {
+		this(managepane, null, null, dataSet, isAdd);
 	}
 
-	public PrintDesignPanel(PrintPage printPage, String watermark, String viewType, StorageDataSet dataSet,
-			boolean isAdd) {
-		this.printPage = printPage;
+	public PrintDesignPanel(PrintDesignManagePanel managepane, String watermark, String viewType,
+			StorageDataSet dataSet, boolean isAdd) {
+		this.managepane = managepane;
+		this.printPage = managepane.getPrintPage();
 		paneDataSet = printPage.getPaneDataSet();
-		// this.addMouseMotionListener(this);
-		// this.index = linkedPanel.size();
 		this.viewType = viewType;
 		this.setLayout(null);
 		this.setBorder(zdyBorder);
@@ -962,9 +965,9 @@ public class PrintDesignPanel extends JPanel implements PrintDesignView {
 		toIndex(index + num);
 	}
 
-	public void toIndex(int index) {
+	public void toIndex(int newIndex) {
 		// TODO 调用管理面板，传PLATE_INDEX
-
+		managepane.changeIndex(this.index, index);
 	}
 
 	public void toFisrt() {
@@ -972,19 +975,19 @@ public class PrintDesignPanel extends JPanel implements PrintDesignView {
 	}
 
 	public void toLast() {
-		// TODO
-		// toIndex()
+		toIndex(managepane.getLinkedPanel().size() - 1);
 	}
 
 	public void toTable() {
-		setShowtype(TABLE_VIEW);
+		setShowType(TABLE_VIEW);
 	}
 
 	public void toZdy() {
-		setShowtype(ZDY_VIEW);
+		setShowType(ZDY_VIEW);
 	}
 
-	public void setShowtype(String type) {
+	public void setShowType(String type) {
+		this.showType = type;
 		// 根据类型将面板属性改成对应的值显示
 		if (ZDY_VIEW.equals(type) && !type.equals(this.viewType)) {
 
@@ -1126,6 +1129,10 @@ public class PrintDesignPanel extends JPanel implements PrintDesignView {
 			}
 		}
 		return -1;
+	}
+
+	public String getShowType() {
+		return showType;
 	}
 
 }
