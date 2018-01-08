@@ -133,7 +133,7 @@ public class PrintDesignPanel extends JPanel implements PrintDesignView {
 	/**
 	 * @Fields itemsMap : 记录当前面板所有的元素
 	 */
-	HashMap<Integer, PrintItem> itemsMap = new HashMap<Integer, PrintItem>();
+	HashMap<Integer, PrintItem<?>> itemsMap = new HashMap<Integer, PrintItem<?>>();
 
 	public PrintDesignPanel(PrintDesignManagePanel managepane, StorageDataSet dataSet, boolean isAdd) {
 		this(managepane, null, null, dataSet, isAdd);
@@ -325,7 +325,6 @@ public class PrintDesignPanel extends JPanel implements PrintDesignView {
 			@Override
 			public void mouseMoved(MouseEvent e) {
 				super.mouseMoved(e);
-				// TODO 这个table.getHeight()还需要测试。。
 				if (Math.abs(table.getHeight() - e.getPoint().y) < 5) {
 					table.setCursor(Cursor.getPredefinedCursor(Cursor.N_RESIZE_CURSOR));
 					isMove = true;
@@ -348,7 +347,6 @@ public class PrintDesignPanel extends JPanel implements PrintDesignView {
 		// 关闭自动伸缩
 		table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 
-		// TODO 添加一行空记录，用于显示
 		defaultModel = new DBTableModel(table);
 		// PrintTableModel dataModel = new PrintTableModel();
 		// defaultModel.addRow(new Object[0]);
@@ -401,6 +399,9 @@ public class PrintDesignPanel extends JPanel implements PrintDesignView {
 	}
 
 	public void setIndex(int index) {
+		if (this.index != index) {
+			paneDataSet.setBigDecimal("PLATE_INDEX", BigDecimal.valueOf(index));
+		}
 		this.index = index;
 	}
 
@@ -450,6 +451,7 @@ public class PrintDesignPanel extends JPanel implements PrintDesignView {
 		printPage.getPaneDataSet().setString("AUTO_STRETCH", BoolStr.TRUE);
 		printPage.getPaneDataSet().setString("VIEW_TYPE", "N");
 		printPage.getPaneDataSet().setBigDecimal("PLATE_INDEX", BigDecimal.valueOf(index + 1));
+		this.setIndex(index);
 		// 设置高度，如果为空或者为0.取最小值
 		if (height == null || 0 == height) {
 			printPage.getPaneDataSet().setBigDecimal("WIDTH", BigDecimal.valueOf(SYS_MIN_HEIGHT));
@@ -966,8 +968,7 @@ public class PrintDesignPanel extends JPanel implements PrintDesignView {
 	}
 
 	public void toIndex(int newIndex) {
-		// TODO 调用管理面板，传PLATE_INDEX
-		managepane.changeIndex(this.index, index);
+		managepane.changeIndex(this.index, newIndex);
 	}
 
 	public void toFisrt() {
@@ -1133,6 +1134,14 @@ public class PrintDesignPanel extends JPanel implements PrintDesignView {
 
 	public String getShowType() {
 		return showType;
+	}
+
+	public HashMap<Integer, PrintItem<?>> getItemsMap() {
+		return itemsMap;
+	}
+
+	public void setItemsMap(HashMap<Integer, PrintItem<?>> itemsMap) {
+		this.itemsMap = itemsMap;
 	}
 
 }

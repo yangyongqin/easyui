@@ -307,6 +307,10 @@ public class PrintDesignFrame extends UMasterDetailFrame {
 
 	private JMenuItem addPane;// 添加一个新的面板
 
+	private JMenuItem upMoveItem;// 向上移动
+
+	private JMenuItem downMoveItem;
+
 	private JPopupMenu pageRightMenu;// 页面右键菜单
 
 	// private JMenuItem fastAddItem;// 快速添加一个面板
@@ -943,6 +947,9 @@ public class PrintDesignFrame extends UMasterDetailFrame {
 		toFreeFormat = new JMenuItem("自定义显示");
 		insertPane = new JMenuItem("插入一个新的面板");
 		addPane = new JMenuItem("添加一个新的面板");
+		upMoveItem = new JMenuItem("向上移动");
+		downMoveItem = new JMenuItem("向下移动");
+
 		showAttribute = new JMenuItem("显示属性");
 		showPanelAttribute = new JMenuItem("显示面板属性");
 
@@ -952,6 +959,8 @@ public class PrintDesignFrame extends UMasterDetailFrame {
 		panelRightMenu.add(toFreeFormat);
 		panelRightMenu.add(insertPane);
 		panelRightMenu.add(addPane);
+		panelRightMenu.add(upMoveItem);
+		panelRightMenu.add(downMoveItem);
 		panelRightMenu.add(showAttribute);
 		panelRightMenu.add(showPanelAttribute);
 
@@ -960,6 +969,9 @@ public class PrintDesignFrame extends UMasterDetailFrame {
 		toFreeFormat.addActionListener(itemAction);
 		insertPane.addActionListener(itemAction);
 		addPane.addActionListener(itemAction);
+		upMoveItem.addActionListener(itemAction);
+		downMoveItem.addActionListener(itemAction);
+
 		showAttribute.addActionListener(itemAction);
 		showPanelAttribute.addActionListener(itemAction);
 
@@ -1037,7 +1049,7 @@ public class PrintDesignFrame extends UMasterDetailFrame {
 	private StorageDataSet fontNameDataSet;
 
 	private StorageDataSet printViewDataSet;
-	
+
 	private StorageDataSet lineDirectionDataSet;
 
 	/**
@@ -1051,7 +1063,7 @@ public class PrintDesignFrame extends UMasterDetailFrame {
 		rotationDataSet = new StorageDataSet();
 		fontNameDataSet = new StorageDataSet();
 		printViewDataSet = new StorageDataSet();
-		lineDirectionDataSet=new StorageDataSet();
+		lineDirectionDataSet = new StorageDataSet();
 
 		String[] columnStrs = new String[] { "FUNC_ID", "PAGE_WIDTH", "HEIGHT_AUTO", "HEIGHT_AUTO_DESC", "PAGE_HEIGHT",
 				"ORIENTATION", "ORIENTATION_DESC", "LEFT_MARGIN", "RIGHT_MARGIN", "TOP_MARGIN", "BOTTOM_MARGIN",
@@ -1076,13 +1088,13 @@ public class PrintDesignFrame extends UMasterDetailFrame {
 				new ItemListDescriptor(printDataManage.getPrintSet().keySet().toArray(), false));
 
 		//
-		String[] detailColumn = new String[] { "PRINT_ID", "PANEL_ID", "UNIQUE_ID", "RELATION_ID", "ELEMENT_INDEX", "TYPE",
-				"X", "Y", "WIDTH", "HEIGHT", "FORECOLOR", "BACKCOLOR", "TEXT", "EXPRESSION", "FONT_NAME", "FONT_SIZE",
-				"BOLD", "BOLD_DESC", "ITALIC", "ITALIC_DESC", "UNDERLINE", "UNDERLINE_DESC", "STRIKETHROUGH",
-				"STRIKETHROUGH_DESC", "HORIZONTAL_ALIGNMENT", "HORIZONTAL_ALIGNMENT_DESC", "VERTICAL_ALIGNMENT",
-				"VERTICAL_ALIGNMENT_DESC", "ROTATION", "ROTATION_DESC", "IMAGE_SCALE", "IMAGE_SCALE_DESC",
-				"LINE_DIRECTION", "LINE_DIRECTION_DESC", "LINE_HEIGHT", "BAR_TYPE", "BAR_TYPE_DESC", "TEXT_POSITION",
-				"TEXT_POSITION_DESC", "EXEC_CODE" };
+		String[] detailColumn = new String[] { "PRINT_ID", "PANEL_ID", "UNIQUE_ID", "RELATION_ID", "ELEMENT_INDEX",
+				"TYPE", "X", "Y", "WIDTH", "HEIGHT", "FORECOLOR", "BACKCOLOR", "TEXT", "EXPRESSION", "FONT_NAME",
+				"FONT_SIZE", "BOLD", "BOLD_DESC", "ITALIC", "ITALIC_DESC", "UNDERLINE", "UNDERLINE_DESC",
+				"STRIKETHROUGH", "STRIKETHROUGH_DESC", "HORIZONTAL_ALIGNMENT", "HORIZONTAL_ALIGNMENT_DESC",
+				"VERTICAL_ALIGNMENT", "VERTICAL_ALIGNMENT_DESC", "ROTATION", "ROTATION_DESC", "IMAGE_SCALE",
+				"IMAGE_SCALE_DESC", "LINE_DIRECTION", "LINE_DIRECTION_DESC", "LINE_HEIGHT", "BAR_TYPE",
+				"BAR_TYPE_DESC", "TEXT_POSITION", "TEXT_POSITION_DESC", "EXEC_CODE" };
 		elementDataSet.setColumns(ColumnsHelp.getColumns("SYS_PRINT_TEMPLATE_ELEMENT", detailColumn));
 		elementDataSet.getColumn("BOLD_DESC").setPickList(
 				new PickListDescriptor(boolStrDataSet, new String[] { "CODE" }, new String[] { "DESCRIPTION" },
@@ -1097,7 +1109,7 @@ public class PrintDesignFrame extends UMasterDetailFrame {
 				new PickListDescriptor(boolStrDataSet, new String[] { "CODE" }, new String[] { "DESCRIPTION" },
 						new String[] { "STRIKETHROUGH" }, "DESCRIPTION", true));
 		elementDataSet.getColumn("LINE_DIRECTION_DESC").setPickList(
-				new PickListDescriptor(lineDirectionDataSet , new String[] { "CODE" }, new String[] { "DESCRIPTION" },
+				new PickListDescriptor(lineDirectionDataSet, new String[] { "CODE" }, new String[] { "DESCRIPTION" },
 						new String[] { "LINE_DIRECTION" }, "DESCRIPTION", true));
 
 		elementDataSet.getColumn("HORIZONTAL_ALIGNMENT_DESC").setPickList(
@@ -1667,7 +1679,7 @@ public class PrintDesignFrame extends UMasterDetailFrame {
 		DataSetHelper.loadFromRecordSet(rotationDataSet, SysCodeHelper.getRecordSet("ROTATION"));
 		DataSetHelper.loadFromRecordSet(printViewDataSet, SysCodeHelper.getRecordSet("PRINT_VIEW"));
 		DataSetHelper.loadFromRecordSet(lineDirectionDataSet, SysCodeHelper.getRecordSet("LINE_DIRECTION"));
-		
+
 		RecordFormat format = new RecordFormat("@");
 		format.appendField(new RecordFieldFormat("SYS_PRINT_TEMPLATE_ELEMENT.FONT_NAME"));
 		RecordSet set = new RecordSet(format);
@@ -2111,6 +2123,10 @@ public class PrintDesignFrame extends UMasterDetailFrame {
 				panel.addMouseListener(itemSelectAdapter);
 			} else if (showPanelAttribute == e.getSource()) {
 				showPanelDialog.setVisible(true);
+			} else if (e.getSource() == upMoveItem) {
+				selectPanel.toForward(1);
+			} else if (e.getSource() == downMoveItem) {
+				selectPanel.toBack(1);
 			}
 		}
 	}

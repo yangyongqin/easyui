@@ -15,6 +15,7 @@ import java.util.List;
 import javax.swing.JPanel;
 
 import com.borland.dbswing.TableScrollPane;
+import com.evangelsoft.easyui.print.type.PrintDesignManage;
 import com.evangelsoft.easyui.print.type.PrintDesignView;
 
 /**
@@ -29,7 +30,7 @@ import com.evangelsoft.easyui.print.type.PrintDesignView;
  *
  */
 
-public class PrintDesignManagePanel extends JPanel implements MouseMotionListener {
+public class PrintDesignManagePanel extends JPanel implements MouseMotionListener, PrintDesignManage {
 
 	/**
 	 * @Fields serialVersionUID : 版本号
@@ -462,10 +463,40 @@ public class PrintDesignManagePanel extends JPanel implements MouseMotionListene
 	 */
 	public void changeIndex(int oldIndex, int newIndex) {
 		if (oldIndex < newIndex) {
-			//如果是向下移动
-			
-		} else if (oldIndex < newIndex) {
-			//如果是向上移动
+			// 如果是向下移动
+			for (int i = oldIndex; i < newIndex; i++) {
+				this.centerPanel.remove((PrintDesignPanel) this.linkedPanel.get(i));
+			}
+
+			PrintDesignView printView = linkedPanel.remove(oldIndex);
+			Point point = printView.getLocation();
+			linkedPanel.add(newIndex, printView);
+			// 循环显示界面
+			for (int i = oldIndex; i < newIndex; i++) {
+				PrintDesignView view = this.linkedPanel.get(i);
+				view.setLocation(point.x, point.y);
+				// 计算下一个面板启始坐标
+				point.y = point.y + view.getWidth();
+			}
+		} else if (oldIndex > newIndex) {
+
+			PrintDesignView printView = linkedPanel.get(newIndex);
+			Point point = printView.getLocation();
+			for (int i = newIndex; i <= oldIndex; i++) {
+				this.centerPanel.remove((PrintDesignPanel) this.linkedPanel.get(i));
+			}
+			PrintDesignView oldView = linkedPanel.remove(oldIndex);
+			linkedPanel.add(newIndex, oldView);
+			// 循环显示界面
+			for (int i = newIndex; i <= oldIndex; i++) {
+				PrintDesignView view = this.linkedPanel.get(i);
+				view.setLocation(point.x, point.y);
+				view.setIndex(i);
+				// 计算下一个面板启始坐标
+				point.y = point.y + view.getHeight();
+				this.centerPanel.add((PrintDesignPanel) view);
+			}
 		}
+		this.centerPanel.repaint();
 	}
 }

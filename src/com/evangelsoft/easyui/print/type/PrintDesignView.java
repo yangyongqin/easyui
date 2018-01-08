@@ -7,6 +7,7 @@ import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.util.HashMap;
 import java.util.List;
 
 import javax.swing.TransferHandler;
@@ -137,12 +138,12 @@ public interface PrintDesignView {
 
 	@DataColumn(dataColumn = "TYPE")
 	public void setShowType(String type);
-	
+
 	public String getShowType();
 
 	@DataColumn(dataColumn = "BACK_TEXT")
 	public void setWatermark(String watermark);
-	
+
 	public String getWatermark();
 
 	/**
@@ -194,6 +195,17 @@ public interface PrintDesignView {
 	 */
 	@DataColumn(dataColumn = "UNIQUE_ID")
 	public void setUniqueId(int uniqueId);
+
+	/**
+	 * @Description: 设置下标
+	 * @param index   
+	 * @return void  
+	 * @throws
+	 * @author yyq
+	 * @date 2018年1月9日
+	 */
+	@DataColumn(dataColumn = "PLATE_INDEX")
+	public void setIndex(int index);
 
 	/**
 	 * @Description: 复制多个子元素
@@ -377,7 +389,7 @@ public interface PrintDesignView {
 	 */
 	@DataColumn(dataColumn = "TABLE")
 	public void setTableId(String tableId);
-	
+
 	public String getTableId();
 
 	/**
@@ -390,7 +402,7 @@ public interface PrintDesignView {
 	 */
 	@DataColumn(dataColumn = "CIRCULATION")
 	public void setCirculation(boolean circulation);
-	
+
 	public boolean isCirculation();
 
 	/**
@@ -405,4 +417,6 @@ public interface PrintDesignView {
 	public void setAutoStretch(boolean autoStretch);
 
 	public boolean getAutoStretch();
+
+	public HashMap<Integer, PrintItem<?>> getItemsMap();
 }
