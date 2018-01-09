@@ -1000,6 +1000,8 @@ public class PrintElementItem extends JLabel implements Serializable, MouseMotio
 			g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 			g2d.setStroke(new BasicStroke(1.50f));
 			g.drawLine(0, 0, this.getWidth(), this.getHeight());
+			// ¹Ø±Õ¿¹³Ý¾àÐ§¹û
+			g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
 		} else {
 			super.paintComponent(g);
 		}

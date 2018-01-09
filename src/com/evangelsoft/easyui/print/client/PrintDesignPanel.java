@@ -399,7 +399,7 @@ public class PrintDesignPanel extends JPanel implements PrintDesignView {
 	}
 
 	public void setIndex(int index) {
-		if (this.index != index) {
+		if (this.index == 0 || this.index != index) {
 			paneDataSet.setBigDecimal("PLATE_INDEX", BigDecimal.valueOf(index));
 		}
 		this.index = index;
@@ -431,7 +431,7 @@ public class PrintDesignPanel extends JPanel implements PrintDesignView {
 
 	void insert(Integer width, Integer height, String viemType, String backText) {
 		int max = 0;
-		int index = 0;
+		int index = -1;
 		// 获取当前被选中的项目
 		// 先计算最大值+1，用作一个唯一标识
 		printPage.getPaneDataSet().first();
@@ -451,7 +451,6 @@ public class PrintDesignPanel extends JPanel implements PrintDesignView {
 		printPage.getPaneDataSet().setString("AUTO_STRETCH", BoolStr.TRUE);
 		printPage.getPaneDataSet().setString("VIEW_TYPE", "N");
 		printPage.getPaneDataSet().setBigDecimal("PLATE_INDEX", BigDecimal.valueOf(index + 1));
-		this.setIndex(index);
 		// 设置高度，如果为空或者为0.取最小值
 		if (height == null || 0 == height) {
 			printPage.getPaneDataSet().setBigDecimal("WIDTH", BigDecimal.valueOf(SYS_MIN_HEIGHT));
@@ -465,6 +464,7 @@ public class PrintDesignPanel extends JPanel implements PrintDesignView {
 		}
 		printPage.getPaneDataSet().setString("BACK_TEXT", backText == null ? "面板" + max : backText);
 		this.setUniqueId(max + 1);
+		this.setIndex(index + 1);
 		this.setWatermark(backText == null ? "面板" + max : backText);
 	}
 
@@ -539,7 +539,7 @@ public class PrintDesignPanel extends JPanel implements PrintDesignView {
 			// 同一个面板才唯一下标
 			if (printPage.getItemDataSet().getBigDecimal("PANEL_ID").intValue() == this.getUniqueId()) {
 
-				int tempIndex = printPage.getItemDataSet().getBigDecimal("PLATE_INDEX").intValue();
+				int tempIndex = printPage.getItemDataSet().getBigDecimal("ELEMENT_INDEX").intValue();
 				if (index < tempIndex) {
 					index = tempIndex;
 				}
@@ -958,17 +958,15 @@ public class PrintDesignPanel extends JPanel implements PrintDesignView {
 	}
 
 	public void toForward(int num) {
-		int index = toRow();
 		toIndex(index - num);
 	}
 
 	public void toBack(int num) {
-		int index = toRow();
 		toIndex(index + num);
 	}
 
 	public void toIndex(int newIndex) {
-		managepane.changeIndex(this.index, newIndex);
+		managepane.changeIndex(index, newIndex);
 	}
 
 	public void toFisrt() {

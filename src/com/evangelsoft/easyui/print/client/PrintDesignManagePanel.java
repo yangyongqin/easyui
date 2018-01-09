@@ -462,9 +462,12 @@ public class PrintDesignManagePanel extends JPanel implements MouseMotionListene
 	 * @date 2018年1月8日
 	 */
 	public void changeIndex(int oldIndex, int newIndex) {
+		if (newIndex < 0 || newIndex >= linkedPanel.size()) {
+			return;
+		}
 		if (oldIndex < newIndex) {
 			// 如果是向下移动
-			for (int i = oldIndex; i < newIndex; i++) {
+			for (int i = oldIndex; i <= newIndex; i++) {
 				this.centerPanel.remove((PrintDesignPanel) this.linkedPanel.get(i));
 			}
 
@@ -472,11 +475,13 @@ public class PrintDesignManagePanel extends JPanel implements MouseMotionListene
 			Point point = printView.getLocation();
 			linkedPanel.add(newIndex, printView);
 			// 循环显示界面
-			for (int i = oldIndex; i < newIndex; i++) {
+			for (int i = oldIndex; i <= newIndex; i++) {
 				PrintDesignView view = this.linkedPanel.get(i);
 				view.setLocation(point.x, point.y);
 				// 计算下一个面板启始坐标
-				point.y = point.y + view.getWidth();
+				point.y = point.y + view.getHeight();
+				view.setIndex(i);
+				this.centerPanel.add((PrintDesignPanel) view);
 			}
 		} else if (oldIndex > newIndex) {
 
