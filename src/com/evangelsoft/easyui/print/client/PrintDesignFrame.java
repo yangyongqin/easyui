@@ -355,7 +355,7 @@ public class PrintDesignFrame extends UMasterDetailFrame {
 	public PrintDesignFrame(String funcId, String frameType, PrintDataManage printDataManage, boolean isCreate) {
 		this.frameType = frameType;
 		this.printDataManage = printDataManage;
-		this.mainTable = mainTable;
+		this.mainTable = printDataManage.getMainPrintStorageDataSet().getTableId();
 		this.isCreate = isCreate;
 		init();
 	}
@@ -364,7 +364,7 @@ public class PrintDesignFrame extends UMasterDetailFrame {
 		this.isCreate = isCreate;
 		/* this.frameType = frameType; */
 		this.printDataManage = printDataManage;
-		this.mainTable = mainTable;
+		this.mainTable = printDataManage.getMainPrintStorageDataSet().getTableId();
 		this.isCreate = isCreate;
 		init();
 	}
@@ -373,6 +373,7 @@ public class PrintDesignFrame extends UMasterDetailFrame {
 		/* this.frameType = frameType; */
 		this.printDataManage = printDataManage;
 		this.isCreate = isCreate;
+		this.mainTable = printDataManage.getMainPrintStorageDataSet().getTableId();
 		init();
 	}
 
@@ -1463,6 +1464,7 @@ public class PrintDesignFrame extends UMasterDetailFrame {
 	// SoucreDragGestureListener soucreDragGestureListener=new
 	// SoucreDragGestureListener();
 
+	@SuppressWarnings("unused")
 	private class SoucreDragGestureListener implements DragGestureListener {
 
 		@Override
@@ -1495,7 +1497,7 @@ public class PrintDesignFrame extends UMasterDetailFrame {
 		public boolean importData(JComponent c, Transferable t) {
 			if (canImport(c, t.getTransferDataFlavors())) {
 				try {
-					PrintItem<?> item = null;
+					// PrintItem<?> item = null;
 					PrintDesignView panel = null;
 					List<PrintItem<?>> tempSelectList = null;
 					// 如果接收的是表格
@@ -1526,7 +1528,7 @@ public class PrintDesignFrame extends UMasterDetailFrame {
 						selectList.addAll(tempSelectList);
 					}
 					if (tempSelectList != null && tempSelectList.size() > 0) {
-						item = tempSelectList.get(0);
+						// item = tempSelectList.get(0);
 						/* item.setBorder(clicedBorder); */
 						for (PrintItem<?> com : selectList) {
 							/* com.setBorder(defaultBorder); */
@@ -1570,7 +1572,7 @@ public class PrintDesignFrame extends UMasterDetailFrame {
 		}
 
 		public void actionPerformed(ActionEvent e) {
-			for (PrintItem item : selectList) {
+			for (PrintItem<?> item : selectList) {
 				Point point = item.getLocation();
 				if (this.direction == Direction.UP) {
 					point.y = point.y - (int) (1 * lastZoom + 0.5);
@@ -1610,7 +1612,7 @@ public class PrintDesignFrame extends UMasterDetailFrame {
 
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					for (PrintItem item : selectList) {
+					for (PrintItem<?> item : selectList) {
 						if (AlignmentButton.this.vertical != null) {
 							item.setVerticalAlignment(AlignmentButton.this.vertical);
 						}
@@ -1922,7 +1924,7 @@ public class PrintDesignFrame extends UMasterDetailFrame {
 			}
 			// 是否按住ctrl键。如果按住就是多选的意思
 			if (!e.isControlDown()) {
-				for (PrintItem com : selectList) {
+				for (PrintItem<?> com : selectList) {
 					com.setBorder(defaultBorder);
 					// com.setVisibleEdit(false);
 				}
@@ -1963,7 +1965,9 @@ public class PrintDesignFrame extends UMasterDetailFrame {
 				cardLayout.first(attributePanel);
 				cardLayout.next(attributePanel);
 			} else if (e.getSource() instanceof TableCellRenderer) {
-				TableCellRenderer tableCellRenderer = (TableCellRenderer) e.getSource();
+				// TODO
+				// TableCellRenderer tableCellRenderer = (TableCellRenderer)
+				// e.getSource();
 				// 如果是表头的某一列
 			} else if (e.getSource() instanceof JTableHeader) {
 				// 如果是表头被选中
@@ -2004,7 +2008,7 @@ public class PrintDesignFrame extends UMasterDetailFrame {
 					selectList.remove(selectComp);
 					// 确保最后选中的放在第一个
 					selectList.add(0, selectComp);
-					for (PrintItem com : selectList) {
+					for (PrintItem<?> com : selectList) {
 						com.setBorder(clicedBorder);
 					}
 				}
@@ -2089,7 +2093,7 @@ public class PrintDesignFrame extends UMasterDetailFrame {
 			else if (e.getSource() == pasteForamtItem) {
 				// 将当前缓存内存的对象格式复制到选中的集合
 				for (int i = 0; i < selectList.size(); i++) {
-					PrintItem temp = selectList.get(i);
+					PrintItem<?> temp = selectList.get(i);
 					temp.setFontName(copyFormatCacheItem.getFontName());
 					temp.setFontSize(copyFormatCacheItem.getFontSize());
 					temp.setIsBold(copyFormatCacheItem.getIsBold());
@@ -2185,6 +2189,7 @@ public class PrintDesignFrame extends UMasterDetailFrame {
 	 * @Description: 批量删除选中项
 	 * @author yyq
 	 */
+	@SuppressWarnings("serial")
 	private class DeleteItemAction extends AbstractAction {
 
 		@Override
@@ -2228,6 +2233,11 @@ public class PrintDesignFrame extends UMasterDetailFrame {
 	CopyFormatItemAction copyFormatItemAction = new CopyFormatItemAction();
 
 	private class CopyFormatItemAction extends AbstractAction {
+
+		/**
+		 * @Fields serialVersionUID : 版本号
+		 */
+		private static final long serialVersionUID = 1L;
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
@@ -2285,11 +2295,16 @@ public class PrintDesignFrame extends UMasterDetailFrame {
 
 	private class PasteFormatItemAction extends AbstractAction {
 
+		/**
+		 * @Fields serialVersionUID : 版本号
+		 */
+		private static final long serialVersionUID = 1L;
+
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			// 将当前缓存内存的对象格式复制到选中的集合
 			for (int i = 0; i < selectList.size(); i++) {
-				PrintItem temp = selectList.get(i);
+				PrintItem<?> temp = selectList.get(i);
 				temp.setFontName(copyFormatCacheItem.getFontName());
 				temp.setFontSize(copyFormatCacheItem.getFontSize());
 				temp.setIsBold(copyFormatCacheItem.getIsBold());

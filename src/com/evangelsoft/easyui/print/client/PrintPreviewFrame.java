@@ -2,15 +2,24 @@ package com.evangelsoft.easyui.print.client;
 
 import java.awt.Dimension;
 import java.awt.Toolkit;
-import java.util.HashMap;
 
+import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JFrame;
+import javax.swing.JPanel;
 
-import com.borland.dx.dataset.StorageDataSet;
 import com.evangelsoft.easyui.print.type.PrintDesignManage;
-import com.evangelsoft.easyui.template.client.StorageDataSetPanel;
 
 public class PrintPreviewFrame extends JFrame {
+
+	// 工具条
+	private JPanel toolBarPanel;
+
+	private JComboBox<Integer> zoomBox;
+
+	private JButton expandButton;// 放大
+
+	private JButton narrowButton;// 缩小
 
 	/**
 	 * @Fields serialVersionUID : 版本号
@@ -19,6 +28,36 @@ public class PrintPreviewFrame extends JFrame {
 
 	public PrintPreviewFrame(PrintDesignManage printMange) {
 
+	}
+
+	/**
+	 * @Description: 初始化的方法   
+	 * @return void  
+	 * @throws
+	 * @author yangyq02
+	 * @date 2018年1月10日
+	 */
+	void init() {
+		toolBarPanel = new JPanel();
+		zoomBox = new JComboBox<Integer>();
+		zoomBox.addItem(25);
+		zoomBox.addItem(50);
+		zoomBox.addItem(75);
+		zoomBox.addItem(100);
+
+		zoomBox.addItem(125);
+		zoomBox.addItem(150);
+		zoomBox.addItem(175);
+		zoomBox.addItem(200);
+		zoomBox.addItem(250);
+		zoomBox.addItem(300);
+		zoomBox.addItem(400);
+		zoomBox.addItem(800);
+
+		expandButton = new JButton();
+		expandButton.setText("放大");
+
+		narrowButton = new JButton("缩小");
 	}
 
 	public static void main(String[] args) {

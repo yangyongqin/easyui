@@ -305,7 +305,6 @@ public class PrintDesignPanel extends JPanel implements PrintDesignView {
 				super.mouseDragged(e);
 				if (isMove) {
 					Point point = e.getPoint();
-					// TODO 行高需要测试计算，理论上要减去表头高度
 					// 最小三个像素，太少就看不到了。。。。
 					if (point.y > 2) {
 						table.setRowHeight(point.y);
@@ -546,7 +545,7 @@ public class PrintDesignPanel extends JPanel implements PrintDesignView {
 			}
 			printPage.getItemDataSet().next();
 		}
-		PrintItem item = null;
+		PrintItem<?> item = null;
 		if (TABLE_VIEW.equals(viewType)) {
 
 			// defaultModel.addColumn("列" + (index+1));
@@ -628,7 +627,7 @@ public class PrintDesignPanel extends JPanel implements PrintDesignView {
 			printItem.setParentPanel(this);
 			list.add(item);
 		}
-		for (PrintItem it : list) {
+		for (PrintItem<?> it : list) {
 			// 将当前选中的姿字体赋给新创建的对象
 			// it.setFontName(printPage.getFontName());
 			// it.setFontSize(printPage.getFontSize());
@@ -640,7 +639,7 @@ public class PrintDesignPanel extends JPanel implements PrintDesignView {
 		return list;
 	}
 
-	public <T extends PrintItem> PrintItem getDefaultValue(T item) {
+	public <T extends PrintItem<?>> PrintItem<?> getDefaultValue(T item) {
 		item.setFontName(this.getPrintPage().getFontName());
 		item.setFontSize(this.getPrintPage().getFontSize());
 		// dataSet.setBigDecimal("FONT_SIZE",
@@ -667,7 +666,7 @@ public class PrintDesignPanel extends JPanel implements PrintDesignView {
 		return item;
 	}
 
-	private void addDataSetRow(PrintItem item) {
+	private void addDataSetRow(PrintItem<?> item) {
 		StorageDataSet dataSet = printPage.getItemDataSet();
 		dataSet.insertRow(false);
 		dataSet.setBigDecimal("UNIQUE_ID", new BigDecimal(item.getUniqueId()));
@@ -733,7 +732,7 @@ public class PrintDesignPanel extends JPanel implements PrintDesignView {
 			}
 		}
 
-		for (PrintItem it : list) {
+		for (PrintItem<?> it : list) {
 			itemsMap.put(it.getUniqueId(), it);
 		}
 		return list;
