@@ -98,6 +98,7 @@ import com.borland.dx.dataset.ItemListDescriptor;
 import com.borland.dx.dataset.PickListDescriptor;
 import com.borland.dx.dataset.StorageDataSet;
 import com.borland.dx.dataset.Variant;
+import com.evangelsoft.easyui.print.type.LineType;
 import com.evangelsoft.easyui.print.type.PrintDesignView;
 import com.evangelsoft.easyui.print.type.PrintItem;
 import com.evangelsoft.easyui.print.type.PrintItemTool;
@@ -1366,12 +1367,14 @@ public class PrintDesignFrame extends UMasterDetailFrame {
 				text.setColumnName(showColumn[i]);
 				jcom = text;
 			}
-			ColumnAware aware = (ColumnAware) jcom;
-			aware.setDataSet(elementDataSet);
-			if (showColumn[i].indexOf(".") != -1) {
-				aware.setColumnName(showColumn[i].substring(showColumn[i].indexOf(".") + 1, showColumn[i].length()));
-			} else {
-				aware.setColumnName(showColumn[i]);
+			if (!showColumn[i].equals("LINE_STYLE")) {
+				ColumnAware aware = (ColumnAware) jcom;
+				aware.setDataSet(elementDataSet);
+				if (showColumn[i].indexOf(".") != -1) {
+					aware.setColumnName(showColumn[i].substring(showColumn[i].indexOf(".") + 1, showColumn[i].length()));
+				} else {
+					aware.setColumnName(showColumn[i]);
+				}
 			}
 			// 将元素放到map缓存，后面根据不同的元素，显示不同的按钮
 			componentMap.put(showColumn[i] + "_LABEL", label);
@@ -2467,33 +2470,17 @@ public class PrintDesignFrame extends UMasterDetailFrame {
 		 */
 		private static final long serialVersionUID = 1L;
 
-		int type;
-
 		// 这样要是实现接口的方法：
 		@Override
-		public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected,
+		public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected,
 				boolean cellHasFocus) {
 			this.setIcon(new MyIcon(Integer.parseInt(value.toString())));
 			return this;
 		}
 
-		// @Override
-		// protected void paintComponent(Graphics g) {
-		// // 如果是线条，
-		// if (PrintElementType.LINE.equals(type)) { // 判断线条方向
-		// Graphics2D g2d = (Graphics2D) g; // 添加抗锯齿效果
-		// g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-		// RenderingHints.VALUE_ANTIALIAS_ON);
-		// g2d.setStroke(new BasicStroke(1.50f));
-		// g.drawLine(0, 0, this.getWidth(), this.getHeight()); // 关闭抗齿距效果
-		// g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-		// RenderingHints.VALUE_ANTIALIAS_OFF);
-		// } else {
-		// super.paintComponent(g);
-		// }
-		// }
-
 		private class MyIcon extends ImageIcon {
+
+			private static final long serialVersionUID = 1L;
 
 			int type;
 
@@ -2503,8 +2490,21 @@ public class PrintDesignFrame extends UMasterDetailFrame {
 
 			@Override
 			public synchronized void paintIcon(Component c, Graphics g, int x, int y) {
-				g.drawLine(0, 0, c.getWidth(), c.getHeight());
-				/* super.paintIcon(c, g, x, y); */
+				float[] dash = { 5, 5 };
+				if (LineType.SOLID_LINE == type) {
+					g.drawLine(0, 0, c.getWidth(), c.getHeight());
+				} else if (LineType.DOTTED_LINE == type) {
+					Graphics2D g2 = (Graphics2D) g;
+					BasicStroke bs = new BasicStroke(1, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 10.0f, dash, 0.0f); // 实例化新画刷
+					g2.setStroke(bs); // 设置新的画刷
+					g.drawLine(0, 0, c.getWidth(), c.getHeight());
+				} else {
+					Graphics2D g2 = (Graphics2D) g;
+					BasicStroke bs = new BasicStroke(1, BasicStroke.CAP_ROUND, BasicStroke.JOIN_MITER, 10.0f, dash,
+							0.0f); // 实例化新画刷
+					g2.setStroke(bs); // 设置新的画刷
+					g.drawLine(0, 0, c.getWidth(), c.getHeight());
+				}
 			}
 		}
 
