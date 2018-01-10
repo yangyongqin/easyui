@@ -1,5 +1,6 @@
 package com.evangelsoft.easyui.print.client;
 
+import java.awt.BasicStroke;
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.Color;
@@ -8,11 +9,14 @@ import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.GraphicsEnvironment;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.Point;
+import java.awt.RenderingHints;
 import java.awt.SystemColor;
 import java.awt.Toolkit;
 import java.awt.datatransfer.DataFlavor;
@@ -65,6 +69,7 @@ import javax.swing.JTable;
 import javax.swing.JToolBar;
 import javax.swing.JViewport;
 import javax.swing.KeyStroke;
+import javax.swing.ListCellRenderer;
 import javax.swing.ListSelectionModel;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingConstants;
@@ -1094,7 +1099,7 @@ public class PrintDesignFrame extends UMasterDetailFrame {
 				"FONT_SIZE", "BOLD", "BOLD_DESC", "ITALIC", "ITALIC_DESC", "UNDERLINE", "UNDERLINE_DESC",
 				"STRIKETHROUGH", "STRIKETHROUGH_DESC", "HORIZONTAL_ALIGNMENT", "HORIZONTAL_ALIGNMENT_DESC",
 				"VERTICAL_ALIGNMENT", "VERTICAL_ALIGNMENT_DESC", "ROTATION", "ROTATION_DESC", "IMAGE_SCALE",
-				"IMAGE_SCALE_DESC", "LINE_DIRECTION", "LINE_DIRECTION_DESC", "LINE_HEIGHT", "BAR_TYPE",
+				"IMAGE_SCALE_DESC", "LINE_DIRECTION", "LINE_DIRECTION_DESC", "LINE_SIZE", "LINE_STYLE", "BAR_TYPE",
 				"BAR_TYPE_DESC", "TEXT_POSITION", "TEXT_POSITION_DESC", "EXEC_CODE" };
 		elementDataSet.setColumns(ColumnsHelp.getColumns("SYS_PRINT_TEMPLATE_ELEMENT", detailColumn));
 		elementDataSet.getColumn("BOLD_DESC").setPickList(
@@ -1309,7 +1314,7 @@ public class PrintDesignFrame extends UMasterDetailFrame {
 		String[] showColumn = { "X", "Y", "WIDTH", "HEIGHT", "FORECOLOR", "BACKCOLOR", "TEXT", "EXPRESSION",
 				"FONT_NAME", "FONT_SIZE", "BOLD_DESC", "ITALIC_DESC", "UNDERLINE_DESC", "STRIKETHROUGH_DESC",
 				"HORIZONTAL_ALIGNMENT_DESC", "VERTICAL_ALIGNMENT_DESC", "ROTATION_DESC", "IMAGE_SCALE_DESC",
-				"LINE_DIRECTION_DESC", "LINE_HEIGHT", "BAR_TYPE", "TEXT_POSITION", "EXEC_CODE" };
+				"LINE_DIRECTION_DESC", "LINE_SIZE", "LINE_STYLE", "BAR_TYPE", "TEXT_POSITION", "EXEC_CODE" };
 		// 循环显示对应的列
 		// 元素属性
 		filterlayout = new GridBagLayout();
@@ -1347,6 +1352,14 @@ public class PrintDesignFrame extends UMasterDetailFrame {
 				text.setColumnName(showColumn[i]);
 				text.setEditable(true);
 				jcom = text;
+			} else if (showColumn[i].equals("LINE_STYLE")) {
+				// 如果是线条样式，则显示线条样式
+				Integer xx[] = new Integer[] { 1, 2, 3 };
+				JComboBox<Object> text = new JComboBox<Object>(xx);
+				ComboBoxRenderer reander = new ComboBoxRenderer();
+				text.setRenderer(reander);
+				jcom = text;
+
 			} else {
 				JdbTextField text = new JdbTextField();
 				text.setColumns(15);
@@ -1847,7 +1860,7 @@ public class PrintDesignFrame extends UMasterDetailFrame {
 		 * "EXPRESSION", "FONT_NAME", "FONT_SIZE", "BOLD_DESC", "ITALIC_DESC",
 		 * "UNDERLINE_DESC", "STRIKETHROUGH_DESC", "HORIZONTAL_ALIGNMENT_DESC",
 		 * "VERTICAL_ALIGNMENT_DESC", "ROTATION_DESC", "IMAGE_SCALE_DESC",
-		 * "LINE_DIRECTION", "LINE_HEIGHT", "BAR_TYPE", "TEXT_POSITION",
+		 * "LINE_DIRECTION", "LINE_SIZE", "BAR_TYPE", "TEXT_POSITION",
 		 * "EXEC_CODE" };
 		 */
 		String[] showColumn;
@@ -1858,7 +1871,8 @@ public class PrintDesignFrame extends UMasterDetailFrame {
 		} else if (PrintElementType.TABLE.equals(type)) {
 			showColumn = new String[] { "X", "Y", "WIDTH", "HEIGHT", "EXPRESSION" };
 		} else if (PrintElementType.LINE.equals(type)) {
-			showColumn = new String[] { "X", "Y", "WIDTH", "HEIGHT", "EXPRESSION", "LINE_DIRECTION_DESC", "LINE_HEIGHT" };
+			showColumn = new String[] { "X", "Y", "WIDTH", "HEIGHT", "EXPRESSION", "LINE_DIRECTION_DESC", "LINE_SIZE",
+					"LINE_STYLE" };
 		} else if (PrintElementType.LABEL.equals(type)) {
 			showColumn = new String[] { "X", "Y", "WIDTH", "HEIGHT", "TEXT", "FONT_NAME", "FONT_SIZE", "BOLD_DESC",
 					"ITALIC_DESC", "UNDERLINE_DESC", "STRIKETHROUGH_DESC", "HORIZONTAL_ALIGNMENT_DESC",
@@ -2446,9 +2460,53 @@ public class PrintDesignFrame extends UMasterDetailFrame {
 		return false;
 	}
 
-	// 增加
-	public void insertItem() {
+	private class ComboBoxRenderer extends JLabel implements ListCellRenderer<Object> {
+
+		/**
+		 * @Fields serialVersionUID : 版本号
+		 */
+		private static final long serialVersionUID = 1L;
+
+		int type;
+
+		// 这样要是实现接口的方法：
+		@Override
+		public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected,
+				boolean cellHasFocus) {
+			this.setIcon(new MyIcon(Integer.parseInt(value.toString())));
+			return this;
+		}
+
+		// @Override
+		// protected void paintComponent(Graphics g) {
+		// // 如果是线条，
+		// if (PrintElementType.LINE.equals(type)) { // 判断线条方向
+		// Graphics2D g2d = (Graphics2D) g; // 添加抗锯齿效果
+		// g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+		// RenderingHints.VALUE_ANTIALIAS_ON);
+		// g2d.setStroke(new BasicStroke(1.50f));
+		// g.drawLine(0, 0, this.getWidth(), this.getHeight()); // 关闭抗齿距效果
+		// g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+		// RenderingHints.VALUE_ANTIALIAS_OFF);
+		// } else {
+		// super.paintComponent(g);
+		// }
+		// }
+
+		private class MyIcon extends ImageIcon {
+
+			int type;
+
+			public MyIcon(int type) {
+				this.type = type;
+			}
+
+			@Override
+			public synchronized void paintIcon(Component c, Graphics g, int x, int y) {
+				g.drawLine(0, 0, c.getWidth(), c.getHeight());
+				/* super.paintIcon(c, g, x, y); */
+			}
+		}
 
 	}
-
 }
