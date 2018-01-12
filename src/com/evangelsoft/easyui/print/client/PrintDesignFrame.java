@@ -51,6 +51,7 @@ import javax.swing.DefaultListModel;
 import javax.swing.ImageIcon;
 import javax.swing.InputMap;
 import javax.swing.JButton;
+import javax.swing.JColorChooser;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
@@ -85,6 +86,7 @@ import javax.swing.table.TableColumnModel;
 
 import org.apache.commons.collections.CollectionUtils;
 
+import com.borland.dbswing.JdbButton;
 import com.borland.dbswing.JdbComboBox;
 import com.borland.dbswing.JdbTable;
 import com.borland.dbswing.JdbTextField;
@@ -92,6 +94,7 @@ import com.borland.dbswing.TableScrollPane;
 import com.borland.dx.dataset.Column;
 import com.borland.dx.dataset.ColumnAware;
 import com.borland.dx.dataset.ColumnChangeAdapter;
+import com.borland.dx.dataset.ColumnCustomEditListener;
 import com.borland.dx.dataset.DataSet;
 import com.borland.dx.dataset.DataSetException;
 import com.borland.dx.dataset.ItemListDescriptor;
@@ -102,7 +105,6 @@ import com.evangelsoft.easyui.print.type.LineType;
 import com.evangelsoft.easyui.print.type.PrintDesignView;
 import com.evangelsoft.easyui.print.type.PrintItem;
 import com.evangelsoft.easyui.print.type.PrintItemTool;
-import com.evangelsoft.easyui.template.client.DesignFrame;
 import com.evangelsoft.easyui.template.client.UMasterDetailFrame;
 import com.evangelsoft.easyui.template.type.FrameType;
 import com.evangelsoft.easyui.tool.ColumnsHelp;
@@ -445,7 +447,12 @@ public class PrintDesignFrame extends UMasterDetailFrame {
 			printDataManage.setListPrintStorageDataSet(list);
 		}
 		this.isCreate = true;
-		init();
+		try {
+			init();
+		} catch (Exception e) {
+			e.printStackTrace();
+			this.dispose();
+		}
 	}
 
 	public static void addPrint() {
@@ -457,63 +464,66 @@ public class PrintDesignFrame extends UMasterDetailFrame {
 	 * public PrintDesignFrame(String funcId) { }
 	 */
 	void init() {
-		this.setTitle("打印设计");
-		// 如果是单表模式
-		this.headerPanel.setVisible(false);
-		this.listFooterPanel.setVisible(false);
-		this.footerPanel.setVisible(false);
-		elementDataSet = new StorageDataSet();
-		// elementDataSet.open();
-		initialization();
+		try {
+			this.setTitle("打印设计");
+			// 如果是单表模式
+			this.headerPanel.setVisible(false);
+			this.listFooterPanel.setVisible(false);
+			this.footerPanel.setVisible(false);
+			elementDataSet = new StorageDataSet();
+			// elementDataSet.open();
+			initialization();
 
-		initTable();
+			initTable();
 
-		initAttr();
-		// 初始化快捷键
-		initQuickKey();
-		InputMap inputMap = ((JComponent) getContentPane()).getInputMap();
-		ActionMap actionMap = ((JComponent) getContentPane()).getActionMap();
+			initAttr();
+			// 初始化快捷键
+			initQuickKey();
+			InputMap inputMap = ((JComponent) getContentPane()).getInputMap();
+			ActionMap actionMap = ((JComponent) getContentPane()).getActionMap();
 
-		// final MovingCanvas movingCanvas = new MovingCanvas();
-		// final InputMap im = movingCanvas.getInputMap();
-		// final ActionMap am = movingCanvas.getActionMap();
+			// final MovingCanvas movingCanvas = new MovingCanvas();
+			// final InputMap im = movingCanvas.getInputMap();
+			// final ActionMap am = movingCanvas.getActionMap();
 
-		DirectionMoveAction upAction = new DirectionMoveAction(Direction.UP);
-		DirectionMoveAction downAction = new DirectionMoveAction(Direction.DOWN);
-		DirectionMoveAction leftAction = new DirectionMoveAction(Direction.LEFT);
-		DirectionMoveAction rightAction = new DirectionMoveAction(Direction.RIGHT);
+			DirectionMoveAction upAction = new DirectionMoveAction(Direction.UP);
+			DirectionMoveAction downAction = new DirectionMoveAction(Direction.DOWN);
+			DirectionMoveAction leftAction = new DirectionMoveAction(Direction.LEFT);
+			DirectionMoveAction rightAction = new DirectionMoveAction(Direction.RIGHT);
 
-		inputMap.put(KeyStroke.getKeyStroke("UP"), "up");
-		actionMap.put("up", upAction);
+			inputMap.put(KeyStroke.getKeyStroke("UP"), "up");
+			actionMap.put("up", upAction);
 
-		inputMap.put(KeyStroke.getKeyStroke("DOWN"), "down");
-		actionMap.put("down", downAction);
+			inputMap.put(KeyStroke.getKeyStroke("DOWN"), "down");
+			actionMap.put("down", downAction);
 
-		inputMap.put(KeyStroke.getKeyStroke("LEFT"), "left");
-		actionMap.put("left", leftAction);
+			inputMap.put(KeyStroke.getKeyStroke("LEFT"), "left");
+			actionMap.put("left", leftAction);
 
-		inputMap.put(KeyStroke.getKeyStroke("RIGHT"), "right");
-		actionMap.put("right", rightAction);
+			inputMap.put(KeyStroke.getKeyStroke("RIGHT"), "right");
+			actionMap.put("right", rightAction);
 
-		pack();
+			pack();
 
-		printPage.setPaneDataSet(detailDataSet);
-		printPage.setItemDataSet(elementDataSet);
+			printPage.setPaneDataSet(detailDataSet);
+			printPage.setItemDataSet(elementDataSet);
 
-		// 显示表元素，便于开发时候直观看数据
-		elementTable = new JdbTable();
-		showDialog.setPreferredSize(new Dimension(400, 300));
-		showDialog.pack();
-		TableScrollPane pane = new TableScrollPane(elementTable);
-		showDialog.add(pane);
-		elementTable.setDataSet(elementDataSet);
+			// 显示表元素，便于开发时候直观看数据
+			elementTable = new JdbTable();
+			showDialog.setPreferredSize(new Dimension(400, 300));
+			showDialog.pack();
+			TableScrollPane pane = new TableScrollPane(elementTable);
+			showDialog.add(pane);
+			elementTable.setDataSet(elementDataSet);
 
-		showPanelDialog = new JDialog();
-		showPanelDialog.setPreferredSize(new Dimension(400, 300));
-		showPanelDialog.pack();
-		TableScrollPane panelPane = new TableScrollPane(detailTable);
-		showPanelDialog.add(panelPane);
-
+			showPanelDialog = new JDialog();
+			showPanelDialog.setPreferredSize(new Dimension(400, 300));
+			showPanelDialog.pack();
+			TableScrollPane panelPane = new TableScrollPane(detailTable);
+			showPanelDialog.add(panelPane);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	// 初始化界面
@@ -905,7 +915,8 @@ public class PrintDesignFrame extends UMasterDetailFrame {
 					PrintElementType type = (PrintElementType) value;
 					try {
 						this.setHorizontalTextPosition(SwingConstants.TRAILING);
-						ImageIcon icon = new ImageIcon(DesignFrame.class.getClassLoader().getResource(type.getIcon()));
+						ImageIcon icon = new ImageIcon(PrintDesignFrame.class.getClassLoader().getResource(
+								type.getIcon()));
 						this.setIcon(icon);
 						// this.setIconTextGap(30);设置图片和文字的间距
 						this.setText(type.getDesc());
@@ -1061,8 +1072,10 @@ public class PrintDesignFrame extends UMasterDetailFrame {
 
 	/**
 	 * 初始化表格
+	 * @throws TooManyListenersException 
+	 * @throws DataSetException 
 	 */
-	void initTable() {
+	void initTable() throws DataSetException, TooManyListenersException {
 		boolStrDataSet = new StorageDataSet();
 		horizontalAlignmentDataSet = new StorageDataSet();
 		verticalAlignmentDataSet = new StorageDataSet();
@@ -1132,6 +1145,11 @@ public class PrintDesignFrame extends UMasterDetailFrame {
 		elementDataSet.getColumn("TEXT_POSITION_DESC").setPickList(
 				new PickListDescriptor(textPositionDataSet, new String[] { "CODE" }, new String[] { "DESCRIPTION" },
 						new String[] { "TEXT_POSITION" }, "DESCRIPTION", true));
+		elementDataSet.getColumn("FORECOLOR").setCustomEditable(true);
+		elementDataSet.getColumn("BACKCOLOR").setCustomEditable(true);
+		elementDataSet.getColumn("FORECOLOR").addColumnCustomEditListener(colorColumnCustomEditListener);
+		elementDataSet.getColumn("BACKCOLOR").addColumnCustomEditListener(colorColumnCustomEditListener);
+
 		try {
 			for (Column column : elementDataSet.getColumns()) {
 				column.addColumnChangeListener(elementColumnChangeAdapter);
@@ -1355,19 +1373,40 @@ public class PrintDesignFrame extends UMasterDetailFrame {
 				jcom = text;
 			} else if (showColumn[i].equals("LINE_STYLE")) {
 				// 如果是线条样式，则显示线条样式
-				Integer xx[] = new Integer[] { 1, 2, 3 };
-				JComboBox<Object> text = new JComboBox<Object>(xx);
+				// Integer xx[] = new Integer[] { 1, 2, 3 };
+				Object elements[][] = { { new MyIcon(1) }, { new MyIcon(2) }, { new MyIcon(3) } };
+
+				JComboBox<Object> text = new JComboBox<Object>(elements);
 				ComboBoxRenderer reander = new ComboBoxRenderer();
+				reander.setPreferredSize(new Dimension(100, 30));
 				text.setRenderer(reander);
 				jcom = text;
 
+			} else if (showColumn[i].equals("FORECOLOR") || showColumn[i].equals("BACKCOLOR")) {
+				JPanel panel = new JPanel();
+				panel.setLayout(new BorderLayout());
+				JdbButton button = new JdbButton();
+				button.setDataSet(elementDataSet);
+				button.setColumnName(showColumn[i]);
+				button.setMargin(new Insets(0, 0, 0, 0));
+				JdbTextField text = new JdbTextField();
+				text.setColumns(15);
+				text.setDataSet(elementDataSet);
+				text.setColumnName(showColumn[i]);
+				panel.add(text);
+
+				button.setIcon(new ImageIcon(PrintDesignFrame.class.getClassLoader().getResource(
+						"com/evangelsoft/workbench/resources/buttons/find.png")));
+
+				panel.add(button, BorderLayout.EAST);
+				jcom = panel;
 			} else {
 				JdbTextField text = new JdbTextField();
 				text.setColumns(15);
 				text.setColumnName(showColumn[i]);
 				jcom = text;
 			}
-			if (!showColumn[i].equals("LINE_STYLE")) {
+			if (jcom instanceof ColumnAware) {
 				ColumnAware aware = (ColumnAware) jcom;
 				aware.setDataSet(elementDataSet);
 				if (showColumn[i].indexOf(".") != -1) {
@@ -1875,25 +1914,25 @@ public class PrintDesignFrame extends UMasterDetailFrame {
 			showColumn = new String[] { "X", "Y", "WIDTH", "HEIGHT", "EXPRESSION" };
 		} else if (PrintElementType.LINE.equals(type)) {
 			showColumn = new String[] { "X", "Y", "WIDTH", "HEIGHT", "EXPRESSION", "LINE_DIRECTION_DESC", "LINE_SIZE",
-					"LINE_STYLE" };
+					"LINE_STYLE", "FORECOLOR" };
 		} else if (PrintElementType.LABEL.equals(type)) {
 			showColumn = new String[] { "X", "Y", "WIDTH", "HEIGHT", "TEXT", "FONT_NAME", "FONT_SIZE", "BOLD_DESC",
 					"ITALIC_DESC", "UNDERLINE_DESC", "STRIKETHROUGH_DESC", "HORIZONTAL_ALIGNMENT_DESC",
-					"VERTICAL_ALIGNMENT_DESC", "ROTATION_DESC" };
+					"VERTICAL_ALIGNMENT_DESC", "ROTATION_DESC", "FORECOLOR", "BACKCOLOR" };
 		} else if (PrintElementType.TEXT.equals(type)) {
 			showColumn = new String[] { "X", "Y", "WIDTH", "HEIGHT", "EXPRESSION", "FONT_NAME", "FONT_SIZE",
 					"BOLD_DESC", "ITALIC_DESC", "UNDERLINE_DESC", "STRIKETHROUGH_DESC", "HORIZONTAL_ALIGNMENT_DESC",
-					"VERTICAL_ALIGNMENT_DESC", "ROTATION_DESC" };
+					"VERTICAL_ALIGNMENT_DESC", "ROTATION_DESC", "FORECOLOR", "BACKCOLOR" };
 		} else if (PrintElementType.BAR_CODE.equals(type)) {
 			showColumn = new String[] { "X", "Y", "WIDTH", "HEIGHT", "EXPRESSION", "BAR_TYPE" };
 		} else if (PrintElementType.TABLE_HEAD.equals(type)) {
 			showColumn = new String[] { "WIDTH", "HEIGHT", "TEXT", "FONT_NAME", "FONT_SIZE", "BOLD_DESC",
 					"ITALIC_DESC", "UNDERLINE_DESC", "STRIKETHROUGH_DESC", "HORIZONTAL_ALIGNMENT_DESC",
-					"VERTICAL_ALIGNMENT_DESC", "ROTATION_DESC" };
+					"VERTICAL_ALIGNMENT_DESC", "ROTATION_DESC", "FORECOLOR", "BACKCOLOR" };
 		} else if (PrintElementType.TABLE_CELL.equals(type)) {
 			showColumn = new String[] { "WIDTH", "HEIGHT", "EXPRESSION", "FONT_NAME", "FONT_SIZE", "BOLD_DESC",
 					"ITALIC_DESC", "UNDERLINE_DESC", "STRIKETHROUGH_DESC", "HORIZONTAL_ALIGNMENT_DESC",
-					"VERTICAL_ALIGNMENT_DESC", "ROTATION_DESC" };
+					"VERTICAL_ALIGNMENT_DESC", "ROTATION_DESC", "FORECOLOR", "BACKCOLOR" };
 		} else {
 			showColumn = new String[] {};
 		}
@@ -2474,39 +2513,76 @@ public class PrintDesignFrame extends UMasterDetailFrame {
 		@Override
 		public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected,
 				boolean cellHasFocus) {
-			this.setIcon(new MyIcon(Integer.parseInt(value.toString())));
+			ImageIcon image = null;
+			if (value instanceof Object[]) {
+				Object[] values = (Object[]) value;
+				image = (ImageIcon) values[0];
+			}
+			if (image != null) {
+
+				this.setIcon(image);
+			}
 			return this;
 		}
 
-		private class MyIcon extends ImageIcon {
+	}
 
-			private static final long serialVersionUID = 1L;
+	private class MyIcon extends ImageIcon {
 
-			int type;
+		private static final long serialVersionUID = 1L;
 
-			public MyIcon(int type) {
-				this.type = type;
-			}
+		int type;
 
-			@Override
-			public synchronized void paintIcon(Component c, Graphics g, int x, int y) {
-				float[] dash = { 5, 5 };
-				if (LineType.SOLID_LINE == type) {
-					g.drawLine(0, 0, c.getWidth(), c.getHeight());
-				} else if (LineType.DOTTED_LINE == type) {
-					Graphics2D g2 = (Graphics2D) g;
-					BasicStroke bs = new BasicStroke(1, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 10.0f, dash, 0.0f); // 实例化新画刷
-					g2.setStroke(bs); // 设置新的画刷
-					g.drawLine(0, 0, c.getWidth(), c.getHeight());
-				} else {
-					Graphics2D g2 = (Graphics2D) g;
-					BasicStroke bs = new BasicStroke(1, BasicStroke.CAP_ROUND, BasicStroke.JOIN_MITER, 10.0f, dash,
-							0.0f); // 实例化新画刷
-					g2.setStroke(bs); // 设置新的画刷
-					g.drawLine(0, 0, c.getWidth(), c.getHeight());
+		public MyIcon(int type) {
+			this.type = type;
+		}
+
+		@Override
+		public synchronized void paintIcon(Component c, Graphics g, int x, int y) {
+			float[] dash = { 5, 5 };
+			if (LineType.SOLID_LINE == type) {
+				g.drawLine(0, c.getHeight() / 2, c.getWidth(), c.getHeight() / 2);
+			} else if (LineType.DOTTED_LINE == type) {
+				Graphics2D g2 = (Graphics2D) g;
+				BasicStroke bs = new BasicStroke(1, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 10.0f, dash, 0.0f); // 实例化新画刷
+				g2.setStroke(bs); // 设置新的画刷
+				g.drawLine(0, c.getHeight() / 2, c.getWidth(), c.getHeight() / 2);
+			} else {
+				Graphics2D g2d = (Graphics2D) g;
+				// 添加抗锯齿效果
+				g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+				Color color = g.getColor();
+				// g.setColor(Color.red);
+				for (int i = 0; i < c.getWidth() / 5; i++) {
+					g.fillOval(i * 5, c.getHeight() / 2, 2, 2);
 				}
+				g.setColor(color);
+				g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
 			}
+		}
+	}
+
+	ColorColumnCustomEditListener colorColumnCustomEditListener = new ColorColumnCustomEditListener();
+
+	private class ColorColumnCustomEditListener implements ColumnCustomEditListener {
+
+		@Override
+		public Variant customEdit(DataSet dataSet, Column column) {
+			Color color = JColorChooser.showDialog(PrintDesignFrame.this, "选取颜色", null);
+
+			// 如果用户取消或关闭窗口, 则返回的 color 为 null
+			if (color == null) {
+				return null;
+			}
+			int alpha = color.getAlpha();
+			int red = color.getRed();
+			int green = color.getGreen();
+			int blue = color.getBlue();
+			String colorStr = String.format("%02x", alpha) + "," + String.format("#%02x%02x%02x", red, green, blue);
+			dataSet.setString(column.getColumnName(), colorStr);
+			return null;
 		}
 
 	}
+
 }

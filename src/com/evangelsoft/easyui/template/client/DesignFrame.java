@@ -1729,10 +1729,10 @@ public class DesignFrame extends MasterDetailFrame {
 	}
 	FormulaColumnCustomEditListener formulaColumnCustomEditListener=new FormulaColumnCustomEditListener();
 	private class  FormulaColumnCustomEditListener implements ColumnCustomEditListener{
-		public Variant customEdit(DataSet dataset, Column col) {
-			String str= dataset.getString( col.getColumnName());
+		public Variant customEdit(DataSet dataSet, Column col) {
+			String str= dataSet.getString( col.getColumnName());
 			String s= FormulaEditorDialog.formulaEditor(str);
-			dataset.setString(col.getColumnName(),s);
+			dataSet.setString(col.getColumnName(),s);
 			return null;
 		}
 	}
@@ -1776,8 +1776,8 @@ public class DesignFrame extends MasterDetailFrame {
 		dialog.getContentPane().add(this, "Center");
 		dialog.addWindowListener(new WindowAdapter()
 		{
-			public void windowClosing(WindowEvent paramAnonymousWindowEvent)
-			{
+
+			public void windowClosing(WindowEvent paramAnonymousWindowEvent) {
 				DesignFrame.this.doDefaultCloseAction();
 				if (!dialog.isVisible())
 					dialog.dispose();
