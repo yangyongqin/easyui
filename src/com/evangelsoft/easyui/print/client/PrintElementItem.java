@@ -1,6 +1,7 @@
 package com.evangelsoft.easyui.print.client;
 
 import java.awt.BasicStroke;
+import java.awt.Color;
 import java.awt.Container;
 import java.awt.Cursor;
 import java.awt.Dimension;
@@ -1005,5 +1006,41 @@ public class PrintElementItem extends JLabel implements Serializable, MouseMotio
 		} else {
 			super.paintComponent(g);
 		}
+	}
+
+	@Override
+	public void setForeColor(String colorStr) {
+		if (StringUtil.isEmpty(colorStr)) {
+			return;
+		}
+		int alpha = 00;
+		if (colorStr.indexOf(",") > 0) {
+			alpha = Integer.parseInt(colorStr.substring(0, 2));
+			colorStr = colorStr.substring(colorStr.indexOf(","));
+		}
+		Color color = new Color(Integer.parseInt(colorStr.substring(0, 2)), Integer.parseInt(colorStr.substring(2, 4)),
+				Integer.parseInt(colorStr.substring(4)), alpha);
+		this.setForeground(color);
+	}
+
+	@Override
+	public void setBackColor(String colorStr) {
+		if (StringUtil.isEmpty(colorStr)) {
+			return;
+		}
+		int alpha = 00;
+		if (colorStr.indexOf(",") > 0) {
+			alpha = Integer.parseInt(colorStr.substring(0, 2));
+			colorStr = colorStr.substring(colorStr.indexOf(","));
+		}
+		Color color = new Color(Integer.parseInt(colorStr.substring(0, 2)), Integer.parseInt(colorStr.substring(2, 4)),
+				Integer.parseInt(colorStr.substring(4)), alpha);
+		this.setBackground(color);
+	}
+
+	@Override
+	public void setLineSize(String color) {
+		// TODO Auto-generated method stub
+		
 	}
 }

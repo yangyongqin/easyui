@@ -262,4 +262,13 @@ public interface PrintItem<T extends PrintItem> {
 
 	@DataColumn(dataColumn = "ROTATION")
 	public void setRotation(String rotation);
+
+	@DataColumn(dataColumn = "FORECOLOR")
+	public void setForeColor(String color);
+
+	@DataColumn(dataColumn = "BACKCOLOR")
+	public void setBackColor(String color);
+
+	@DataColumn(dataColumn = "LINE_SIZE")
+	public void setLineSize(String color);
 }
