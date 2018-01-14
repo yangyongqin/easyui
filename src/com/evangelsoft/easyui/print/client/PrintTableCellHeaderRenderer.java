@@ -94,6 +94,15 @@ public class PrintTableCellHeaderRenderer extends DefaultTableCellRenderer imple
 
 	private int elementHeight;
 
+	private String foreColor, backColor;
+
+	/**
+	 * @Fields lineDirection : 线方向
+	 */
+	private String lineDirection;
+
+	private int lineSize = 1;
+
 	private PrintDesignView parentPanel;
 
 	private PrintDesignView designPanel;
@@ -787,37 +796,95 @@ public class PrintTableCellHeaderRenderer extends DefaultTableCellRenderer imple
 
 	@Override
 	public void setForeColor(String colorStr) {
-		if (StringUtil.isEmpty(colorStr)) {
-			return;
+		if (toRow() > -1) {
+			if (StringUtil.isEmpty(colorStr)) {
+				return;
+			}
+			// 不相等才赋值
+			if (StringUtil.isEmpty(this.foreColor) || !foreColor.equals(colorStr)) {
+				String temp = colorStr.replaceAll("\\#", "");
+				int alpha = 00;
+				if (temp.indexOf(",") > 0) {
+					alpha = Integer.parseInt(temp.substring(0, 2), 16);
+					temp = temp.substring(temp.indexOf(",") + 1);
+				}
+				Color color = new Color(Integer.parseInt(temp.substring(0, 2), 16), Integer.parseInt(
+						temp.substring(2, 4), 16), Integer.parseInt(temp.substring(4), 16), alpha);
+				this.setForeground(color);
+				this.foreColor = colorStr;
+				this.getDataSet().getColumn("FORECOLOR").setForeground(color);
+			}
 		}
-		int alpha = 00;
-		if (colorStr.indexOf(",") > 0) {
-			alpha = Integer.parseInt(colorStr.substring(0, 2));
-			colorStr = colorStr.substring(colorStr.indexOf(","));
-		}
-		Color color = new Color(Integer.parseInt(colorStr.substring(0, 2)), Integer.parseInt(colorStr.substring(2, 4)),
-				Integer.parseInt(colorStr.substring(4)), alpha);
-		this.setForeground(color);
 	}
 
 	@Override
 	public void setBackColor(String colorStr) {
-		if (StringUtil.isEmpty(colorStr)) {
-			return;
+		if (toRow() > -1) {
+			if (StringUtil.isEmpty(colorStr)) {
+				return;
+			}
+			// 不相等才赋值
+			if (StringUtil.isEmpty(this.backColor) || !rotation.equals(colorStr)) {
+				String temp = colorStr.replaceAll("\\#", "");
+				int alpha = 00;
+				if (temp.indexOf(",") > 0) {
+					alpha = Integer.parseInt(temp.substring(0, 2), 16);
+					temp = temp.substring(temp.indexOf(",") + 1);
+				}
+				Color color = new Color(Integer.parseInt(temp.substring(0, 2), 16), Integer.parseInt(
+						temp.substring(2, 4), 16), Integer.parseInt(temp.substring(4), 16), alpha);
+				this.setBackground(color);
+				this.backColor = colorStr;
+				this.getDataSet().getColumn("BACKCOLOR").setForeground(color);
+			}
 		}
-		int alpha = 00;
-		if (colorStr.indexOf(",") > 0) {
-			alpha = Integer.parseInt(colorStr.substring(0, 2));
-			colorStr = colorStr.substring(colorStr.indexOf(","));
-		}
-		Color color = new Color(Integer.parseInt(colorStr.substring(0, 2)), Integer.parseInt(colorStr.substring(2, 4)),
-				Integer.parseInt(colorStr.substring(4)), alpha);
-		this.setBackground(color);
 	}
 
 	@Override
-	public void setLineSize(String color) {
-		// TODO Auto-generated method stub
-		
+	public void setLineSize(int lineSize) {
+		if (toRow() > -1) {
+			// 不相等才赋值
+			if (lineSize != this.lineSize) {
+				this.lineSize = lineSize;
+				this.getDataSet().setBigDecimal("LINE_SIZE", BigDecimal.valueOf(lineSize));
+			}
+		}
+	}
+
+	@Override
+	public void setLineDirection(String lineDirection) {
+		if (toRow() > -1) {
+			// 不相等才赋值
+			if (StringUtil.isEmpty(this.lineDirection) || !lineDirection.equals(lineDirection)) {
+				this.lineDirection = lineDirection;
+				this.getDataSet().setString("LINE_DIRECTION", lineDirection);
+			}
+		}
+	}
+
+	@Override
+	public String getForeColor() {
+		if (StringUtil.isEmpty(this.foreColor)) {
+			Color color = this.getForeground();
+			int alpha = color.getAlpha();
+			int red = color.getRed();
+			int green = color.getGreen();
+			int blue = color.getBlue();
+			return String.format("%02x", alpha) + "," + String.format("#%02x%02x%02x", red, green, blue);
+		}
+		return this.foreColor;
+	}
+
+	@Override
+	public String getBackColor() {
+		if (StringUtil.isEmpty(this.backColor)) {
+			Color color = this.getBackground();
+			int alpha = color.getAlpha();
+			int red = color.getRed();
+			int green = color.getGreen();
+			int blue = color.getBlue();
+			return String.format("%02x", alpha) + "," + String.format("#%02x%02x%02x", red, green, blue);
+		}
+		return this.foreColor;
 	}
 }

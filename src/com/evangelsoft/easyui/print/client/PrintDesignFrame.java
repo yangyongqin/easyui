@@ -67,6 +67,7 @@ import javax.swing.JSpinner;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTable;
+import javax.swing.JTextField;
 import javax.swing.JToolBar;
 import javax.swing.JViewport;
 import javax.swing.KeyStroke;
@@ -105,6 +106,7 @@ import com.evangelsoft.easyui.print.type.LineType;
 import com.evangelsoft.easyui.print.type.PrintDesignView;
 import com.evangelsoft.easyui.print.type.PrintItem;
 import com.evangelsoft.easyui.print.type.PrintItemTool;
+import com.evangelsoft.easyui.print.type.PrintPanelTool;
 import com.evangelsoft.easyui.template.client.UMasterDetailFrame;
 import com.evangelsoft.easyui.template.type.FrameType;
 import com.evangelsoft.easyui.tool.ColumnsHelp;
@@ -350,6 +352,8 @@ public class PrintDesignFrame extends UMasterDetailFrame {
 	private PrintItem<?> copyFormatCacheItem;
 
 	private HashMap<String, JComponent> componentMap = new HashMap<String, JComponent>();
+
+	private JTextField backColorField, foreColorField;
 
 	/**
 	 * 构造方法一般用于多表模式
@@ -1106,7 +1110,15 @@ public class PrintDesignFrame extends UMasterDetailFrame {
 						new String[] { "CIRCULATION" }, "DESCRIPTION", true));
 		detailDataSet.getColumn("TABLE_ID").setItemList(
 				new ItemListDescriptor(printDataManage.getPrintSet().keySet().toArray(), false));
-
+		try {
+			for (Column column : detailDataSet.getColumns()) {
+				column.addColumnChangeListener(panelColumnChangeAdapter);
+			}
+		} catch (DataSetException e1) {
+			e1.printStackTrace();
+		} catch (TooManyListenersException e1) {
+			e1.printStackTrace();
+		}
 		//
 		String[] detailColumn = new String[] { "PRINT_ID", "PANEL_ID", "UNIQUE_ID", "RELATION_ID", "ELEMENT_INDEX",
 				"TYPE", "X", "Y", "WIDTH", "HEIGHT", "FORECOLOR", "BACKCOLOR", "TEXT", "EXPRESSION", "FONT_NAME",
@@ -1149,6 +1161,8 @@ public class PrintDesignFrame extends UMasterDetailFrame {
 		elementDataSet.getColumn("BACKCOLOR").setCustomEditable(true);
 		elementDataSet.getColumn("FORECOLOR").addColumnCustomEditListener(colorColumnCustomEditListener);
 		elementDataSet.getColumn("BACKCOLOR").addColumnCustomEditListener(colorColumnCustomEditListener);
+		// elementDataSet.getColumn("FORECOLOR").addColumnChangeListener(colorColumnChangeListener);
+		// elementDataSet.getColumn("BACKCOLOR").addColumnChangeListener(colorColumnChangeListener);
 
 		try {
 			for (Column column : elementDataSet.getColumns()) {
@@ -1187,6 +1201,20 @@ public class PrintDesignFrame extends UMasterDetailFrame {
 			// 获取被选中的组合
 			if (CollectionUtils.isNotEmpty(selectList)) {
 				PrintItemTool.setValue(selectList, column.getColumnName(), value.getAsObject());
+			}
+		}
+
+	}
+
+	PanelColumnChangeAdapter panelColumnChangeAdapter = new PanelColumnChangeAdapter();
+
+	private class PanelColumnChangeAdapter extends ColumnChangeAdapter {
+
+		@Override
+		public void changed(DataSet arg0, Column column, Variant value) {
+			// 获取被选中的组合
+			if (selectPanel != null) {
+				PrintPanelTool.setValue(selectPanel, column.getColumnName(), value.getAsObject());
 			}
 		}
 
@@ -1393,6 +1421,12 @@ public class PrintDesignFrame extends UMasterDetailFrame {
 				text.setColumns(15);
 				text.setDataSet(elementDataSet);
 				text.setColumnName(showColumn[i]);
+				if (showColumn[i].equals("FORECOLOR")) {
+					foreColorField = text;
+				} else {
+					backColorField = text;
+				}
+
 				panel.add(text);
 
 				button.setIcon(new ImageIcon(PrintDesignFrame.class.getClassLoader().getResource(
@@ -2580,6 +2614,13 @@ public class PrintDesignFrame extends UMasterDetailFrame {
 			int blue = color.getBlue();
 			String colorStr = String.format("%02x", alpha) + "," + String.format("#%02x%02x%02x", red, green, blue);
 			dataSet.setString(column.getColumnName(), colorStr);
+			/*
+			 * if ("BACKCOLOR".equals(column.getColumnName())) {
+			 * backColorField.setBackground(color); } else if
+			 * ("FORECOLOR".equals(column.getColumnName())) {
+			 * foreColorField.setForeground(color); }
+			 */
+
 			return null;
 		}
 

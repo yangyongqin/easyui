@@ -37,6 +37,7 @@ import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 
 import com.borland.dx.dataset.StorageDataSet;
+import com.evangelsoft.easyui.print.type.LineDirection;
 import com.evangelsoft.easyui.print.type.PrintDesignView;
 import com.evangelsoft.easyui.print.type.PrintItem;
 import com.evangelsoft.easyui.print.type.PrintItemTool;
@@ -634,6 +635,10 @@ public class PrintDesignPanel extends JPanel implements PrintDesignView {
 			// it.setWidth(100);
 			// it.setHeight(30);
 			// tÌí¼Óµ½
+			it.setBackColor(it.getBackColor());
+			it.setForeColor(it.getForeColor());
+			it.setLineSize(1);
+			it.setLineDirection(LineDirection.LEFT);
 			itemsMap.put(it.getUniqueId(), it);
 		}
 		return list;

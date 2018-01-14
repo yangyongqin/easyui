@@ -27,6 +27,7 @@ import javax.swing.border.Border;
 
 import com.borland.dbswing.JdbTextField;
 import com.borland.dx.dataset.DataSet;
+import com.evangelsoft.easyui.print.type.LineDirection;
 import com.evangelsoft.easyui.print.type.PrintDesignView;
 import com.evangelsoft.easyui.print.type.PrintItem;
 import com.evangelsoft.easyui.print.type.PrintItemTool;
@@ -93,6 +94,15 @@ public class PrintElementItem extends JLabel implements Serializable, MouseMotio
 	private int elementHeight;
 
 	private String rotation;
+
+	private String foreColor, backColor;
+
+	/**
+	 * @Fields lineDirection : 线方向
+	 */
+	private String lineDirection;
+
+	private int lineSize = 1;
 
 	/**
 	 * @Fields ratio : 缩放比率，默认为1
@@ -340,7 +350,7 @@ public class PrintElementItem extends JLabel implements Serializable, MouseMotio
 
 			// for(int i=0;i<PrintDesignFrame.selectList.size();i++){
 			// PrintElementItem item=PrintDesignFrame.selectList.get
-			for (PrintItem item : printPage.getSelectList()) {
+			for (PrintItem<?> item : printPage.getSelectList()) {
 				Dimension dimension = item.getSize();
 				switch (direction) {
 					case Direction.LEFT_UP:
@@ -991,16 +1001,25 @@ public class PrintElementItem extends JLabel implements Serializable, MouseMotio
 		}
 	}
 
+	/**
+	 * 重写绘制方法，主要是线条的显示
+	 * @see javax.swing.JComponent#paintComponent(java.awt.Graphics)
+	 */
 	@Override
 	protected void paintComponent(Graphics g) {
 		// 如果是线条，
 		if (PrintElementType.LINE.equals(type)) {
+
 			// 判断线条方向
 			Graphics2D g2d = (Graphics2D) g;
 			// 添加抗锯齿效果
 			g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-			g2d.setStroke(new BasicStroke(1.50f));
-			g.drawLine(0, 0, this.getWidth(), this.getHeight());
+			g2d.setStroke(new BasicStroke(this.lineSize));
+			if ("R".equals(this.lineDirection)) {
+				g.drawLine(0, this.getHeight(), this.getWidth(), 0);
+			} else {
+				g.drawLine(0, 0, this.getWidth(), this.getHeight());
+			}
 			// 关闭抗齿距效果
 			g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
 		} else {
@@ -1010,37 +1029,96 @@ public class PrintElementItem extends JLabel implements Serializable, MouseMotio
 
 	@Override
 	public void setForeColor(String colorStr) {
-		if (StringUtil.isEmpty(colorStr)) {
-			return;
+		if (toRow() > -1) {
+			if (StringUtil.isEmpty(colorStr)) {
+				return;
+			}
+			// 不相等才赋值
+			if (StringUtil.isEmpty(this.foreColor) || !foreColor.equals(colorStr)) {
+				String temp = colorStr.replaceAll("\\#", "");
+				int alpha = 00;
+				if (temp.indexOf(",") > 0) {
+					alpha = Integer.parseInt(temp.substring(0, 2), 16);
+					temp = temp.substring(temp.indexOf(",") + 1);
+				}
+				Color color = new Color(Integer.parseInt(temp.substring(0, 2), 16), Integer.parseInt(
+						temp.substring(2, 4), 16), Integer.parseInt(temp.substring(4), 16), alpha);
+				this.setForeground(color);
+				this.foreColor = colorStr;
+				this.getDataSet().getColumn("FORECOLOR").setForeground(color);
+			}
 		}
-		int alpha = 00;
-		if (colorStr.indexOf(",") > 0) {
-			alpha = Integer.parseInt(colorStr.substring(0, 2));
-			colorStr = colorStr.substring(colorStr.indexOf(","));
-		}
-		Color color = new Color(Integer.parseInt(colorStr.substring(0, 2)), Integer.parseInt(colorStr.substring(2, 4)),
-				Integer.parseInt(colorStr.substring(4)), alpha);
-		this.setForeground(color);
 	}
 
 	@Override
 	public void setBackColor(String colorStr) {
-		if (StringUtil.isEmpty(colorStr)) {
-			return;
+		if (toRow() > -1) {
+			if (StringUtil.isEmpty(colorStr)) {
+				return;
+			}
+			// 不相等才赋值
+			if (StringUtil.isEmpty(this.backColor) || !rotation.equals(colorStr)) {
+				String temp = colorStr.replaceAll("\\#", "");
+				int alpha = 00;
+				if (temp.indexOf(",") > 0) {
+					alpha = Integer.parseInt(temp.substring(0, 2), 16);
+					temp = temp.substring(temp.indexOf(",") + 1);
+				}
+				Color color = new Color(Integer.parseInt(temp.substring(0, 2), 16), Integer.parseInt(
+						temp.substring(2, 4), 16), Integer.parseInt(temp.substring(4), 16), alpha);
+				this.setBackground(color);
+				this.backColor = colorStr;
+				this.getDataSet().getColumn("BACKCOLOR").setForeground(color);
+			}
 		}
-		int alpha = 00;
-		if (colorStr.indexOf(",") > 0) {
-			alpha = Integer.parseInt(colorStr.substring(0, 2));
-			colorStr = colorStr.substring(colorStr.indexOf(","));
-		}
-		Color color = new Color(Integer.parseInt(colorStr.substring(0, 2)), Integer.parseInt(colorStr.substring(2, 4)),
-				Integer.parseInt(colorStr.substring(4)), alpha);
-		this.setBackground(color);
 	}
 
 	@Override
-	public void setLineSize(String color) {
-		// TODO Auto-generated method stub
-		
+	public void setLineSize(int lineSize) {
+		if (toRow() > -1) {
+			// 不相等才赋值
+			if (lineSize != this.lineSize) {
+				this.lineSize = lineSize;
+				this.getDataSet().setBigDecimal("LINE_SIZE", BigDecimal.valueOf(lineSize));
+			}
+		}
+	}
+
+	@Override
+	public void setLineDirection(String lineDirection) {
+		if (toRow() > -1) {
+			// 不相等才赋值
+			if (StringUtil.isEmpty(this.lineDirection) || !this.lineDirection.equals(lineDirection)) {
+				this.lineDirection = lineDirection;
+				this.getDataSet().setString("LINE_DIRECTION", lineDirection);
+				this.repaint();
+			}
+		}
+	}
+
+	@Override
+	public String getForeColor() {
+		if (StringUtil.isEmpty(this.foreColor)) {
+			Color color = this.getForeground();
+			int alpha = color.getAlpha();
+			int red = color.getRed();
+			int green = color.getGreen();
+			int blue = color.getBlue();
+			return String.format("%02x", alpha) + "," + String.format("#%02x%02x%02x", red, green, blue);
+		}
+		return this.foreColor;
+	}
+
+	@Override
+	public String getBackColor() {
+		if (StringUtil.isEmpty(this.backColor)) {
+			Color color = this.getBackground();
+			int alpha = color.getAlpha();
+			int red = color.getRed();
+			int green = color.getGreen();
+			int blue = color.getBlue();
+			return String.format("%02x", alpha) + "," + String.format("#%02x%02x%02x", red, green, blue);
+		}
+		return this.foreColor;
 	}
 }

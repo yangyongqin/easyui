@@ -266,9 +266,25 @@ public interface PrintItem<T extends PrintItem> {
 	@DataColumn(dataColumn = "FORECOLOR")
 	public void setForeColor(String color);
 
+	public String getForeColor();
+
 	@DataColumn(dataColumn = "BACKCOLOR")
 	public void setBackColor(String color);
 
+	public String getBackColor();
+
 	@DataColumn(dataColumn = "LINE_SIZE")
-	public void setLineSize(String color);
+	public void setLineSize(int color);
+
+	/**
+	 * @Description: 线方向
+	 * @param color   
+	 * @return void  
+	 * @throws
+	 * @author yyq
+	 * @date 2018年1月14日
+	 */
+	@DataColumn(dataColumn = "LINE_DIRECTION")
+	public void setLineDirection(String color);
+
 }
