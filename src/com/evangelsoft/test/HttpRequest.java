@@ -1,4 +1,4 @@
-package com.evangelsoft.easyui.print.client;
+package com.evangelsoft.test;
 
 import java.io.BufferedReader;
 import java.io.IOException;
