@@ -956,6 +956,11 @@ public class PrintDesignPanel extends JPanel implements PrintDesignView {
 		setSize(width, this.getSize().height);
 	}
 
+	/*
+	 * public Dimension getSize() { return new Dimension((int) width, (int)
+	 * height); }
+	 */
+
 	@Override
 	public void setHeight(int height) {
 		setSize(this.getSize().getWidth(), height);
@@ -1077,12 +1082,12 @@ public class PrintDesignPanel extends JPanel implements PrintDesignView {
 		super.setSize((int) width, (int) height);
 		this.tableScrollPane.setSize((int) width, (int) height - 2);
 		this.tableScrollPane.getViewport().setSize((int) width, (int) height - 2);
-		if (this.width != width) {
-			paneDataSet.setBigDecimal("WIDTH", BigDecimal.valueOf(width));
-		}
-		if (this.height != height) {
-			paneDataSet.setBigDecimal("HEIGHT", BigDecimal.valueOf(height));
-		}
+		// if (this.width != width) {
+		// paneDataSet.setBigDecimal("WIDTH", BigDecimal.valueOf(width));
+		// }
+		// if (this.height != height) {
+		// paneDataSet.setBigDecimal("HEIGHT", BigDecimal.valueOf(height));
+		// }
 		this.height = height;
 		this.width = width;
 	}
@@ -1094,7 +1099,7 @@ public class PrintDesignPanel extends JPanel implements PrintDesignView {
 
 	@Override
 	public void setX(int x) {
-		this.setLocation(x, this.getLocation().x);
+		this.setLocation(x, this.getLocation().y);
 	}
 
 	@Override
@@ -1102,8 +1107,11 @@ public class PrintDesignPanel extends JPanel implements PrintDesignView {
 		this.setLocation(this.getLocation().x, y);
 	}
 
+	public Point getLocation() {
+		return new Point(x, y);
+	}
+
 	public void setLocation(int x, int y) {
-		super.setLocation(this.getLocation().x, y);
 		if (toRow() > -1) {
 			// 值不同就
 			if (this.x != x) {
@@ -1114,6 +1122,7 @@ public class PrintDesignPanel extends JPanel implements PrintDesignView {
 			}
 			this.x = x;
 			this.y = y;
+			super.setLocation(x, y);
 		}
 	}
 

@@ -48,9 +48,9 @@ public interface PrintDesignView {
 	 * @author yangyq02
 	 * @date 2018年1月8日
 	 */
+	@DataColumn(dataColumn = "WIDTH")
 	public void setWidth(int width);
 
-	@DataColumn(dataColumn = "WIDTH")
 	public int getWidth();
 
 	/**
@@ -281,7 +281,7 @@ public interface PrintDesignView {
 	 * @author yangyq02
 	 * @date 2018年1月8日
 	 */
-	@DataColumn(dataColumn = "X")
+//	@DataColumn(dataColumn = "X")
 	public void setX(int x);
 
 	/**
@@ -292,7 +292,7 @@ public interface PrintDesignView {
 	 * @author yangyq02
 	 * @date 2018年1月8日
 	 */
-	@DataColumn(dataColumn = "Y")
+//	@DataColumn(dataColumn = "Y")
 	public void setY(int y);
 
 	/**

@@ -17,6 +17,7 @@ import javax.swing.JPanel;
 import com.borland.dbswing.TableScrollPane;
 import com.evangelsoft.easyui.print.type.PrintDesignManage;
 import com.evangelsoft.easyui.print.type.PrintDesignView;
+import com.evangelsoft.easyui.tool.SwingUtils;
 
 /**
  * ClassName: PrintDesignManagePanel 
@@ -332,56 +333,65 @@ public class PrintDesignManagePanel extends JPanel implements MouseMotionListene
 
 	private int direction;
 
+	PrintDesignPanel panel;
+
+	// private
+
 	@Override
 	public void mouseDragged(MouseEvent e) {
-		PrintDesignView panel;
-		if (e.getSource() instanceof PrintTable) {
-			PrintTable table = (PrintTable) e.getSource();
-			panel = table.getPanel();
-		} else if (e.getSource() instanceof TableScrollPane) {
-			TableScrollPane table = (TableScrollPane) e.getSource();
-			panel = (PrintDesignPanel) table.getParent();
-		} else {
-			panel = (PrintDesignPanel) e.getSource();
+		if (panel == null) {
+			return;
 		}
+
+		/*
+		 * PrintDesignView panel; if (e.getSource() instanceof PrintTable) {
+		 * PrintTable table = (PrintTable) e.getSource(); panel =
+		 * table.getPanel(); } else if (e.getSource() instanceof
+		 * TableScrollPane) { TableScrollPane table = (TableScrollPane)
+		 * e.getSource(); panel = (PrintDesignPanel) table.getParent(); } else {
+		 * panel = (PrintDesignPanel) e.getSource(); } if (e.getPoint().getY()
+		 * <= 3) { return; }
+		 */
+		// int y = e.getY();
+		Point pointFrame = SwingUtils.getMousePoint((JPanel) panel);
+		int y = pointFrame.y;
+
+		if (e.getPoint().getY() <= 3) { //
+			y = e.getY();
+			this.setCursor(Cursor.getPredefinedCursor(Cursor.N_RESIZE_CURSOR));
+			// direction = Direction.UP; // 如果是选择到了上一个顶部 panel =
+			PrintDesignView lastpanel = linkedPanel.get(panel.getIndex() - 1);
+			// y += lastpanel.getHeight();
+		}
+
 		Dimension dimension = panel.getSize();
 		Point point = panel.getLocation();
-		switch (direction) {
-			case Direction.LEFT_UP:
-				dimension.setSize(dimension.getWidth() - e.getX(), dimension.getHeight() - e.getY());
-				point.setLocation(panel.getLocation().x + e.getX(), panel.getLocation().y + e.getY());
-				break;
-			case Direction.RIGHT_UP:
-				dimension.setSize(dimension.getWidth() - dimension.getWidth() + e.getX(),
-						dimension.getHeight() - e.getY());
-				point.setLocation(panel.getLocation().x, panel.getLocation().y + e.getY());
-				break;
-			case Direction.UP:
-				dimension.setSize(dimension.getWidth(), dimension.getHeight() - e.getY());
-				point.setLocation(panel.getLocation().x, panel.getLocation().y + e.getY());
-				break;
-			case Direction.LEFT:
-				dimension.setSize(dimension.getWidth() - e.getX(), dimension.getHeight());
-				point.setLocation(panel.getLocation().x + e.getX(), panel.getLocation().y);
-				break;
-			case Direction.LEFT_DOWN:
-				point.setLocation(panel.getLocation().x + e.getX(), panel.getLocation().y);
-				dimension.setSize(dimension.getWidth() - e.getX(), e.getY());
-				break;
-			case Direction.RIGHT:
-				dimension.setSize(e.getX(), dimension.getHeight());
-				break;
-			case Direction.RIGHT_DOWN:
-				point.setLocation(panel.getLocation().x, panel.getLocation().y);
-				dimension.setSize(dimension.getWidth() - dimension.getWidth() + e.getX(), e.getY());
-				break;
-			case Direction.DOWN:
-				dimension.setSize(dimension.getWidth(), e.getY());
-				break;
-
-			default:
-				return;
-		}
+		dimension.setSize(dimension.getWidth(), y);
+		/*
+		 * switch (direction) { case Direction.LEFT_UP:
+		 * dimension.setSize(dimension.getWidth() - e.getX(),
+		 * dimension.getHeight() - y); point.setLocation(panel.getLocation().x +
+		 * e.getX(), panel.getLocation().y + y); break; case Direction.RIGHT_UP:
+		 * dimension.setSize(dimension.getWidth() - dimension.getWidth() +
+		 * e.getX(), dimension.getHeight() - y);
+		 * point.setLocation(panel.getLocation().x, panel.getLocation().y + y);
+		 * break; case Direction.UP: dimension.setSize(dimension.getWidth(),
+		 * dimension.getHeight() - y); point.setLocation(panel.getLocation().x,
+		 * panel.getLocation().y + y); break; case Direction.LEFT:
+		 * dimension.setSize(dimension.getWidth() - e.getX(),
+		 * dimension.getHeight()); point.setLocation(panel.getLocation().x +
+		 * e.getX(), panel.getLocation().y); break; case Direction.LEFT_DOWN:
+		 * point.setLocation(panel.getLocation().x + e.getX(),
+		 * panel.getLocation().y); dimension.setSize(dimension.getWidth() -
+		 * e.getX(), y); break; case Direction.RIGHT:
+		 * dimension.setSize(e.getX(), dimension.getHeight()); break; case
+		 * Direction.RIGHT_DOWN: point.setLocation(panel.getLocation().x,
+		 * panel.getLocation().y); dimension.setSize(dimension.getWidth() -
+		 * dimension.getWidth() + e.getX(), y); break; case Direction.DOWN:
+		 * dimension.setSize(dimension.getWidth(), y); break;
+		 * 
+		 * default: return; }
+		 */
 		if (maxWidth != 0 && maxWidth < dimension.getWidth()) {
 			dimension.width = maxWidth;
 		}
@@ -394,10 +404,13 @@ public class PrintDesignManagePanel extends JPanel implements MouseMotionListene
 		if (minheight != 0 && minheight > dimension.getWidth()) {
 			dimension.height = minheight;
 		}
+		if (dimension.getHeight() < SYS_MIN_HEIGHT) {
+			System.out.println("奇怪了，为什么会小于5");
+		}
 		// 最小为0，要不然就看不到了
 		dimension.setSize(dimension.getWidth() < SYS_MIN_WIDTH ? SYS_MIN_WIDTH : dimension.getWidth(),
 				dimension.getHeight() < SYS_MIN_HEIGHT ? SYS_MIN_HEIGHT : dimension.getHeight());
-		panel.setSize(dimension.getWidth(), dimension.getHeight());
+
 		if (point.x < 0) {
 			point.x = 0;
 		}
@@ -411,23 +424,19 @@ public class PrintDesignManagePanel extends JPanel implements MouseMotionListene
 			point.y = panel.getParent().getHeight() - 3;
 		}
 		panel.setLocation(point.x, point.y);
+
+		panel.repaint();
+		System.out.println(dimension.getHeight());
 		int statrY = point.y + panel.getHeight();
 
-		PrintDesignView tempView = null;
-		for (int i = 0; i < linkedPanel.size(); i++) {
-			if (panel.equals(linkedPanel.get(i))) {
-				// 如果下面还有，就 将下面的面板向上移动
-				tempView = panel;
-			}
-			if (tempView != null) {
-				if (i < linkedPanel.size() - 1) {
-					PrintDesignView nextPanel = linkedPanel.get(i + 1);
-					nextPanel.setLocation(panel.getLocation().x, statrY);
-					statrY = statrY + nextPanel.getHeight();
-				}
-			}
-
+		// PrintDesignView tempView = null;
+		for (int i = panel.getIndex(); i < linkedPanel.size() - 1; i++) {
+			PrintDesignView nextPanel = linkedPanel.get(i + 1);
+			nextPanel.setLocation(nextPanel.getLocation().x, statrY);
+			statrY = statrY + nextPanel.getHeight();
+			// ((JPanel) nextPanel).setVisible(false);
 		}
+		panel.setSize(dimension.getWidth(), dimension.getHeight());
 		this.centerPanel.repaint();
 	}
 
@@ -446,9 +455,14 @@ public class PrintDesignManagePanel extends JPanel implements MouseMotionListene
 		if (panel.getHeight() - e.getPoint().getY() <= 3) {
 			panel.setCursor(Cursor.getPredefinedCursor(Cursor.N_RESIZE_CURSOR));
 			direction = Direction.DOWN;
+			this.panel = panel;
+		} else if (e.getPoint().getY() <= 3) {
+			panel.setCursor(Cursor.getPredefinedCursor(Cursor.N_RESIZE_CURSOR));
+			direction = Direction.UP;
 		} else {
 			panel.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 			direction = 0;
+			this.panel = null;
 		}
 	}
 
