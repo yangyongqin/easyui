@@ -45,7 +45,7 @@ public class PrintElementItem extends JLabel implements Serializable, MouseMotio
 	/**
 	 * @Fields uniqueId : Î¨Ò»id
 	 */
-	private int uniqueId;
+	private Integer uniqueId;
 
 	/**
 	 * @Fields index : ÏÂ±ê
@@ -598,11 +598,17 @@ public class PrintElementItem extends JLabel implements Serializable, MouseMotio
 	}
 
 	public int getUniqueId() {
-		return uniqueId;
+		return uniqueId == null ? 0 : uniqueId;
 	}
 
 	public void setUniqueId(int uniqueId) {
-		this.uniqueId = uniqueId;
+		if (this.uniqueId == null) {
+			this.uniqueId = uniqueId;
+
+			if (toRow() > -1) {
+				this.getDataSet().setBigDecimal("UNIQUE_ID", BigDecimal.valueOf(uniqueId));
+			}
+		}
 	}
 
 	@Override

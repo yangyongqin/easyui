@@ -19,11 +19,13 @@ public class PrintTableScrollPane extends TableScrollPane {
 	 */
 	private static final long serialVersionUID = 1L;
 
+	PrintViewport newView;
+
 	PrintTableScrollPane(Component component) {
 		super(component);
 		JViewport oldniew = this.getViewport();
 		// 将旧的Viewport属性赋值于新的Viewport，不赋值界面不显示。。。
-		JViewport newView = new PrintViewport();
+		newView = new PrintViewport();
 		newView.setAlignmentX(oldniew.getAlignmentX());
 		newView.setAlignmentY(oldniew.getAlignmentY());
 		newView.setAutoscrolls(oldniew.getAutoscrolls());
@@ -68,7 +70,15 @@ public class PrintTableScrollPane extends TableScrollPane {
 		g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.2f));
 		g2d.setColor(new Color(0, 0, 0));
 		g2d.setFont(new Font("黑体", 0, 18));// 设置黑色字体,同样可以
-		g2d.drawString("我是表格", (this.getWidth() - 100) / 2, (this.getHeight() + 15) / 2);// 绘制水印，具体水印绘制方式根据自己的需求修改
+		g2d.drawString(watermark, (this.getWidth() - 100) / 2, (this.getHeight() + 15) / 2);// 绘制水印，具体水印绘制方式根据自己的需求修改
 		g.drawImage(bi, 0, 0, this);
+	}
+
+	String watermark;
+
+	public void setWatermark(String watermark) {
+		this.watermark = watermark;
+		newView.setWatermark(watermark);
+		this.repaint();
 	}
 }

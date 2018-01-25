@@ -274,4 +274,11 @@ public class PrintPage {
 		this.printDesignFrame = printDesignFrame;
 	}
 
+	public PrintDesignView getSelectPanel() {
+		return printDesignFrame.getSelectPanel();
+	}
+
+	public void setSelectPanel(PrintDesignView selectPanel) {
+		this.printDesignFrame.setSelectPanel(selectPanel);
+	}
 }

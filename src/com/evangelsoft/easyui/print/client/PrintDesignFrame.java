@@ -287,6 +287,14 @@ public class PrintDesignFrame extends UMasterDetailFrame {
 	 */
 	private PrintDesignView selectPanel;
 
+	public PrintDesignView getSelectPanel() {
+		return this.selectPanel;
+	}
+
+	public void setSelectPanel(PrintDesignView selectPanel) {
+		this.selectPanel = selectPanel;
+	}
+
 	// 选中的组件
 	public PrintItem<?> selectComp;
 
@@ -1015,7 +1023,6 @@ public class PrintDesignFrame extends UMasterDetailFrame {
 		final PrintDesignFrame print = this;
 		print.setBorder(null);
 		final JFrame frame = new JFrame();
-
 		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		// 设置全屏时候用的
 		// frame.setUndecorated(true);
@@ -2210,11 +2217,13 @@ public class PrintDesignFrame extends UMasterDetailFrame {
 
 			} else if (e.getSource() == addPanelByPageItem || e.getSource() == addPane) {
 				// 增加一个新的
-				PrintDesignView panel = designPanel.addPrintDesignPanel(0, 100, PrintDesignView.ZDY_VIEW, "自定义面板");
+				PrintDesignView panel = designPanel.addPrintDesignPanel(100, PrintDesignView.ZDY_VIEW, "自定义的面板");
 				// 添加拖动接收处理事件
 				panel.setTransferHandler(targatTransferHandler);
-				// panel.setBackground(SystemColor.WHITE);
 				panel.addMouseListener(itemSelectAdapter);
+				panel.setTableId(printDataManage.getMainPrintStorageDataSet().getTableId());
+				panel.setCirculation(false);// 不循环
+				panel.setAutoStretch(false);// 不伸缩，固定高度
 			} else if (showPanelAttribute == e.getSource()) {
 				showPanelDialog.setVisible(true);
 			} else if (e.getSource() == upMoveItem) {

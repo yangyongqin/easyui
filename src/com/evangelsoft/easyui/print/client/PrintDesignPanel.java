@@ -1,22 +1,23 @@
 package com.evangelsoft.easyui.print.client;
 
-import java.awt.AlphaComposite;
 import java.awt.BasicStroke;
-import java.awt.Color;
 import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Dimension;
-import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.LayoutManager;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.RenderingHints;
 import java.awt.SystemColor;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
-import java.awt.image.BufferedImage;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -104,11 +105,11 @@ public class PrintDesignPanel extends JPanel implements PrintDesignView {
 
 	private String tableId;
 
-	private Integer colNum;
+	private int colNum = -1;
 
-	private Integer colWidth;
+	private int colWidth = -1;
 
-	private Integer colSpacing;
+	private int colSpacing = -1;
 
 	private String backFont;
 
@@ -131,6 +132,8 @@ public class PrintDesignPanel extends JPanel implements PrintDesignView {
 
 	private static Cursor resizeCursor = Cursor.getPredefinedCursor(Cursor.E_RESIZE_CURSOR);
 
+	PrintContentPanel contentPanel;
+
 	/**
 	 * @Fields itemsMap : 记录当前面板所有的元素
 	 */
@@ -142,24 +145,41 @@ public class PrintDesignPanel extends JPanel implements PrintDesignView {
 
 	public PrintDesignPanel(PrintDesignManagePanel managepane, String watermark, String viewType,
 			StorageDataSet dataSet, boolean isAdd) {
+
+		contentPanel = new PrintContentPanel();
+		this.setLayout(null);
+		contentPanel.setLayout(null);
+		// contentPanel.setBackground(SystemColor.red);
+		contentPanel.setPreferredSize(this.getSize());
+		contentPanel.setLocation(0, 0);
+		this.add(contentPanel);
+		/*
+		 * contentPanel = new JPanel();
+		 * contentPanel.setPreferredSize(this.getSize()); this.add(contentPanel,
+		 * new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0, GridBagConstraints.WEST,
+		 * GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
+		 * contentPanel.setBackground(SystemColor.BLUE);
+		 */
 		this.managepane = managepane;
 		this.printPage = managepane.getPrintPage();
 		paneDataSet = printPage.getPaneDataSet();
 		this.viewType = viewType;
-		this.setLayout(null);
+
 		this.setBorder(zdyBorder);
 		this.watermark = watermark;
 		// 如果是新增，默认数据
+		table = new PrintTable(this);
+		tableScrollPane = new PrintTableScrollPane(table);
+		table.setAutoscrolls(true);
 		if (isAdd) {
 			insert(null, null, viewType, watermark);
 		} else {
 			// 如果是修改，则把列表数据存放到当前对象
 		}
-		table = new PrintTable(this);
+
 		/* table.setTableHeader(new PrintTableHeader()); */
 		// this.setLayout(new BorderLayout());
-		tableScrollPane = new PrintTableScrollPane(table);
-		table.setAutoscrolls(true);
+
 		TableColumnModel model = table.getColumnModel();
 		model.addColumnModelListener(new TableColumnModelListener() {
 
@@ -356,18 +376,15 @@ public class PrintDesignPanel extends JPanel implements PrintDesignView {
 
 		tableScrollPane.setBorder(null);
 		if (TABLE_VIEW.equals(viewType)) {
-			this.add(tableScrollPane);
+			// this.add(tableScrollPane);
+			contentPanel.add(tableScrollPane);
 		}
-		this.setBackground(SystemColor.WHITE);
+		// this.setBackground(SystemColor.WHITE);
 
 		// 设置默认值
 		this.setColNum(1);
 		this.setColWidth(this.getWidth());
 		this.setColSpacing(0);
-	}
-
-	void insert(int width, int height) {
-		insert(width, height, null, null);
 	}
 
 	public String getWatermark() {
@@ -376,6 +393,10 @@ public class PrintDesignPanel extends JPanel implements PrintDesignView {
 
 	public void setWatermark(String watermark) {
 		this.watermark = watermark;
+		this.table.repaint();
+		this.tableScrollPane.setWatermark(watermark);
+		this.contentPanel.setWatermark(watermark);
+		this.repaint();
 	}
 
 	public PrintPage getPrintPage() {
@@ -391,6 +412,11 @@ public class PrintDesignPanel extends JPanel implements PrintDesignView {
 	}
 
 	public void setUniqueId(int uniqueId) {
+		if (this.uniqueId != uniqueId) {
+			if (toRow() > -1) {
+				this.paneDataSet.setBigDecimal("UNIQUE_ID", BigDecimal.valueOf(uniqueId));
+			}
+		}
 		this.uniqueId = uniqueId;
 	}
 
@@ -448,6 +474,9 @@ public class PrintDesignPanel extends JPanel implements PrintDesignView {
 		}
 		printPage.getPaneDataSet().insertRow(false);
 		printPage.getPaneDataSet().setBigDecimal("UNIQUE_ID", BigDecimal.valueOf(max + 1));
+		this.setUniqueId(max + 1);
+		printPage.setSelectPanel(this);
+
 		printPage.getPaneDataSet().setString("AUTO_STRETCH", BoolStr.TRUE);
 		printPage.getPaneDataSet().setString("VIEW_TYPE", "N");
 		printPage.getPaneDataSet().setBigDecimal("PLATE_INDEX", BigDecimal.valueOf(index + 1));
@@ -468,19 +497,29 @@ public class PrintDesignPanel extends JPanel implements PrintDesignView {
 		this.setWatermark(backText == null ? "面板" + max : backText);
 	}
 
-	@Override
-	public void paintComponent(Graphics g) {
-
-		super.paintComponent(g);
-		BufferedImage bi = new BufferedImage(this.getWidth(), this.getHeight(), BufferedImage.TYPE_INT_ARGB);
-		Graphics2D g2d = bi.createGraphics();
-		g2d.getComposite();
-		g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.2f));
-		g2d.setColor(new Color(0, 0, 0));
-		g2d.setFont(new Font("黑体", 0, 18));// 设置黑色字体,同样可以
-		g2d.drawString(this.watermark, (this.getWidth() - 100) / 2, (this.getHeight() + 15) / 2);// 绘制水印，具体水印绘制方式根据自己的需求修改
-		g.drawImage(bi, 0, 0, this);
-	}
+	/*
+	 * @Override public void paintComponent(Graphics g) {
+	 * 
+	 * super.paintComponent(g); BufferedImage bi = new
+	 * BufferedImage(this.getWidth(), this.getHeight(),
+	 * BufferedImage.TYPE_INT_ARGB); Graphics2D g2d = bi.createGraphics();
+	 * g2d.getComposite();
+	 * g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER,
+	 * 0.2f)); g2d.setColor(new Color(0, 0, 0)); g2d.setFont(new Font("黑体", 0,
+	 * 18));// 设置黑色字体,同样可以 g2d.drawString(this.watermark, (this.getWidth() -
+	 * 100) / 2, (this.getHeight() + 15) / 2);// 绘制水印，具体水印绘制方式根据自己的需求修改
+	 * g.drawImage(bi, 0, 0, this); }
+	 */
+	/*
+	 * protected void paintComponent(Graphics g) { // 画俩条线，表示禁用的面板 // 判断线条方向
+	 * Graphics2D g2d = (Graphics2D) g; // 添加抗锯齿效果
+	 * g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+	 * RenderingHints.VALUE_ANTIALIAS_ON); g2d.setStroke(new BasicStroke(3));
+	 * g.drawLine(0, this.getHeight(), this.getWidth(), 0); g.drawLine(0, 0,
+	 * this.getWidth(), this.getHeight()); // 关闭抗齿距效果
+	 * g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+	 * RenderingHints.VALUE_ANTIALIAS_OFF); }
+	 */
 
 	private static class ZdyBorder extends AbstractBorder {
 
@@ -503,17 +542,34 @@ public class PrintDesignPanel extends JPanel implements PrintDesignView {
 
 	@Override
 	public void setSize(int width, int height) {
-		super.setSize(width, height);
-		this.printPage.getPaneDataSet().setBigDecimal("WIDTH", BigDecimal.valueOf(width));
-		this.printPage.getPaneDataSet().setBigDecimal("HEIGHT", BigDecimal.valueOf(height));
+		if (toRow() > -1) {
+			super.setSize(width, height);
+			this.tableScrollPane.setSize((int) width, (int) height - 2);
+			this.tableScrollPane.getViewport().setSize((int) width, (int) height - 2);
+			if (this.width != width) {
+				paneDataSet.setBigDecimal("WIDTH", BigDecimal.valueOf(width));
+			}
+			if (this.height != height) {
+				paneDataSet.setBigDecimal("HEIGHT", BigDecimal.valueOf(height));
+			}
+			contentPanel.setSize(width, height - 1);
+			/* contentPanel.setPreferredSize(new Dimension(width, height)); */
+			this.height = height;
+			this.width = width;
+			this.setColWidth((this.getWidth() - (this.colSpacing * (colNum < 1 ? 1 : colNum)))
+					/ (colNum < 1 ? 1 : colNum));
+			repaintPanel();
+		}
 	}
 
-	@Override
-	public void setPreferredSize(Dimension preferredSize) {
-		super.setPreferredSize(preferredSize);
-		this.printPage.getPaneDataSet().setBigDecimal("WIDTH", BigDecimal.valueOf(preferredSize.width));
-		this.printPage.getPaneDataSet().setBigDecimal("HEIGHT", BigDecimal.valueOf(preferredSize.height));
-	}
+	/*
+	 * @Override public void setPreferredSize(Dimension preferredSize) {
+	 * super.setPreferredSize(preferredSize);
+	 * this.printPage.getPaneDataSet().setBigDecimal("WIDTH",
+	 * BigDecimal.valueOf(preferredSize.width));
+	 * this.printPage.getPaneDataSet().setBigDecimal("HEIGHT",
+	 * BigDecimal.valueOf(preferredSize.height)); }
+	 */
 
 	public void setBounds(int x, int y, int width, int height) {
 		super.setBounds(x, y, width, height);
@@ -619,7 +675,8 @@ public class PrintDesignPanel extends JPanel implements PrintDesignView {
 			addDataSetRow(printItem);
 			printItem.setText(printType.getText());
 
-			this.add(printItem);
+			/* this.add(printItem); */
+			contentPanel.add(printItem);
 			printItem.setLocation(point);
 			printItem.setSize(100, 30);
 			item = printItem;
@@ -841,7 +898,8 @@ public class PrintDesignPanel extends JPanel implements PrintDesignView {
 				// addDataSetRow(printItem);
 
 				PrintItemTool.copy(item, printItem);
-				this.add(printItem);
+				/* this.add(printItem); */
+				contentPanel.add(printItem);
 				this.repaint();
 				printItem.setLocation(mousePoint);
 				printItem.setSize(headPrintItem.getElementWidth(), headPrintItem.getElementHeight());
@@ -931,7 +989,8 @@ public class PrintDesignPanel extends JPanel implements PrintDesignView {
 				// addDataSetRow(printItem);
 
 				PrintItemTool.copy(item, printItem);
-				this.add(printItem);
+				/* this.add(printItem); */
+				contentPanel.add(printItem);
 				this.repaint();
 				printItem.setLocation(mousePoint);
 				printItem.setSize(item.getElementWidth(), item.getElementHeight());
@@ -963,7 +1022,7 @@ public class PrintDesignPanel extends JPanel implements PrintDesignView {
 
 	@Override
 	public void setHeight(int height) {
-		setSize(this.getSize().getWidth(), height);
+		setSize((int) this.getSize().getWidth(), height);
 	}
 
 	public void toForward(int num) {
@@ -1038,15 +1097,44 @@ public class PrintDesignPanel extends JPanel implements PrintDesignView {
 		}
 	}
 
-	public Integer getColNum() {
+	public int getColNum() {
 		return colNum;
 	}
 
 	public void setColNum(int colNum) {
-		if (this.colNum == null || this.colNum != colNum) {
-			paneDataSet.setBigDecimal("COL_NUM", BigDecimal.valueOf(colNum));
+		try {
+			if (this.colNum != colNum) {
+				paneDataSet.setBigDecimal("COL_NUM", BigDecimal.valueOf(colNum));
+			}
+			this.colNum = colNum;
+			repaintPanel();
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
-		this.colNum = colNum;
+	}
+
+	public void setColSpacing(int colSpacing) {
+		if (this.colSpacing != colSpacing) {
+			paneDataSet.setBigDecimal("COL_SPACING", BigDecimal.valueOf(colSpacing));
+			this.colSpacing = colSpacing;
+			setColWidth((this.getWidth() - (this.colSpacing * (colNum < 1 ? 1 : colNum))) / (colNum < 1 ? 1 : colNum));
+			repaintPanel();
+		}
+	}
+
+	public void repaintPanel() {
+		this.removeAll();
+		int width = (this.getWidth() - (this.colSpacing * (colNum < 1 ? 1 : colNum))) / (colNum < 1 ? 1 : colNum);
+		contentPanel.setSize(new Dimension(width, this.getHeight() - 1));
+		contentPanel.setLocation(0, 0);
+		this.add(contentPanel);
+		for (int i = 1; i < colNum; i++) {
+			PrintDisablePanel panel2 = new PrintDisablePanel();
+			panel2.setSize(new Dimension(width, this.getHeight() - 1));
+			panel2.setLocation((width + colSpacing) * i, 0);
+			this.add(panel2);
+		}
+		this.repaint();
 	}
 
 	public Integer getColWidth() {
@@ -1054,21 +1142,19 @@ public class PrintDesignPanel extends JPanel implements PrintDesignView {
 	}
 
 	public void setColWidth(int colWidth) {
-		if (this.colWidth == null || this.colWidth != colWidth) {
+		if (this.colWidth != colWidth) {
 			paneDataSet.setBigDecimal("COL_WIDTH", BigDecimal.valueOf(colWidth));
+			this.colWidth = colWidth;
+			this.setColSpacing((this.getWidth() - (this.colWidth * (colNum < 1 ? 1 : colNum)))
+					/ (colNum < 1 ? 1 : colNum));
+			// 计算宽度
+			repaintPanel();
 		}
-		this.colWidth = colWidth;
+
 	}
 
-	public Integer getColSpacing() {
+	public int getColSpacing() {
 		return colSpacing;
-	}
-
-	public void setColSpacing(int colSpacing) {
-		if (this.colSpacing == null || this.colSpacing != colSpacing) {
-			paneDataSet.setBigDecimal("COL_SPACING", BigDecimal.valueOf(colSpacing));
-		}
-		this.colSpacing = colSpacing;
 	}
 
 	@Override
@@ -1078,19 +1164,16 @@ public class PrintDesignPanel extends JPanel implements PrintDesignView {
 		tableScrollPane.addMouseMotionListener(l);
 	}
 
-	public void setSize(double width, double height) {
-		super.setSize((int) width, (int) height);
-		this.tableScrollPane.setSize((int) width, (int) height - 2);
-		this.tableScrollPane.getViewport().setSize((int) width, (int) height - 2);
-		// if (this.width != width) {
-		// paneDataSet.setBigDecimal("WIDTH", BigDecimal.valueOf(width));
-		// }
-		// if (this.height != height) {
-		// paneDataSet.setBigDecimal("HEIGHT", BigDecimal.valueOf(height));
-		// }
-		this.height = height;
-		this.width = width;
-	}
+	/*
+	 * @Override public void setSize(int width, int height) { if (toRow() > -1)
+	 * { super.setSize((int) width, (int) height);
+	 * this.tableScrollPane.setSize((int) width, (int) height - 2);
+	 * this.tableScrollPane.getViewport().setSize((int) width, (int) height -
+	 * 2); if (this.width != width) { paneDataSet.setBigDecimal("WIDTH",
+	 * BigDecimal.valueOf(width)); } if (this.height != height) {
+	 * paneDataSet.setBigDecimal("HEIGHT", BigDecimal.valueOf(height)); }
+	 * this.height = height; this.width = width; } }
+	 */
 
 	@Override
 	public void setParentId(int parentId) {
@@ -1155,4 +1238,12 @@ public class PrintDesignPanel extends JPanel implements PrintDesignView {
 		this.itemsMap = itemsMap;
 	}
 
+	@Override
+	public String toString() {
+		return "PrintDesignPanel [uniqueId=" + uniqueId + ", index=" + index + "]";
+	}
+
+	public void setLayout(LayoutManager mgr) {
+		super.setLayout(mgr);
+	}
 }

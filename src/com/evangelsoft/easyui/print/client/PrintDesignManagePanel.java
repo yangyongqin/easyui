@@ -312,16 +312,19 @@ public class PrintDesignManagePanel extends JPanel implements MouseMotionListene
 	public void delete(PrintDesignView panel) {
 		// boolean isDelete = false;
 		PrintDesignView tempView = null;
+		int height = 0;
 		for (int i = 0; i < linkedPanel.size(); i++) {
 			if (panel.equals(linkedPanel.get(i))) {
 				// 如果下面还有，就 将下面的面板向上移动
 				this.centerPanel.remove((PrintDesignPanel) panel);
 				tempView = panel;
+				height = tempView.getHeight();
 			}
 			if (tempView != null) {
 				if (i < linkedPanel.size() - 1) {
 					PrintDesignView nextPanel = linkedPanel.get(i + 1);
-					nextPanel.setLocation(nextPanel.getLocation().x, nextPanel.getLocation().y - panel.getHeight());
+					nextPanel.setIndex(i);
+					nextPanel.setLocation(nextPanel.getLocation().x, nextPanel.getLocation().y - height);
 				}
 			}
 
@@ -331,7 +334,7 @@ public class PrintDesignManagePanel extends JPanel implements MouseMotionListene
 		this.centerPanel.repaint();
 	}
 
-	private int direction;
+	private int direction = Direction.UP;
 
 	PrintDesignPanel panel;
 
@@ -342,56 +345,18 @@ public class PrintDesignManagePanel extends JPanel implements MouseMotionListene
 		if (panel == null) {
 			return;
 		}
-
-		/*
-		 * PrintDesignView panel; if (e.getSource() instanceof PrintTable) {
-		 * PrintTable table = (PrintTable) e.getSource(); panel =
-		 * table.getPanel(); } else if (e.getSource() instanceof
-		 * TableScrollPane) { TableScrollPane table = (TableScrollPane)
-		 * e.getSource(); panel = (PrintDesignPanel) table.getParent(); } else {
-		 * panel = (PrintDesignPanel) e.getSource(); } if (e.getPoint().getY()
-		 * <= 3) { return; }
-		 */
 		// int y = e.getY();
 		Point pointFrame = SwingUtils.getMousePoint((JPanel) panel);
 		int y = pointFrame.y;
 
-		if (e.getPoint().getY() <= 3) { //
-			y = e.getY();
-			this.setCursor(Cursor.getPredefinedCursor(Cursor.N_RESIZE_CURSOR));
-			// direction = Direction.UP; // 如果是选择到了上一个顶部 panel =
-			PrintDesignView lastpanel = linkedPanel.get(panel.getIndex() - 1);
-			// y += lastpanel.getHeight();
-		}
+		/*
+		 * if (e.getPoint().getY() <= 3) { // y = e.getY();
+		 * this.setCursor(Cursor.getPredefinedCursor(Cursor.N_RESIZE_CURSOR)); }
+		 */
 
 		Dimension dimension = panel.getSize();
 		Point point = panel.getLocation();
 		dimension.setSize(dimension.getWidth(), y);
-		/*
-		 * switch (direction) { case Direction.LEFT_UP:
-		 * dimension.setSize(dimension.getWidth() - e.getX(),
-		 * dimension.getHeight() - y); point.setLocation(panel.getLocation().x +
-		 * e.getX(), panel.getLocation().y + y); break; case Direction.RIGHT_UP:
-		 * dimension.setSize(dimension.getWidth() - dimension.getWidth() +
-		 * e.getX(), dimension.getHeight() - y);
-		 * point.setLocation(panel.getLocation().x, panel.getLocation().y + y);
-		 * break; case Direction.UP: dimension.setSize(dimension.getWidth(),
-		 * dimension.getHeight() - y); point.setLocation(panel.getLocation().x,
-		 * panel.getLocation().y + y); break; case Direction.LEFT:
-		 * dimension.setSize(dimension.getWidth() - e.getX(),
-		 * dimension.getHeight()); point.setLocation(panel.getLocation().x +
-		 * e.getX(), panel.getLocation().y); break; case Direction.LEFT_DOWN:
-		 * point.setLocation(panel.getLocation().x + e.getX(),
-		 * panel.getLocation().y); dimension.setSize(dimension.getWidth() -
-		 * e.getX(), y); break; case Direction.RIGHT:
-		 * dimension.setSize(e.getX(), dimension.getHeight()); break; case
-		 * Direction.RIGHT_DOWN: point.setLocation(panel.getLocation().x,
-		 * panel.getLocation().y); dimension.setSize(dimension.getWidth() -
-		 * dimension.getWidth() + e.getX(), y); break; case Direction.DOWN:
-		 * dimension.setSize(dimension.getWidth(), y); break;
-		 * 
-		 * default: return; }
-		 */
 		if (maxWidth != 0 && maxWidth < dimension.getWidth()) {
 			dimension.width = maxWidth;
 		}
@@ -403,9 +368,6 @@ public class PrintDesignManagePanel extends JPanel implements MouseMotionListene
 		}
 		if (minheight != 0 && minheight > dimension.getWidth()) {
 			dimension.height = minheight;
-		}
-		if (dimension.getHeight() < SYS_MIN_HEIGHT) {
-			System.out.println("奇怪了，为什么会小于5");
 		}
 		// 最小为0，要不然就看不到了
 		dimension.setSize(dimension.getWidth() < SYS_MIN_WIDTH ? SYS_MIN_WIDTH : dimension.getWidth(),
@@ -425,8 +387,6 @@ public class PrintDesignManagePanel extends JPanel implements MouseMotionListene
 		}
 		panel.setLocation(point.x, point.y);
 
-		panel.repaint();
-		System.out.println(dimension.getHeight());
 		int statrY = point.y + panel.getHeight();
 
 		// PrintDesignView tempView = null;
@@ -436,8 +396,9 @@ public class PrintDesignManagePanel extends JPanel implements MouseMotionListene
 			statrY = statrY + nextPanel.getHeight();
 			// ((JPanel) nextPanel).setVisible(false);
 		}
-		panel.setSize(dimension.getWidth(), dimension.getHeight());
+		panel.setSize((int) dimension.getWidth(), (int) dimension.getHeight());
 		this.centerPanel.repaint();
+		panel.repaint();
 	}
 
 	@Override
@@ -446,22 +407,29 @@ public class PrintDesignManagePanel extends JPanel implements MouseMotionListene
 		if (e.getSource() instanceof PrintTable) {
 			PrintTable table = (PrintTable) e.getSource();
 			panel = (PrintDesignPanel) table.getPanel();
-		} else if (e.getSource() instanceof TableScrollPane) {
-			TableScrollPane table = (TableScrollPane) e.getSource();
-			panel = (PrintDesignPanel) table.getParent();
+		} else if (e.getSource() instanceof PrintTableScrollPane) {
+			PrintTableScrollPane table = (PrintTableScrollPane) e.getSource();
+			panel = (PrintDesignPanel) table.getParent().getParent();
 		} else {
 			panel = (PrintDesignPanel) e.getSource();
 		}
-		if (panel.getHeight() - e.getPoint().getY() <= 3) {
+		// 不能直接从向上变为向下
+		if (panel.getHeight() - e.getPoint().getY() <= 3 && direction != Direction.UP) {
 			panel.setCursor(Cursor.getPredefinedCursor(Cursor.N_RESIZE_CURSOR));
 			direction = Direction.DOWN;
 			this.panel = panel;
-		} else if (e.getPoint().getY() <= 3) {
-			panel.setCursor(Cursor.getPredefinedCursor(Cursor.N_RESIZE_CURSOR));
-			direction = Direction.UP;
-		} else {
+		}
+		/*
+		 * else if (e.getPoint().getY() <= 3 && direction != Direction.DOWN) {
+		 * panel.setCursor(Cursor.getPredefinedCursor(Cursor.N_RESIZE_CURSOR));
+		 * direction = Direction.UP; this.panel = panel; if (panel.getIndex() ==
+		 * 0) { this.panel = null; } else { this.panel = (PrintDesignPanel)
+		 * this.linkedPanel.get(panel.getIndex() - 1); } panel = this.panel; }
+		 */
+		else {
 			panel.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 			direction = 0;
+			// panel.setBackground(SystemColor.white);
 			this.panel = null;
 		}
 	}

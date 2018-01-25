@@ -5,16 +5,21 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.SystemColor;
 import java.awt.image.BufferedImage;
 
-import javax.swing.JViewport;
+import javax.swing.JPanel;
 
-public class PrintViewport extends JViewport {
+public class PrintContentPanel extends JPanel {
 
 	/**
 	 * @Fields serialVersionUID : °æ±¾ºÅ
 	 */
 	private static final long serialVersionUID = 1L;
+
+	PrintContentPanel() {
+		this.setBackground(SystemColor.white);
+	}
 
 	@Override
 	public void paintComponent(Graphics g) {

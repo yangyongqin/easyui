@@ -105,7 +105,7 @@ public interface PrintDesignView {
 
 	public void toZdy();
 
-	@DataColumn(dataColumn = "INDEX")
+	// @DataColumn(dataColumn = "INDEX")
 	public void toIndex(int index);
 
 	/**
@@ -193,7 +193,7 @@ public interface PrintDesignView {
 	 * @author yangyq02
 	 * @date 2018年1月8日
 	 */
-	@DataColumn(dataColumn = "UNIQUE_ID")
+	// @DataColumn(dataColumn = "UNIQUE_ID")
 	public void setUniqueId(int uniqueId);
 
 	/**
@@ -281,7 +281,7 @@ public interface PrintDesignView {
 	 * @author yangyq02
 	 * @date 2018年1月8日
 	 */
-//	@DataColumn(dataColumn = "X")
+	// @DataColumn(dataColumn = "X")
 	public void setX(int x);
 
 	/**
@@ -292,7 +292,7 @@ public interface PrintDesignView {
 	 * @author yangyq02
 	 * @date 2018年1月8日
 	 */
-//	@DataColumn(dataColumn = "Y")
+	// @DataColumn(dataColumn = "Y")
 	public void setY(int y);
 
 	/**
@@ -335,7 +335,7 @@ public interface PrintDesignView {
 	 * @author yangyq02
 	 * @date 2018年1月8日
 	 */
-	public void setSize(double width, double height);
+	public void setSize(int width, int height);
 
 	/**
 	 * @Description: 设置背景色
@@ -415,6 +415,12 @@ public interface PrintDesignView {
 	 */
 	@DataColumn(dataColumn = "AUTO_STRETCH")
 	public void setAutoStretch(boolean autoStretch);
+
+	@DataColumn(dataColumn = "COL_NUM")
+	public void setColNum(int colNum);
+
+	@DataColumn(dataColumn = "COL_SPACING")
+	public void setColSpacing(int colSpacing);
 
 	public boolean getAutoStretch();
 

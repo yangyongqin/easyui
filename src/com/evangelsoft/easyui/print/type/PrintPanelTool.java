@@ -95,7 +95,7 @@ public class PrintPanelTool {
 				// 如果是boolean类型 ，则将值转换为boolean类型
 				if (value instanceof String
 						&& method.getParameterTypes().length == 1
-						&& (method.getParameterTypes()[0] == Boolean.class || method.getParameterTypes()[0] == int.class)) {
+						&& (method.getParameterTypes()[0] == boolean.class || method.getParameterTypes()[0] == Boolean.class)) {
 					method.invoke(item, BoolStr.getBoolean(value.toString()));
 				}
 				// 如果值类型是BigDecimal 而方法是int，需要将值转换为int
@@ -112,6 +112,7 @@ public class PrintPanelTool {
 					method.invoke(item, value);
 				}
 			} catch (Exception e) {
+				System.out.println(columnName + "   " + value);
 				e.printStackTrace();
 			}
 		}
